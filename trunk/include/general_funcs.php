@@ -57,7 +57,7 @@ else
   rsort($mondays,SORT_NUMERIC);
   
   // This will add next week to the drop down if it is specified and next week doesn't already have data
-  $daylightsavings = 1;
+  $daylightsavings = DST_VALUE;
   $checknextweek = DETERMINE_WEEK(mktime()+60*60*24*7+60*60*($timezone+$daylightsavings)); 
   if (($shownextweek == 1) and ($mondays[0] != $checknextweek['Monday']))
     {

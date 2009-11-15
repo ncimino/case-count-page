@@ -323,7 +323,7 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
         if (($usercounts['Regular'] == 0) and ($usercounts['CatOnes'] == 0) and ($usercounts['Special'] == 0))
           $cellhasdata = 0;
           
-        $daylightsavings = 1;
+        $daylightsavings = DST_VALUE;
         $math = $usercounts['Date'] + 60 * 60 * ( 0 - 5 - $timezone - $daylightsavings );
         //if (($usercounts['UpdateDate'] != '') and ($math <= mktime()) and ($cellhasdata == 1))
         if (($usercounts['UpdateDate'] != '') and ($math <= $usercounts['UpdateDate']) and ($cellhasdata == 1))

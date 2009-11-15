@@ -7,18 +7,18 @@ else
 	return false ;
 }
 
-function enterSubmit(thisfield,thisevent)
+function submitenter(thisfield,thisevent)
 {
-var keycode;
-if (window.event) keycode = window.event.keyCode;
-else if (thisevent) keycode = thisevent.which;
-else return true;
+    var keycode;
+    if (window.event) keycode = window.event.keyCode;
+    else if (thisevent) keycode = thisevent.which;
+    else return true;
 
-if (keycode == 13)
-   {
-   thisfield.form.submit();
-   return false;
-   }
-else
-   return true;
+    if (keycode == 13)
+    {
+        thisfield.form.submit();
+        return false;
+    }
+    else
+        return true;
 }

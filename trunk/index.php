@@ -6,7 +6,7 @@ SET_COOKIES($showdetails,$timezone,$userID,$con);
 // Tell SELECTDATE not to show next week in the dropdown, if next week doesn't have a schedule
 $shownextweek = 0;
 // If a date isn't selected, then set default to this weeks schedule AND change the date to local time so that next week is based on Monday at 00:00 for local time
-$daylightsavings = 1;
+$daylightsavings = DST_VALUE;
 ($_GET['selecteddate'] == '') ? $selecteddate = mktime()+60*60*($timezone+$daylightsavings) : $selecteddate = $_GET['selecteddate'];
   
 if ( VERIFY_USER($con) ) 
@@ -61,7 +61,7 @@ if ( VERIFY_USER($con) )
   <div id="currenthistory" class="currenthistory">
   <br />
 <? CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,$con);
-  $daylightsavings = 1; // This will need to be replaced by the daylight savings variable
+  $daylightsavings = DST_VALUE; // This will need to be replaced by the daylight savings variable
    echo "    Last updated: ".gmdate("n/j h:i A",mktime()+60*60*($timezone+$daylightsavings))." - This page will refresh every 5 minutes\n";
 ?>
   </div>

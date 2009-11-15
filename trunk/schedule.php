@@ -6,7 +6,7 @@ SET_COOKIES($showdetails,$timezone,$userID,$con);
 // Tell SELECTDATE to show next week in the dropdown, if next week doesn't have a schedule
 $shownextweek = 1;
 // If a date isn't selected, then set default to next weeks schedule - change the date to local time so that next week is based on Monday at 00:00 for local time
-$daylightsavings = 1;
+$daylightsavings = DST_VALUE;
 ($_GET['selecteddate'] == '') ? $selecteddate = mktime()+60*60*24*7+60*60*($timezone+$daylightsavings) : $selecteddate = $_GET['selecteddate'];
   
 if ( VERIFY_USER($con) ) 

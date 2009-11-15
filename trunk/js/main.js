@@ -7,7 +7,7 @@ else
 	return false ;
 }
 
-function submitenter(thisfield,thisevent)
+function enterSubmit(thisfield,thisevent)
 {
     var keycode;
     if (window.event) keycode = window.event.keyCode;

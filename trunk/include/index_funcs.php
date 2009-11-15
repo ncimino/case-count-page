@@ -398,7 +398,7 @@ for ($row = 1; $row <= $shiftcount[0]; $row++)
     {  
     echo "       <td class='table_currentqueue_cell";
     if (($namesAndShifts[$col-1][$row-1]['userID'] == $userID ) and ($userID != ''))
-      echo " selectedusercell";
+      echo " selectedusercell_queue";
     echo "'>";
     if ($namesAndShifts[$col-1][$row-1]['userID'] == $userID )
       echo "<span class='selecteduser'>".$namesAndShifts[$col-1][$row-1]['UserName']."</span>";

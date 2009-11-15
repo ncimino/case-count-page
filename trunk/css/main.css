@@ -72,6 +72,11 @@ font-weight:bold;
 background:wheat;
 }
 
+.selectedusercell_queue
+{
+background:lightblue;
+}
+
 .selectedusercell
 {
 background:white;

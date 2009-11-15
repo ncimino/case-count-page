@@ -52,7 +52,7 @@ else // userID was passed
 }
 
 
-function USER_LOGIN()
+function USER_LOGIN(&$con)
 {
 ?>
 <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
@@ -167,7 +167,7 @@ setcookie("password", "", time()-3600);
 setcookie("userID", "", time()-3600);
 // Verify failed, so check that the DB password isn't blank.  If DB password is blank, then prompt user to create site password, else ask user to login
 $check = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='password';",&$con));
-($check['OptionValue'] == "") ? CREATE_PASSWORD($con) : USER_LOGIN();
+($check['OptionValue'] == "") ? CREATE_PASSWORD($con) : USER_LOGIN($con);
 }
 
 ?>

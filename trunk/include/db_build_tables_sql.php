@@ -54,7 +54,7 @@ PRIMARY KEY(optionID),
 OptionName varchar(255),
 UNIQUE (OptionName),
 OptionDesc varchar(255),
-OptionValue varchar(255)
+OptionValue varchar(200000)
 )";
 return DB_TABLE_CREATE($sql,$con);
 }

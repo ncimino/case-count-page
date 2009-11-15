@@ -11,7 +11,6 @@ if ( VERIFY_USER($con) )
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-  <meta http-equiv='refresh' content='300; URL=./index.php' />
   <meta name="author" content="<? echo AUTHOR ?>" />
   <meta name="description" content="<? echo DESCRIPTION ?>" />
   <meta name="keywords" content="<? echo KEYWORDS ?>" />

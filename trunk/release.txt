@@ -1,3 +1,6 @@
+## Beta Phase ##
+b.1 - Fixed the drop-down so that it always shows next week.
+
 ## Alpha Phase ##
 a.7 - Fixed 'eob' calculator
       Readded 'selecteduseronshiftcell' and 'selectedusercell' classes for more CSS flexibility, currently set same as default

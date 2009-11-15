@@ -45,6 +45,7 @@ if (!mysql_query("SELECT * FROM Options",&$con) or
   echo BUILD_TABLE_COUNT($con);
   echo BUILD_TABLE_SCHEDULE($con);
   echo BUILD_TABLE_OPTIONS($con);
+  echo CREATE_DEFAULT_OPTIONS($con);
   echo "Ignore errors below this line, and click on home. <br /><br />";
   echo "Note: If you have not set up the vars.php file for your database, or you haven't created a database, then creating the tables failed.<br />";
   echo "You will need to have the vars.php updates and database created before this page will correctly build the tables.<br /><br />";

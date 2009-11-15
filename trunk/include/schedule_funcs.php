@@ -5,7 +5,7 @@ function SCHEDULE($selecteddate,&$con)
 // Get the dates for the selected week
 $current_week = DETERMINE_WEEK($selecteddate);
 
-// Determine if any active raiders exist
+// Determine if any active users exist
 $activeusers = mysql_query("SELECT userID FROM Users WHERE Active=1;",&$con);
 if ( mysql_num_rows($activeusers) == 0 )
   {

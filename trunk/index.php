@@ -6,8 +6,8 @@ SET_COOKIES($showdetails,$timezone,$userID,$con);
 // Tell SELECTDATE not to show next week in the dropdown, if next week doesn't have a schedule
 $shownextweek = 0;
 // If a date isn't selected, then set default to this weeks schedule AND change the date to local time so that next week is based on Monday at 00:00 for local time
-$daylightsavings = DST_VALUE;
-($_GET['selecteddate'] == '') ? $selecteddate = mktime()+60*60*($timezone+$daylightsavings) : $selecteddate = $_GET['selecteddate'];
+$dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
+($_GET['selecteddate'] == '') ? $selecteddate = mktime()+60*60*$timezone+$dst_value_from_current_time_sec : $selecteddate = $_GET['selecteddate'];
   
 if ( VERIFY_USER($con) ) 
   {
@@ -20,8 +20,8 @@ if ( VERIFY_USER($con) )
   <meta http-equiv='refresh' content='300; URL=./index.php' />
   <meta name="author" content="<? echo AUTHOR ?>" />
   <meta name="description" content="<? echo DESCRIPTION ?>" />
-  <meta name="keywords" content="<? echo SITE_NAME.", ".KEYWORDS ?>" />
-  <title><? echo SITE_NAME ?></title>
+  <meta name="keywords" content="<? echo KEYWORDS ?>" />
+  <title><? SITE_NAME($con) ?></title>
   <link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
   <script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script> 
 </head>
@@ -29,7 +29,7 @@ if ( VERIFY_USER($con) )
 <div id="page" class="page">
 
   <div id="header" class="header">
-    <h1><? echo SITE_NAME ?></h1>
+    <h1><? SITE_NAME($con) ?></h1>
   </div>
   
   <div id="topmenu" class="topmenu">
@@ -55,19 +55,21 @@ if ( VERIFY_USER($con) )
   </div>
   
   <div id="notes" class="notes">
-<? //echo NOTES() ?>
+<? NOTES($con) ?>
   </div>
   
   <div id="currenthistory" class="currenthistory">
   <br />
 <? CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,$con);
-  $daylightsavings = DST_VALUE; // This will need to be replaced by the daylight savings variable
-   echo "    Last updated: ".gmdate("n/j h:i A",mktime()+60*60*($timezone+$daylightsavings))." - This page will refresh every 5 minutes\n";
+  $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
+  echo "    Last updated: ".gmdate("n/j h:i A",mktime()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes\n";
+  echo "    <hr width='50%' />\n";
 ?>
   </div>
   
   <div id="rules" class="rules">
-<? //echo RULES() ?>
+    <h3>Queue Rules</h3>
+<? RULES($con) ?>
   </div>
 </div>
 </body>

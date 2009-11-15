@@ -10,13 +10,14 @@ if ( VERIFY_USER($con) )
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<meta name="author" content="<? echo AUTHOR ?>" />
-<meta name="description" content="<? echo DESCRIPTION ?>" />
-<meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($con) ?></title>
-<link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
-<script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script> 
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv='refresh' content='300; URL=./index.php' />
+  <meta name="author" content="<? echo AUTHOR ?>" />
+  <meta name="description" content="<? echo DESCRIPTION ?>" />
+  <meta name="keywords" content="<? echo KEYWORDS ?>" />
+  <title><? SITE_NAME($con) ?></title>
+  <link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
+  <script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script> 
 </head>
 <body>
 <div id="page" class="page">
@@ -29,19 +30,18 @@ if ( VERIFY_USER($con) )
 <? TOPMENU() ?>
   </div>
   
-  <div id="users" class="users">
-<? USERS($con) ?>
+  <div id="managesite" class="managesite">
+<? MANAGESITE($con) ?>
   </div>
-  
 </div>
 </body>
 </html>
 
-<? 
+  <?
   }
-else
+else 
   {
-  VERIFY_FAILED($con); 
+  VERIFY_FAILED($con);
   }
 mysql_close(&$con);
 ?>

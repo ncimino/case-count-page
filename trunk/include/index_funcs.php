@@ -61,6 +61,20 @@ function CURRENTQUEUE($userID,$selecteddate,&$con)
 }
 
 
+function NOTES(&$con)
+{
+  $queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes';",&$con));
+  echo $queuenotes['OptionValue']."\n";
+}
+
+
+function RULES(&$con)
+{
+  $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",&$con));
+  echo $queuerules['OptionValue']."\n";
+}
+
+
 function SELECTUSER($timezone,$userID,&$con)
 {
 // Creates timezones add as necessary from GMT
@@ -272,14 +286,14 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
         $usercounts = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special,Transfer,UpdateDate,Date FROM Count WHERE userID='".$currentuser['userID']."' AND Date='".$current_week[$col-2]."';",$con));
         echo "        <td class='table_currenthistory_cell";
         $currentusershift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE Date='".$current_week[$col-2]."' AND userID='".$currentuser['userID']."'",&$con));
-        // This would've added a class to identify selected user and on shift
-        // if ((($currentuser['userID'] == $userID) and ($userID != '')) and ( $currentusershift['Shift'] > 0 ))
-          // echo " selecteduseronshiftcell";
-        // else 
-        // This would've added a class to identify selected user
-        // if (($currentuser['userID'] == $userID) and ($userID != '')) 
-          // echo " selectedusercell";
-        // else 
+        // This added a class to identify selected user and on shift
+        if ((($currentuser['userID'] == $userID) and ($userID != '')) and ( $currentusershift['Shift'] > 0 ))
+          echo " selecteduseronshiftcell";
+        else 
+        // This added a class to identify selected user
+        if (($currentuser['userID'] == $userID) and ($userID != '')) 
+          echo " selectedusercell";
+        else 
         if ( $currentusershift['Shift'] > 0 ) 
           echo " onshiftcell";
         echo "'>\n";
@@ -323,20 +337,16 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
         if (($usercounts['Regular'] == 0) and ($usercounts['CatOnes'] == 0) and ($usercounts['Special'] == 0))
           $cellhasdata = 0;
           
-        $daylightsavings = DST_VALUE;
-        $math = $usercounts['Date'] + 60 * 60 * ( 0 - 5 - $timezone - $daylightsavings );
-        //if (($usercounts['UpdateDate'] != '') and ($math <= mktime()) and ($cellhasdata == 1))
-        if (($usercounts['UpdateDate'] != '') and ($math <= $usercounts['UpdateDate']) and ($cellhasdata == 1))
+        $dst_value_from_current_time_sec = date("I",$usercounts['Date'])*60*60; // This is a 1*60*60 if DST is set on the time
+        $current_date_at_six_pm = $usercounts['Date'] + 60 * 60 * ( 12 - 18 - $timezone) + $dst_value_from_current_time_sec;
+        if (($usercounts['UpdateDate'] != '') and ($current_date_at_six_pm <= $usercounts['UpdateDate']) and ($cellhasdata == 1))
           {
           echo "        - ";
- //         $daylightsavings = 1;
-          // $usercounts['Date'] = 00:00 on that date GMT
-          // $usercounts['UpdateDate'] = case modification time
-          //  If a case was edited at 18:00 MST we want that to show was eob
-          //  18:00 MST - 07:00 GMT + 01:00 DST = 12:00 GMT
-          //if ($usercounts['UpdateDate'] > ($usercounts['Date']+60*60*20)) echo "eob";
-          if ($usercounts['UpdateDate'] > ($usercounts['Date'] + 60 * 60 * ( 13 - $timezone - $daylightsavings ))) echo "eob\n";
-          else echo gmdate("g:ia",$usercounts['UpdateDate'] + 60*60*($timezone + $daylightsavings))."\n";
+          if ($usercounts['UpdateDate'] > ($usercounts['Date'] + 60 * 60 * ( 12 - $timezone) + $dst_value_from_current_time_sec )) 
+            {
+            echo "eob\n";
+            }
+          else echo gmdate("g:ia",$usercounts['UpdateDate'] + 60*60*($timezone) + $dst_value_from_current_time_sec)."\n";
           }
         echo "        </td>\n";
         }

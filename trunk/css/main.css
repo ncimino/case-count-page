@@ -74,7 +74,12 @@ background:wheat;
 
 .selectedusercell
 {
-background:lightblue;
+background:white;
+}
+
+.selecteduseronshiftcell
+{
+background:wheat;
 }
 
 .showdetails

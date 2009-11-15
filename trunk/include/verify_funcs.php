@@ -61,15 +61,15 @@ function USER_LOGIN()
   <meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1' />
   <meta name="author" content="<? echo AUTHOR ?>" />
   <meta name="description" content="<? echo DESCRIPTION ?>" />
-  <meta name="keywords" content="<? echo SITE_NAME.", ".KEYWORDS ?>" />
-  <title><? echo SITE_NAME ?></title>
+  <meta name="keywords" content="<? echo KEYWORDS ?>" />
+  <title><? SITE_NAME($con) ?></title>
   <link rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
   <script src="<? echo MAIN_JS_FILE ?>"></script> 
 </head>
 <body>
   <div id='page' class='page'>
   <div id='header' class='header'>
-  <h1><? echo SITE_NAME ?></h1>
+  <h1><? SITE_NAME($con) ?></h1>
   </div>
   <div id='topmenu' class='topmenu'>
   <? TOPMENU() ?>
@@ -94,15 +94,15 @@ function CREATE_PASSWORD(&$con)
   <meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1' />
   <meta name="author" content="<? echo AUTHOR ?>" />
   <meta name="description" content="<? echo DESCRIPTION ?>" />
-  <meta name="keywords" content="<? echo SITE_NAME.", ".KEYWORDS ?>" />
-  <title><? echo SITE_NAME ?></title>
+  <meta name="keywords" content="<? echo KEYWORDS ?>" />
+  <title><? SITE_NAME($con) ?></title>
   <link rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
   <script src="<? echo MAIN_JS_FILE ?>"></script> 
 </head>
 <body>
   <div id='page' class='page'>
   <div id='header' class='header'>
-  <h1><? echo SITE_NAME ?></h1>
+  <h1><? SITE_NAME($con) ?></h1>
   </div>
   <div id='topmenu' class='topmenu'>
   <? TOPMENU() ?>
@@ -113,7 +113,7 @@ if (($_POST["password1"] == $_POST["password2"]) and ($_POST["password1"] != "")
   {
   echo "Creating password...<br />";
   $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
-        VALUES ('password','Password to login to site.','".crypt(md5($_POST["password1"]),md5(SALT))."')";
+        VALUES ('password','Password to login to site','".crypt(md5($_POST["password1"]),md5(SALT))."')";
   if ( RUN_QUERY($sql,"Password was not stored",$con) )
     echo "Password created please refresh page.\n";
   }

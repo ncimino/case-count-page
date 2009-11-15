@@ -1,11 +1,54 @@
 <?php
 
-function SET_COOKIES()
+function SET_COOKIES(&$showdetails,&$timezone,&$userID,&$con)
 {
-if ($_GET["userID"] != "") setcookie("userID", $_GET["userID"], time()+60*60*24*7);
-if ($_GET["timezone"] != "") setcookie("timezone", $_GET["timezone"], time()+60*60*24*7);
-if ($_GET["showdetailssent"] != "") setcookie("showdetails", $_POST["showdetails"], time()+60*60*24*7);
-if ($_COOKIE["timezone"] == "") setcookie("timezone", "-7", time()+60*60*24*7);
+// If a userID is passed, then set the cookie for 365 days
+if ($_POST["userID"] != "") setcookie("userID", $_POST["userID"], time()+60*60*24*365);
+
+// If a TimeZone is passed, then set the cookie for 365 days
+if ($_POST["timezone"] != "") setcookie("timezone", $_POST["timezone"], time()+60*60*24*365);
+
+// $_POST["showdetails"] is a checkbox - checkboxes only send data if checked
+// $_POST["showdetailssent"] is a hidden type submitted with showdetails to differentiate between a submit and a random page load
+// If a showdetails is passed, then set the cookie for 365 days
+if ($_POST["showdetailssent"] != "") setcookie("showdetails", $_POST["showdetails"], time()+60*60*24*365);
+
+// If timezone cookie isn't set, then set the cookie to -7 (MST) for 365 days
+if ($_COOKIE["timezone"] == "") setcookie("timezone", "-7", time()+60*60*24*365);
+
+if ($_POST['userID'] == '') // userID was not passed
+  {
+  if ($_COOKIE['userID'] == '') // userID cookie is not set
+    {
+    $userID = '';
+    }
+  else // userID cookie is set
+    {
+    $userID = $_COOKIE['userID'];
+    // Check to see if the user set in the cookie is an active user
+    $useractive = mysql_fetch_array(mysql_query("SELECT Active FROM Users WHERE userID=".$userID.";",&$con));
+    if ($useractive['Active'] == 0) 
+      $userID = '';
+    }
+  }
+else // userID was passed
+  {
+  if ($_POST['userID'] == 'NULL') // userID is NULL, this means the user selected '----' Need to remove cookie
+    {
+    $userID = '';
+    setcookie("userID", "", time()-3600);
+    }
+  else
+    {
+    $userID = $_POST['userID'];
+    }
+  }
+
+// If timezone was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
+($_POST['timezone'] == '') ? (($_COOKIE['timezone'] == '') ? $timezone = '' : $timezone = $_COOKIE['timezone']) : $timezone = $_POST['timezone'];
+
+// If showdetails was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
+($_POST["showdetailssent"] == '') ? (($_COOKIE['showdetails'] == '') ? $showdetails = '' : $showdetails = $_COOKIE['showdetails']) : $showdetails = $_POST['showdetails'];
 }
 
 
@@ -71,15 +114,9 @@ if (($_POST["password1"] == $_POST["password2"]) and ($_POST["password1"] != "")
   echo "Creating password...<br />";
   $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
         VALUES ('password','Password to login to site.','".crypt(md5($_POST["password1"]),md5(SALT))."')";
-  if ( !mysql_query($sql,$con) ) 
-    {
-    echo "Password was not stored. <br /> <span class='error'>*Error</span>:: " . mysql_error();
-    }
-  else
-    {
+  if ( RUN_QUERY($sql,"Password was not stored",$con) )
     echo "Password created please refresh page.\n";
-    }
-  } 
+  }
 else 
   { ?>
   <form method='post'> 
@@ -103,27 +140,14 @@ if ($_POST["password1"] != $_POST["password2"]) { echo "<span class='error'>Erro
 function VERIFY_USER(&$con)
 { 
 // Check to see if all DB tables exist, if not, then create them
-if (!mysql_query("SELECT * FROM Options",&$con) or
-    !mysql_query("SELECT * FROM Schedule",&$con) or
-    !mysql_query("SELECT * FROM Users",&$con) or
-    !mysql_query("SELECT * FROM Count",&$con)
-    )
-  {
-  echo "This is the first time you have viewed this page, or the database isn't setup correctly. <br /><br />";
-  echo "This page will try to create the tables in the database: <br />";
-  echo BUILD_TABLE_USERS($con);
-  echo BUILD_TABLE_COUNT($con);
-  echo BUILD_TABLE_SCHEDULE($con);
-  echo BUILD_TABLE_OPTIONS($con);
-  echo "Ignore errors below this line, and click on home. <br /><br />";
-  echo "Note: If you have not set up the vars.php file for your database, or you haven't created a database, then creating the tables failed.<br />";
-  echo "You will need to have the vars.php updates and database created before this page will correctly build the tables.<br /><br />";
-  }
+BUILD_ALL_DB_TABLES($con);
 
 // Get the already crypted password from the DB
 $check = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='password';",&$con));
+
 // Crypt the user entered password
 $password = crypt(md5($_POST['password']),md5(SALT));
+
 // Check if either the crypted password or cookie are the same as the password in the DB, also make sure that the DB password isn't blank
 if ((($password == $check['OptionValue']) or ($_COOKIE["password"] == $check['OptionValue'])) and ($check['OptionValue'] != "") and ($_GET["logout"] != "1"))
   {
@@ -131,9 +155,7 @@ if ((($password == $check['OptionValue']) or ($_COOKIE["password"] == $check['Op
   return 1;
   }
 else
-  {
   return 0;
-  }
 }
 
 
@@ -145,14 +167,7 @@ setcookie("password", "", time()-3600);
 setcookie("userID", "", time()-3600);
 // Verify failed, so check that the DB password isn't blank.  If DB password is blank, then prompt user to create site password, else ask user to login
 $check = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='password';",&$con));
-if ($check['OptionValue'] == "") 
-  {
-  CREATE_PASSWORD($con);
-  }
-else
-  {
-  USER_LOGIN();
-  }
+($check['OptionValue'] == "") ? CREATE_PASSWORD($con) : USER_LOGIN();
 }
 
 ?>

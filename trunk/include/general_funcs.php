@@ -4,7 +4,7 @@ function TOPMENU()
 { ?>
     <a href='index.php'>Home</a> -
     <a href='schedule.php'>Schedule</a> -
-    <a href='history.php'>History</a> -
+    <abr href='reports.php'>Reports</a> -
     <a href='users.php'>Users</a> -
     <a href='manage.php'>Manage</a> -
     <a href='index.php?logout=1'>Logout</a>
@@ -36,14 +36,14 @@ function DETERMINE_WEEK($timestamp)
 }
 
 
-function SELECTDATE($shownextweek,$selecteddate,&$con)
+function SELECTDATE($timezone,$shownextweek,$selecteddate,&$con)
 {
 $display_week = DETERMINE_WEEK($selecteddate); 
 
 $activitydates = mysql_query("SELECT Date FROM Schedule,Users WHERE Users.Active = 1 AND Users.userID = Schedule.userID",$con);
 if ( mysql_num_rows($activitydates) == 0 )
   {
-  echo "No active schedule history found, cannot show date selection.<br />";
+  echo "    No active schedule history found, cannot show date selection.<br />\n";
   }
 else
   {
@@ -57,7 +57,7 @@ else
   rsort($mondays,SORT_NUMERIC);
   
   // This will add next week to the drop down if it is specified and next week doesn't already have data
-  $checknextweek = DETERMINE_WEEK(mktime()+60*60*24*7+60*60*($_COOKIE['timezone']+$daylightsavings)); 
+  $checknextweek = DETERMINE_WEEK(mktime()+60*60*24*7+60*60*($timezone+$daylightsavings)); 
   if (($shownextweek == 1) and ($mondays[0] != $checknextweek['Monday']))
     {
     $mondays[$i++] = $checknextweek['Monday'];
@@ -76,6 +76,10 @@ else
     echo "      </select>\n";
     echo "      <input type='submit' id='dateselection_submit' value='go'>\n";
     echo "    </form>\n";
+    echo "    <script type='text/javascript'>\n";
+    echo "      <!--\n";
+    echo "      document.getElementById('dateselection_submit').style.display='none'; // hides button if JS is enabled-->\n";
+    echo "    </script>\n";
   }
 }
 

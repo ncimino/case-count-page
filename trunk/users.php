@@ -1,7 +1,8 @@
 <?php
 include_once("./include/includes.php");
 DB_CONNECT($con);
-SET_COOKIES();
+SET_COOKIES($showdetails,$timezone,$userID,$con);
+
 if ( VERIFY_USER($con) ) 
   {
   ?>
@@ -14,29 +15,33 @@ if ( VERIFY_USER($con) )
 <meta name="description" content="<? echo DESCRIPTION ?>" />
 <meta name="keywords" content="<? echo SITE_NAME.", ".KEYWORDS ?>" />
 <title><? echo SITE_NAME ?></title>
-<link rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
+<link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
 <script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script> 
 </head>
 <body>
 <div id="page" class="page">
+
   <div id="header" class="header">
     <h1><? echo SITE_NAME ?></h1>
   </div>
+  
   <div id="topmenu" class="topmenu">
-    <? TOPMENU() ?>
+<? TOPMENU() ?>
   </div>
+  
   <div id="users" class="users">
-    <? USERS($con) ?>
+<? USERS($con) ?>
   </div>
+  
 </div>
 </body>
 </html>
 
 <? 
-}
+  }
 else
-{
+  {
   VERIFY_FAILED($con); 
-}
+  }
 mysql_close(&$con);
 ?>

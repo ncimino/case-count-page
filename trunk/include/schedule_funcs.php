@@ -9,7 +9,7 @@ $current_week = DETERMINE_WEEK($selecteddate);
 $activeusers = mysql_query("SELECT userID FROM Users WHERE Active=1;",&$con);
 if ( mysql_num_rows($activeusers) == 0 )
   {
-  echo "No active users found. You need to add users.<br />";
+  echo "      No active users found. You need to add users.<br />\n";
   }
 else
   {
@@ -99,6 +99,10 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
   }
 
 echo "</table> <input type='submit' id='schedule_submit' value='submit'> </form>";
+echo "    <script type='text/javascript'>\n";
+echo "      <!--\n";
+echo "      document.getElementById('schedule_submit').style.display='none'; // hides button if JS is enabled-->\n";
+echo "    </script>\n";
 }
 
 ?>

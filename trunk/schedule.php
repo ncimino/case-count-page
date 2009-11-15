@@ -1,16 +1,13 @@
 <?php
 include_once("./include/includes.php");
 DB_CONNECT($con);
-SET_COOKIES();
+SET_COOKIES($showdetails,$timezone,$userID,$con);
 
 // Tell SELECTDATE to show next week in the dropdown, if next week doesn't have a schedule
 $shownextweek = 1;
 // If a date isn't selected, then set default to next weeks schedule - change the date to local time so that next week is based on Monday at 00:00 for local time
 $daylightsavings = 1;
-if ($_GET['selecteddate'] == '')
-  $selecteddate = mktime()+60*60*24*7+60*60*($_COOKIE['timezone']+$daylightsavings);
-else
-  $selecteddate = $_GET['selecteddate'];
+($_GET['selecteddate'] == '') ? $selecteddate = mktime()+60*60*24*7+60*60*($timezone+$daylightsavings) : $selecteddate = $_GET['selecteddate'];
   
 if ( VERIFY_USER($con) ) 
   {
@@ -24,7 +21,7 @@ if ( VERIFY_USER($con) )
   <meta name="description" content="<? echo DESCRIPTION ?>" />
   <meta name="keywords" content="<? echo SITE_NAME.", ".KEYWORDS ?>" />
   <title><? echo SITE_NAME ?></title>
-  <link rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
+  <link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
   <script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script> 
 </head>
 <body>
@@ -37,7 +34,7 @@ if ( VERIFY_USER($con) )
   </div>
   <div id="selectdate" class="selectdate">
     <br />
-<? SELECTDATE($shownextweek,$selecteddate,$con) ?>
+<? SELECTDATE($timezone,$shownextweek,$selecteddate,$con) ?>
   </div>
   <div id="schedule" class="schedule">
     <br />
@@ -47,11 +44,11 @@ if ( VERIFY_USER($con) )
 </body>
 </html>
 
-<? 
-} 
+  <?
+  }
 else 
-{ 
+  { 
   VERIFY_FAILED($con);
-}
+  }
 mysql_close(&$con);
 ?>

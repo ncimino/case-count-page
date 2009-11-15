@@ -1,23 +1,35 @@
 <?php
 
-function MYCASECOUNT($selecteddate,&$con)
+function MYCASECOUNT($userID,$selecteddate,&$con)
 {
   // Get the dates for the selected week
   $current_week = DETERMINE_WEEK($selecteddate);
 
   // If a user is not selected then we can't do anything here, if there is a cookie set but no users exist, then
   $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
-  if (($_COOKIE['userID'] == '') or ( mysql_num_rows($activeusers) == 0 ))
-    echo "No user has been selected, cannot display user case count editor.<br />\n";
+  
+  if ( mysql_num_rows($activeusers) == 0 )
+    echo "    No user has been selected, cannot display user case count editor.<br />\n";
   else
     {
-    UPDATE_DB_MYCASECOUNT($current_week,$con);
-    TABLE_MYCASECOUNT($current_week,$con);
+    if ($userID == '') // If user is not set then show a legend to make sense of the colors
+      {
+      echo "    <span class='table_mycasecount_total'>Total</span> =\n";
+      echo "    <span class='table_mycasecount_regular'>Regular</span>\n";
+      echo "    <span class='table_mycasecount_catones'>Cat 1</span>\n";
+      echo "    <span class='table_mycasecount_special'>Special</span> |\n";
+      echo "    <span class='table_mycasecount_transfer'>Transfer</span>\n";
+      }
+    else
+      {
+      UPDATE_DB_MYCASECOUNT($userID,$current_week,$con);
+      TABLE_MYCASECOUNT($userID,$current_week,$con);
+      }
     }
 }
 
 
-function CURRENTHISTORY($selecteddate,&$con)
+function CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,&$con)
 {
   // Get the dates for the selected week
   $current_week = DETERMINE_WEEK($selecteddate);
@@ -25,15 +37,15 @@ function CURRENTHISTORY($selecteddate,&$con)
   // If no active user exists then we can't do anything here
   $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
   if ( mysql_num_rows($activeusers) == 0 )
-    echo "Cannot display case counts until active users are added.<br />";
+    echo "    Cannot display case counts until active users are added.<br />\n";
   else 
     {
-    TABLE_CURRENTHISTORY($current_week,$con);
+    TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,$con);
     }
 }
 
 
-function CURRENTQUEUE($selecteddate,&$con)
+function CURRENTQUEUE($userID,$selecteddate,&$con)
 {
   // Get the dates for the selected week
   $current_week = DETERMINE_WEEK($selecteddate);
@@ -41,15 +53,15 @@ function CURRENTQUEUE($selecteddate,&$con)
   // If no active schedule exists then we can't do anything here
   $selectedschedule = mysql_query("SELECT Date FROM Schedule,Users WHERE Date >= '".$current_week['Monday']."' AND Date <= '".$current_week['Friday']."' AND Users.userID = Schedule.userID AND Users.Active = 1",&$con);
   if ( mysql_num_rows($selectedschedule) == 0 )
-    echo "No active schedule found.<br />"; 
+    echo "    No active schedule found.<br />\n"; 
   else
     {
-    TABLE_CURRENTQUEUE($current_week,$con);
+    TABLE_CURRENTQUEUE($userID,$current_week,$con);
     }
 }
 
 
-function SELECTUSER(&$con)
+function SELECTUSER($timezone,$userID,&$con)
 {
 // Creates timezones add as necessary from GMT
 $alltimezones['MST'] = -7;
@@ -62,17 +74,17 @@ $userselected = 0;
 $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName;",$con);
 if ( mysql_num_rows($activeusers) == 0 ) 
   {
-  echo "No active users found. You need to add users.<br />\n";
+  echo "    No active users found.<br />\n";
   }
 else
   {
-  echo "    <form action='./' method='get' name='selectuser'> User:\n";
+  echo "    <form method='post' name='selectuser'> User:\n";
   echo "      <select name='userID' OnChange='selectuser.submit();'>\n";
   
   while ( $currentuser = mysql_fetch_array($activeusers) ) 
     {
     echo "        <option ";
-    if ( $_COOKIE['userID'] == $currentuser['userID'] ) 
+    if ( $userID == $currentuser['userID'] ) 
       {
       echo "selected='selected' ";
       $userselected = 1;
@@ -80,33 +92,40 @@ else
     echo "value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
     }
   
-  if ($userselected != 1) echo "        <option selected='selected' value=''>-----</option>\n";
+  echo "        <option";
+  if ($userselected != 1)
+    echo " selected='selected'";
+  echo " value='NULL'>-----</option>\n";
   echo "      </select>\n";
   
   echo "      <select name='timezone' OnChange='selectuser.submit();'>\n";
   foreach ( $alltimezones as $key => $value ) 
     {
     echo "        <option ";
-    if ( $_COOKIE['timezone'] == $value ) echo "selected='selected'";
+    if ( $timezone == $value ) echo "selected='selected'";
     echo "value='".$value."'>".$key."</option>\n";
     }
   echo "      </select>\n";
   echo "      <input type='submit' id='selectuser_submit' value='select'>\n";
   echo "    </form>\n";
+  echo "    <script type='text/javascript'>\n";
+  echo "      <!--\n";
+  echo "      document.getElementById('selectuser_submit').style.display='none'; // hides button if JS is enabled-->\n";
+  echo "    </script>\n";
   }
 }
 
 
-function UPDATE_DB_MYCASECOUNT($current_week,&$con)
+function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
 {
 for ($i=0;$i<=4;$i++) 
   {
   if (($_POST["reg_".$current_week[$i]] != '') and ($_POST["cat1_".$current_week[$i]] != '') and ($_POST["spec_".$current_week[$i]] != '') and ($_POST["tran_".$current_week[$i]] != ''))
     {
-    $checkforentry = mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID ='".$_COOKIE['userID']."'",&$con);
+    $checkforentry = mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID ='".$userID."'",&$con);
     if ( mysql_num_rows($checkforentry) == 0 ) 
       $sql="INSERT INTO Count (userID, CatOnes, Special, Regular, Transfer, Date, UpdateDate) 
-            VALUES ('".$_COOKIE['userID']."',".$_POST["cat1_".$current_week[$i]].",".$_POST["spec_".$current_week[$i]].",".$_POST["reg_".$current_week[$i]].",".$_POST["tran_".$current_week[$i]].",".$current_week[$i].",".mktime().")";
+            VALUES ('".$userID."',".$_POST["cat1_".$current_week[$i]].",".$_POST["spec_".$current_week[$i]].",".$_POST["reg_".$current_week[$i]].",".$_POST["tran_".$current_week[$i]].",".$current_week[$i].",".mktime().")";
     else 
       {
       $checkchanges = mysql_fetch_array($checkforentry);
@@ -117,7 +136,7 @@ for ($i=0;$i<=4;$i++)
         $updatedate = $checkchanges['UpdateDate'];
       else
         $updatedate = mktime();
-      $sql="UPDATE Count SET CatOnes = '".$_POST["cat1_".$current_week[$i]]."', Special = '".$_POST["spec_".$current_week[$i]]."', Regular = '".$_POST["reg_".$current_week[$i]]."', Transfer = '".$_POST["tran_".$current_week[$i]]."', UpdateDate = '".$updatedate."' WHERE userID = '".$_COOKIE['userID']."' AND Date = '".$current_week[$i]."'";
+      $sql="UPDATE Count SET CatOnes = '".$_POST["cat1_".$current_week[$i]]."', Special = '".$_POST["spec_".$current_week[$i]]."', Regular = '".$_POST["reg_".$current_week[$i]]."', Transfer = '".$_POST["tran_".$current_week[$i]]."', UpdateDate = '".$updatedate."' WHERE userID = '".$userID."' AND Date = '".$current_week[$i]."'";
       }
     RUN_QUERY($sql,"Values were not updates.",$con);
     }
@@ -125,9 +144,9 @@ for ($i=0;$i<=4;$i++)
 }
 
 
-function TABLE_MYCASECOUNT($current_week,&$con)
+function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 {
-$username = mysql_fetch_array(mysql_query("SELECT UserName FROM Users WHERE Active=1 AND userID=".$_COOKIE['userID'].";",$con));
+$username = mysql_fetch_array(mysql_query("SELECT UserName FROM Users WHERE Active=1 AND userID=".$userID.";",$con));
 echo "    <form name='mycasecount' method='post'>\n";
 echo "      <input type='hidden' name='selecteddate' value='".$_GET['selecteddate']."'>\n";
 echo "      <table class='table_mycasecount'>\n";
@@ -143,10 +162,9 @@ echo "          <th class='table_mycasecount_header'><span class='table_mycaseco
 
 for ($i=0;$i<=4;$i++) 
   {
-  //$selectedcount = mysql_fetch_array(mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID = ".$_COOKIE['userID'],&$con));
   echo "          <td class='table_mycasecount_cell'>\n";
   echo "          <input type='text' class='table_mycasecount_input' name='reg_".$current_week[$i]."' OnChange='mycasecount.submit();'";
-  $getcount= mysql_query("SELECT Regular FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$_COOKIE['userID']."'",&$con);
+  $getcount= mysql_query("SELECT Regular FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) 
     echo " value='0' ";
   else 
@@ -164,10 +182,9 @@ echo "          <th class='table_mycasecount_header'><span class='table_mycaseco
 
 for ($i=0;$i<=4;$i++)
   {
-  //$selectedcount = mysql_fetch_array(mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID = ".$_COOKIE['userID'],&$con));
   echo "          <td class='table_mycasecount_cell'>\n";
   echo "          <input type='text' class='table_mycasecount_input' name='cat1_".$current_week[$i]."' OnChange='mycasecount.submit();'";
-  $getcount= mysql_query("SELECT CatOnes FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$_COOKIE['userID']."'",&$con);
+  $getcount= mysql_query("SELECT CatOnes FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) 
     echo " value='0' ";
   else 
@@ -185,10 +202,9 @@ echo "          <th class='table_mycasecount_header'><span class='table_mycaseco
 
 for ($i=0;$i<=4;$i++)
   { 
-  //$selectedcount = mysql_fetch_array(mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID = ".$_COOKIE['userID'],&$con));
   echo "          <td class='table_mycasecount_cell'>\n";
   echo "          <input type='text' class='table_mycasecount_input' name='spec_".$current_week[$i]."' OnChange='mycasecount.submit();'";
-  $getcount= mysql_query("SELECT Special FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$_COOKIE['userID']."'",&$con);
+  $getcount= mysql_query("SELECT Special FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
   else {
     $currentusercount = mysql_fetch_array($getcount);
@@ -204,10 +220,9 @@ echo "          <th class='table_mycasecount_header'><span class='table_mycaseco
 
 for ($i=0;$i<=4;$i++)
   { 
-  //$selectedcount = mysql_fetch_array(mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID = ".$_COOKIE['userID'],&$con));
   echo "          <td class='table_mycasecount_cell'>\n";
   echo "          <input type='text' class='table_mycasecount_input' name='tran_".$current_week[$i]."' OnChange='mycasecount.submit();'";
-  $getcount= mysql_query("SELECT Transfer FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$_COOKIE['userID']."'",&$con);
+  $getcount= mysql_query("SELECT Transfer FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
   else {
     $currentusercount = mysql_fetch_array($getcount);
@@ -221,10 +236,14 @@ echo "        </tr>\n";
 echo "      </table>\n";
 echo "      <input type='submit' id='mycasecount_submit' value='update' />\n";
 echo "    </form>\n";
+echo "    <script type='text/javascript'>\n";
+echo "      <!--\n";
+echo "      document.getElementById('mycasecount_submit').style.display='none'; // hides button if JS is enabled-->\n";
+echo "    </script>\n";
 }
 
 
-function TABLE_CURRENTHISTORY($current_week,&$con)
+function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con)
 {
 $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",&$con);
 echo "    <table class='table_currenthistory'>\n";
@@ -241,9 +260,8 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
       if ($col==1) 
         {
         echo "        <td class='table_currenthistory_cell";
-        //if (($currentuser['userID'] == $_COOKIE['userID']) and ($_COOKIE['userID'] != '')) echo " selectedusercell";
         echo "'>";
-        if ($currentuser['userID'] == $_COOKIE['userID'])
+        if ($userID == $currentuser['userID'])
           echo "<span class='selecteduser'>".$currentuser['UserName']."</span>";
         else
           echo $currentuser['UserName'];
@@ -255,11 +273,11 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
         echo "        <td class='table_currenthistory_cell";
         $currentusershift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE Date='".$current_week[$col-2]."' AND userID='".$currentuser['userID']."'",&$con));
         // This would've added a class to identify selected user and on shift
-        // if ((($currentuser['userID'] == $_COOKIE['userID']) and ($_COOKIE['userID'] != '')) and ( $currentusershift['Shift'] > 0 ))
+        // if ((($currentuser['userID'] == $userID) and ($userID != '')) and ( $currentusershift['Shift'] > 0 ))
           // echo " selecteduseronshiftcell";
         // else 
         // This would've added a class to identify selected user
-        // if (($currentuser['userID'] == $_COOKIE['userID']) and ($_COOKIE['userID'] != '')) 
+        // if (($currentuser['userID'] == $userID) and ($userID != '')) 
           // echo " selectedusercell";
         // else 
         if ( $currentusershift['Shift'] > 0 ) 
@@ -287,16 +305,16 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
           $transfercases = $usercounts['Transfer'];
         
         $total = $regularcases + $catonecases + $specialcases;
-        echo "<span class='table_mycasecount_total'>".$total."</span>\n";
+        echo "        <span class='table_mycasecount_total'>".$total."</span>\n";
         
-        if ( $_COOKIE['showdetails'] == 'on')
+        if ( $showdetails == 'on')
           {
-          echo "=\n";
-          echo "<span class='table_mycasecount_regular'>".$regularcases."</span>\n";
-          echo "<span class='table_mycasecount_catones'>".$catonecases."</span>\n";
-          echo "<span class='table_mycasecount_special'>".$specialcases."</span>\n";
-          echo "|\n";
-          echo "<span class='table_mycasecount_transfer'>".$transfercases."</span>\n";
+          echo "        =\n";
+          echo "        <span class='table_mycasecount_regular'>".$regularcases."</span>\n";
+          echo "        <span class='table_mycasecount_catones'>".$catonecases."</span>\n";
+          echo "        <span class='table_mycasecount_special'>".$specialcases."</span>\n";
+          echo "        |\n";
+          echo "        <span class='table_mycasecount_transfer'>".$transfercases."</span>\n";
           }
         
         $cellhasdata = 1;
@@ -313,29 +331,34 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
           //  If a case was edited at 18:00 MST we want that to show was eob
           //  18:00 MST - 07:00 GMT + 01:00 DST = 12:00 GMT
           //if ($usercounts['UpdateDate'] > ($usercounts['Date']+60*60*20)) echo "eob";
-          if ($usercounts['UpdateDate'] > ($usercounts['Date'] + 60 * 60 * ( 13 - $_COOKIE['timezone'] - $daylightsavings ))) echo "eob";
-          else echo gmdate("g:ia",$usercounts['UpdateDate'] + 60*60*($_COOKIE['timezone']+$daylightsavings));
+          if ($usercounts['UpdateDate'] > ($usercounts['Date'] + 60 * 60 * ( 13 - $timezone - $daylightsavings ))) echo "eob";
+          else echo gmdate("g:ia",$usercounts['UpdateDate'] + 60*60*($timezone + $daylightsavings));
           }
-        echo "</td>\n";
+        echo "        </td>\n";
         }
     }
   echo "      </tr>\n";
   }
 echo "    </table>\n";
-echo "    <form action='./?showdetailssent=1' method='post' name='showdetailsform'>\n";
+echo "    <form method='post' name='showdetailsform'>\n";
 echo "      <div class='showdetails'>\n";
 echo "      Details:\n";
- echo "     <input type='checkbox' name='showdetails'";
-if ( $_COOKIE['showdetails'] == 'on' )
+echo "      <input type='hidden' name='showdetailssent' value='1' />\n";
+echo "      <input type='checkbox' name='showdetails'";
+if ( $showdetails == 'on' )
   echo " checked='checked'";
-echo " OnChange='showdetailsform.submit();'>\n";
+echo " OnClick='showdetailsform.submit();' />\n";
 echo "      <input type='submit' id='showdetails_submit' value='update' />\n";
 echo "     </div>\n";
 echo "    </form>\n";
+echo "    <script type='text/javascript'>\n";
+echo "      <!--\n";
+echo "      document.getElementById('showdetails_submit').style.display='none'; // hides button if JS is enabled-->\n";
+echo "    </script>\n";
 }
 
 
-function TABLE_CURRENTQUEUE($current_week,&$con)
+function TABLE_CURRENTQUEUE($userID,$current_week,&$con)
 {
 echo "    <table  class='table_currentqueue'>\n";
 echo "      <tr class='table_currentqueue_row'>\n";
@@ -359,12 +382,11 @@ for ($row = 1; $row <= $shiftcount[0]; $row++)
   echo "      <tr class='table_currentqueue_row'>\n";
   for ($col = 1; $col <= 5; $col++)
     {  
-    //print_r($getarray);
     echo "       <td class='table_currentqueue_cell";
-    if (($namesAndShifts[$col-1][$row-1]['userID'] == $_COOKIE['userID'] ) and ($_COOKIE['userID'] != ''))
+    if (($namesAndShifts[$col-1][$row-1]['userID'] == $userID ) and ($userID != ''))
       echo " selectedusercell";
     echo "'>";
-    if ($namesAndShifts[$col-1][$row-1]['userID'] == $_COOKIE['userID'] )
+    if ($namesAndShifts[$col-1][$row-1]['userID'] == $userID )
       echo "<span class='selecteduser'>".$namesAndShifts[$col-1][$row-1]['UserName']."</span>";
     else 
       echo $namesAndShifts[$col-1][$row-1]['UserName'];

@@ -200,7 +200,7 @@ for ($i=0;$i<=4;$i++)
 
 echo "        </tr>\n";
 echo "        <tr class='table_mycasecount_row'>\n";
-echo "          <th class='table_mycasecount_header'><span class='table_mycasecount_transfer'>Transfer</span></th>\n";
+echo "          <th class='table_mycasecount_header'><span class='table_mycasecount_transfer'>Transfer Out (-)</span></th>\n";
 
 for ($i=0;$i<=4;$i++)
   { 

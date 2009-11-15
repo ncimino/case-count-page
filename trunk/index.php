@@ -32,7 +32,7 @@ else
   <meta name="description" content="<? echo DESCRIPTION ?>" />
   <meta name="keywords" content="<? echo SITE_NAME.", ".KEYWORDS ?>" />
   <title><? echo SITE_NAME ?></title>
-  <link type="text/plain" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
+  <link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
   <script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script> 
 </head>
 <body onLoad="hideButtons()">

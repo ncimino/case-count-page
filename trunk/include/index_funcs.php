@@ -138,7 +138,7 @@ for ($i=0;$i<=4;$i++)
         $updatedate = mktime();
       $sql="UPDATE Count SET CatOnes = '".$_POST["cat1_".$current_week[$i]]."', Special = '".$_POST["spec_".$current_week[$i]]."', Regular = '".$_POST["reg_".$current_week[$i]]."', Transfer = '".$_POST["tran_".$current_week[$i]]."', UpdateDate = '".$updatedate."' WHERE userID = '".$userID."' AND Date = '".$current_week[$i]."'";
       }
-    RUN_QUERY($sql,"Values were not updates.",$con);
+    RUN_QUERY($sql,"Values were not updated.",$con);
     }
   }
 }
@@ -163,7 +163,7 @@ echo "          <th class='table_mycasecount_header'><span class='table_mycaseco
 for ($i=0;$i<=4;$i++) 
   {
   echo "          <td class='table_mycasecount_cell'>\n";
-  echo "          <input type='text' class='table_mycasecount_input' name='reg_".$current_week[$i]."' OnChange='mycasecount.submit();'";
+  echo "          <input type='text' class='table_mycasecount_input' name='reg_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
   $getcount= mysql_query("SELECT Regular FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) 
     echo " value='0' ";
@@ -183,7 +183,7 @@ echo "          <th class='table_mycasecount_header'><span class='table_mycaseco
 for ($i=0;$i<=4;$i++)
   {
   echo "          <td class='table_mycasecount_cell'>\n";
-  echo "          <input type='text' class='table_mycasecount_input' name='cat1_".$current_week[$i]."' OnChange='mycasecount.submit();'";
+  echo "          <input type='text' class='table_mycasecount_input' name='cat1_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
   $getcount= mysql_query("SELECT CatOnes FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) 
     echo " value='0' ";
@@ -203,7 +203,7 @@ echo "          <th class='table_mycasecount_header'><span class='table_mycaseco
 for ($i=0;$i<=4;$i++)
   { 
   echo "          <td class='table_mycasecount_cell'>\n";
-  echo "          <input type='text' class='table_mycasecount_input' name='spec_".$current_week[$i]."' OnChange='mycasecount.submit();'";
+  echo "          <input type='text' class='table_mycasecount_input' name='spec_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
   $getcount= mysql_query("SELECT Special FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
   else {
@@ -221,7 +221,7 @@ echo "          <th class='table_mycasecount_header'><span class='table_mycaseco
 for ($i=0;$i<=4;$i++)
   { 
   echo "          <td class='table_mycasecount_cell'>\n";
-  echo "          <input type='text' class='table_mycasecount_input' name='tran_".$current_week[$i]."' OnChange='mycasecount.submit();'";
+  echo "          <input type='text' class='table_mycasecount_input' name='tran_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
   $getcount= mysql_query("SELECT Transfer FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
   else {
@@ -322,17 +322,21 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
           $cellhasdata = 0;
         if (($usercounts['Regular'] == 0) and ($usercounts['CatOnes'] == 0) and ($usercounts['Special'] == 0))
           $cellhasdata = 0;
-        if (($usercounts['UpdateDate'] != '') and ($usercounts['Date'] <= mktime()) and ($cellhasdata == 1))
+          
+        $daylightsavings = 1;
+        $math = $usercounts['Date'] + 60 * 60 * ( 0 - 5 - $timezone - $daylightsavings );
+        //if (($usercounts['UpdateDate'] != '') and ($math <= mktime()) and ($cellhasdata == 1))
+        if (($usercounts['UpdateDate'] != '') and ($math <= $usercounts['UpdateDate']) and ($cellhasdata == 1))
           {
-          echo " - ";
-          $daylightsavings = 1;
+          echo "        - ";
+ //         $daylightsavings = 1;
           // $usercounts['Date'] = 00:00 on that date GMT
           // $usercounts['UpdateDate'] = case modification time
           //  If a case was edited at 18:00 MST we want that to show was eob
           //  18:00 MST - 07:00 GMT + 01:00 DST = 12:00 GMT
           //if ($usercounts['UpdateDate'] > ($usercounts['Date']+60*60*20)) echo "eob";
-          if ($usercounts['UpdateDate'] > ($usercounts['Date'] + 60 * 60 * ( 13 - $timezone - $daylightsavings ))) echo "eob";
-          else echo gmdate("g:ia",$usercounts['UpdateDate'] + 60*60*($timezone + $daylightsavings));
+          if ($usercounts['UpdateDate'] > ($usercounts['Date'] + 60 * 60 * ( 13 - $timezone - $daylightsavings ))) echo "eob\n";
+          else echo gmdate("g:ia",$usercounts['UpdateDate'] + 60*60*($timezone + $daylightsavings))."\n";
           }
         echo "        </td>\n";
         }

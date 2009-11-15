@@ -6,7 +6,7 @@ function TOPMENU()
     <a href='schedule.php'>Schedule</a> -
     <abr href='reports.php'>Reports</a> -
     <a href='users.php'>Users</a> -
-    <a href='manage.php'>Manage</a> -
+    <abr href='manage.php'>Manage</a> -
     <a href='index.php?logout=1'>Logout</a>
 <? }
 
@@ -57,6 +57,7 @@ else
   rsort($mondays,SORT_NUMERIC);
   
   // This will add next week to the drop down if it is specified and next week doesn't already have data
+  $daylightsavings = 1;
   $checknextweek = DETERMINE_WEEK(mktime()+60*60*24*7+60*60*($timezone+$daylightsavings)); 
   if (($shownextweek == 1) and ($mondays[0] != $checknextweek['Monday']))
     {

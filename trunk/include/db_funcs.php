@@ -3,7 +3,7 @@
 function RUN_QUERY($sql,$msg,&$con)
 {
   if ( !mysql_query($sql,$con) ) { 
-    echo "*Error</span>: " . mysql_error() . " <br />\n"; 
+    echo "<span class='error'>*Error</span>: " . mysql_error() . " <br />\n"; 
     echo $msg. " <br />\n";
     echo "Trying to execute: " . $sql . " <br />\n"; 
     return 0;

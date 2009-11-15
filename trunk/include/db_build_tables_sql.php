@@ -24,6 +24,7 @@ FOREIGN KEY (userID) REFERENCES Users(userID),
 CatOnes int,
 Special int,
 Regular int,
+Transfer int,
 Date int,
 UpdateDate int
 )";

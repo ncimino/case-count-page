@@ -1,8 +1,10 @@
 <?php
 include_once("./include/includes.php");
 DB_CONNECT($con);
-if ( VERIFY_USER($con) ) {
-?>
+SET_COOKIES();
+if ( VERIFY_USER($con) ) 
+  {
+  ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -13,7 +15,7 @@ if ( VERIFY_USER($con) ) {
 <meta name="keywords" content="<? echo SITE_NAME.", ".KEYWORDS ?>" />
 <title><? echo SITE_NAME ?></title>
 <link rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
-<!--script src='http://...js'></script--> 
+<script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script> 
 </head>
 <body>
 <div id="page" class="page">
@@ -30,7 +32,11 @@ if ( VERIFY_USER($con) ) {
 </body>
 </html>
 
-<? } else { 
-VERIFY_FAILED($con); 
+<? 
+}
+else
+{
+  VERIFY_FAILED($con); 
+}
 mysql_close(&$con);
-} ?>
+?>

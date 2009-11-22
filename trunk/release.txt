@@ -1,3 +1,6 @@
+## Full Release ##
+r11 - Switching to Revision/Build numbers from Subversion / Google Code
+
 ## Beta Phase ##
 b.1 - Fixed the drop-down so that it always shows next week.
 

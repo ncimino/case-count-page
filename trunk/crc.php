@@ -17,7 +17,6 @@ if ( VERIFY_USER($con) )
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-  <meta http-equiv='refresh' content='300; URL=./index.php' />
   <meta name="author" content="<? echo AUTHOR ?>" />
   <meta name="description" content="<? echo DESCRIPTION ?>" />
   <meta name="keywords" content="<? echo KEYWORDS ?>" />
@@ -36,41 +35,16 @@ if ( VERIFY_USER($con) )
 <? TOPMENU() ?>
   </div>
   
-  <div id="selectuser" class="selectuser">
-<? SELECTUSER($timezone,$userID,$con) ?>
+  <div id="checkcountdates" class="checkcountdates">
+    <hr width='50%' />
+<? CHECKCOUNTDATES($con) ?>
+  </div>
+
+  <div id="checkscheduledates" class="checkscheduledates">
+    <hr width='50%' />
+<? CHECKSCHEDULEDATES($con) ?>
   </div>
   
-  <div id="selectdate" class="selectdate">
-<? SELECTDATE($timezone,$shownextweek,$selecteddate,$con) ?>
-  </div>
-  
-  <div id="mycasecount" class="mycasecount">
-    <br />
-<? MYCASECOUNT($userID,$selecteddate,$con) ?>
-  </div>
-  
-  <div id="currentqueue" class="currentqueue">
-    <h3>Queue Shift</h3>
-<? CURRENTQUEUE($userID,$selecteddate,$con) ?>
-  </div>
-  
-  <div id="notes" class="notes">
-<? NOTES($con) ?>
-  </div>
-  
-  <div id="currenthistory" class="currenthistory">
-  <br />
-<? CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,$con);
-  $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
-  echo "    Last updated: ".gmdate("n/j h:i A",mktime()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes\n";
-  echo "    <hr width='50%' />\n";
-?>
-  </div>
-  
-  <div id="rules" class="rules">
-    <h3>Queue Expectations</h3>
-<? RULES($con) ?>
-  </div>
 </div>
 </body>
 </html>

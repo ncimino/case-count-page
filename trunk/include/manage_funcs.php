@@ -89,23 +89,18 @@ function TABLE_OPTIONS(&$con)
   $sitename = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
   echo "    <tr>\n";
   echo "      <td>".$sitename['OptionDesc']."</td>\n";  
-  //echo "      <td><input type='text' name='sitename' OnChange='options.submit();' value='".$sitename['OptionValue']."' size='80' /></td>\n";  
   echo "      <td><input type='text' name='sitename' value='".$sitename['OptionValue']."' size='80' /></td>\n";  
   echo "    </tr>\n";
   
   $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",&$con));
   echo "    <tr>\n";
   echo "      <td>".$queuerules['OptionDesc']."</td>\n";  
-  //echo "      <td><input type='text' name='queuerules' OnChange='options.submit();' value='".$queuerules['OptionValue']."' /></td>\n";  
-  //echo "      <td><textarea cols='80' rows='15' name='queuerules' OnChange='options.submit();'>".$queuerules['OptionValue']."</textarea></td>\n";  
   echo "      <td><textarea cols='80' rows='15' name='queuerules'>".$queuerules['OptionValue']."</textarea></td>\n";  
   echo "    </tr>\n";
   
   $queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes';",&$con));
   echo "    <tr>\n";
   echo "      <td>".$queuenotes['OptionDesc']."</td>\n";  
-  //echo "      <td><input type='text' name='queuenotes' OnChange='options.submit();' value='".$queuenotes['OptionValue']."' /></td>\n";  
-  //echo "      <td><textarea cols='80' rows='8' name='queuenotes' OnChange='options.submit();'>".$queuenotes['OptionValue']."</textarea></td>\n";  
   echo "      <td><textarea cols='80' rows='8' name='queuenotes'>".$queuenotes['OptionValue']."</textarea></td>\n";  
   echo "    </tr>\n";
   
@@ -114,10 +109,6 @@ function TABLE_OPTIONS(&$con)
   echo "    <input type='hidden' id='options_datasent' name='options_datasent' value='1'>\n";
   echo "    <input type='submit' id='options_submit' value='Update'>\n";
   echo "    </form>\n";
-  // echo "    <script type='text/javascript'>\n";
-  // echo "      <!--\n";
-  // echo "      document.getElementById('options_submit').style.display='none'; // hides button if JS is enabled-->\n";
-  // echo "    </script>\n\n";
   
   echo "    <form method='post'>\n";
   echo "    <table>\n";

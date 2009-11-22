@@ -8,4 +8,6 @@ include_once("index_funcs.php");
 include_once("schedule_funcs.php");
 include_once("users_funcs.php");
 include_once("manage_funcs.php");
+include_once("reports_funcs.php");
+include_once("crc_funcs.php");
 ?>

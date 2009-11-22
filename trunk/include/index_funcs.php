@@ -168,7 +168,7 @@ echo "        <tr class='table_mycasecount_row'>\n";
 echo "          <th class='table_mycasecount_header'><span class='selecteduser'>".$username['UserName']."</span></th>\n";
 
 for ($i=0;$i<5;$i++)
-  echo "          <th class='table_mycasecount_header'>".substr(date("l",$current_week[$i]),0,3)."&nbsp;".date("n/j",$current_week[$i])."</th>\n";
+  echo "          <th class='table_mycasecount_header'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
 
 echo "        </tr>\n";
 echo "        <tr class='table_mycasecount_row'>\n";
@@ -259,12 +259,17 @@ echo "    </script>\n";
 
 function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con)
 {
+  // Enable Debug 
+  $determineweek_debug = 0;
+  if ($determineweek_debug == 1) echo "<br>\n";
+  if ($determineweek_debug == 1) echo "  ** Debug Mode is enabled for TABLE_CURRENTHISTORY function. **<br>\n";
+  
 $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",&$con);
 echo "    <table class='table_currenthistory'>\n";
 echo "      <tr class='table_currenthistory_row'>\n";
 echo "        <th class='table_currenthistory_header'>Name</th>\n";
 for ($i=0;$i<5;$i++)
-  echo "        <th class='table_currenthistory_header'>".substr(date("l",$current_week[$i]),0,3)."&nbsp;".date("n/j",$current_week[$i])."</th>\n";
+  echo "        <th class='table_currenthistory_header'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
 echo "      </tr>\n";
 while ( $currentuser = mysql_fetch_array($activeusers) )
   {
@@ -336,18 +341,25 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
           $cellhasdata = 0;
         if (($usercounts['Regular'] == 0) and ($usercounts['CatOnes'] == 0) and ($usercounts['Special'] == 0))
           $cellhasdata = 0;
-          
+        
+        
         $dst_value_from_current_time_sec = date("I",$usercounts['Date'])*60*60; // This is a 1*60*60 if DST is set on the time
-        $current_date_at_six_pm = $usercounts['Date'] + 60 * 60 * ( 12 - 18 - $timezone) + $dst_value_from_current_time_sec;
-        if (($usercounts['UpdateDate'] != '') and ($current_date_at_six_pm <= $usercounts['UpdateDate']) and ($cellhasdata == 1))
+        
+        $current_date_at_six_pm = $usercounts['Date'] + 60*60*18;
+        $update_date = $usercounts['UpdateDate']+60*60*$timezone+$dst_value_from_current_time_sec;
+        
+        if (($usercounts['UpdateDate'] != '') and ($update_date >= $usercounts['Date']) and ($cellhasdata == 1))
           {
           echo "        - ";
-          if ($usercounts['UpdateDate'] > ($usercounts['Date'] + 60 * 60 * ( 12 - $timezone) + $dst_value_from_current_time_sec )) 
+          if ($update_date >= $current_date_at_six_pm)
             {
             echo "eob\n";
             }
           else echo gmdate("g:ia",$usercounts['UpdateDate'] + 60*60*($timezone) + $dst_value_from_current_time_sec)."\n";
           }
+        if ($determineweek_debug == 1) echo "<br />(".gmdate("g:ia n/j",$usercounts['Date']).") >=";
+        if ($determineweek_debug == 1) echo "(".gmdate("g:ia n/j",$update_date).") >=";
+        if ($determineweek_debug == 1) echo "(".gmdate("g:ia n/j",$current_date_at_six_pm).")";
         echo "        </td>\n";
         }
     }
@@ -377,7 +389,7 @@ function TABLE_CURRENTQUEUE($userID,$current_week,&$con)
 echo "    <table  class='table_currentqueue'>\n";
 echo "      <tr class='table_currentqueue_row'>\n";
 for ($i=0;$i<5;$i++)
-  echo "        <th class='table_currentqueue_header'>".substr(date("l",$current_week[$i]),0,3)."&nbsp;".date("n/j",$current_week[$i])."</th>\n";
+  echo "        <th class='table_currentqueue_header'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
 echo "      </tr>\n";
 
 for ($i = 0; $i <= 4; $i++)

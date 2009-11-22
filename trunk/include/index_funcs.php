@@ -64,14 +64,14 @@ function CURRENTQUEUE($userID,$selecteddate,&$con)
 function NOTES(&$con)
 {
   $queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes';",&$con));
-  echo $queuenotes['OptionValue']."\n";
+  echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>";
 }
 
 
 function RULES(&$con)
 {
   $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",&$con));
-  echo $queuerules['OptionValue']."\n";
+  echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>";
 }
 
 

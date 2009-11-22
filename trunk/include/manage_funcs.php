@@ -78,14 +78,10 @@ function UPDATE_DB_OPTIONS(&$con)
 
 function TABLE_OPTIONS(&$con)
 {
+  echo "    <h2>Options:</h2>\n";
   echo "    <form method='post' name='options'>\n";
   echo "    <table>\n";
   
-  echo "    <tr>\n";
-  echo "      <th>Option</th>\n";
-  echo "      <th>Value</th>\n";
-  echo "    </tr>\n";
-
   $sitename = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
   echo "    <tr>\n";
   echo "      <td>".$sitename['OptionDesc']."</td>\n";  
@@ -110,14 +106,10 @@ function TABLE_OPTIONS(&$con)
   echo "    <input type='submit' id='options_submit' value='Update'>\n";
   echo "    </form>\n";
   
+  echo "    <h2>Passwords:</h2>\n";
   echo "    <form method='post'>\n";
   echo "    <table>\n";
   
-  echo "    <tr>\n";
-  echo "      <th>Password</th>\n";
-  echo "      <th>Value</th>\n";
-  echo "    </tr>\n";
-
   echo "    <tr>\n";
   echo "      <td>Old Password</td>\n";
   echo "      <td><input type='password' name='oldpassword' value='' /></td>\n";

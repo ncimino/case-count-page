@@ -64,14 +64,14 @@ function CURRENTQUEUE($userID,$selecteddate,&$con)
 function NOTES(&$con)
 {
   $queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes';",&$con));
-  echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>";
+  echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
 }
 
 
 function RULES(&$con)
 {
   $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",&$con));
-  echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>";
+  echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>\n";
 }
 
 
@@ -172,7 +172,7 @@ for ($i=0;$i<5;$i++)
 
 echo "        </tr>\n";
 echo "        <tr class='table_mycasecount_row'>\n";
-echo "          <th class='table_mycasecount_header'><span class='table_mycasecount_regular'>Regular</span></th>\n";
+echo "          <th class='table_mycasecount_cell'><span class='table_mycasecount_regular'>Regular</span></th>\n";
 
 for ($i=0;$i<=4;$i++) 
   {
@@ -192,7 +192,7 @@ for ($i=0;$i<=4;$i++)
 
 echo "        </tr>\n";
 echo "        <tr class='table_mycasecount_row'>\n";
-echo "          <th class='table_mycasecount_header'><span class='table_mycasecount_catones'>Cat 1</span></th>\n";
+echo "          <th class='table_mycasecount_cell'><span class='table_mycasecount_catones'>Cat 1</span></th>\n";
 
 for ($i=0;$i<=4;$i++)
   {
@@ -212,7 +212,7 @@ for ($i=0;$i<=4;$i++)
 
 echo "        </tr>\n";
 echo "        <tr class='table_mycasecount_row'>\n";
-echo "          <th class='table_mycasecount_header'><span class='table_mycasecount_special'>Special</span></th>\n";
+echo "          <th class='table_mycasecount_cell'><span class='table_mycasecount_special'>Special</span></th>\n";
 
 for ($i=0;$i<=4;$i++)
   { 
@@ -230,7 +230,7 @@ for ($i=0;$i<=4;$i++)
 
 echo "        </tr>\n";
 echo "        <tr class='table_mycasecount_row'>\n";
-echo "          <th class='table_mycasecount_header'><span class='table_mycasecount_transfer'>Transfer Out (-)</span></th>\n";
+echo "          <th class='table_mycasecount_cell'><span class='table_mycasecount_transfer'>Transfer Out (-)</span></th>\n";
 
 for ($i=0;$i<=4;$i++)
   { 
@@ -387,10 +387,10 @@ echo "    </script>\n";
 function TABLE_CURRENTQUEUE($userID,$current_week,&$con)
 {
 echo "    <table  class='table_currentqueue'>\n";
-echo "      <tr class='table_currentqueue_row'>\n";
-for ($i=0;$i<5;$i++)
-  echo "        <th class='table_currentqueue_header'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
-echo "      </tr>\n";
+// echo "      <tr class='table_currentqueue_row'>\n";
+// for ($i=0;$i<5;$i++)
+  // echo "        <th class='table_currentqueue_header'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+// echo "      </tr>\n";
 
 for ($i = 0; $i <= 4; $i++)
   {
@@ -402,6 +402,14 @@ for ($i = 0; $i <= 4; $i++)
   }
   
 rsort($shiftcount,SORT_NUMERIC);
+
+$total_shift_rows = 1+$shiftcount[0];
+
+echo "      <tr class='table_currentqueue_row'>\n";
+echo "        <td class='table_currentqueue_cell' rowspan='".$total_shift_rows."'>\n";
+echo "          Queue\n";
+echo "        </td>\n";
+echo "      </tr>\n";
 
 for ($row = 1; $row <= $shiftcount[0]; $row++)
   {

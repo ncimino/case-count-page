@@ -50,7 +50,6 @@ if ( VERIFY_USER($con) )
   </div>
   
   <div id="currentqueue" class="currentqueue">
-    <h3>Queue Shift</h3>
 <? CURRENTQUEUE($userID,$selecteddate,$con) ?>
   </div>
   

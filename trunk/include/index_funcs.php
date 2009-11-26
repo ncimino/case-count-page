@@ -265,20 +265,20 @@ function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con
   if ($determineweek_debug == 1) echo "  ** Debug Mode is enabled for TABLE_CURRENTHISTORY function. **<br>\n";
   
 $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",&$con);
-echo "    <table class='table_currenthistory'>\n";
-echo "      <tr class='table_currenthistory'>\n";
-echo "        <th class='table_currenthistory'>Name</th>\n";
+echo "    <table class='currenthistory'>\n";
+echo "      <tr class='currenthistory'>\n";
+echo "        <th class='currenthistory'>Name</th>\n";
 for ($i=0;$i<5;$i++)
-  echo "        <th class='table_currenthistory'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+  echo "        <th class='currenthistory'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
 echo "      </tr>\n";
 while ( $currentuser = mysql_fetch_array($activeusers) )
   {
-  echo "      <tr class='table_currenthistory'>\n";
+  echo "      <tr class='currenthistory'>\n";
   for ($col=1; $col<=6; $col++)
     {
       if ($col==1) 
         {
-        echo "        <td class='table_currenthistory";
+        echo "        <td class='currenthistory";
         echo "'>";
         if ($userID == $currentuser['userID'])
           echo "<span class='selecteduser'>".$currentuser['UserName']."</span>";
@@ -289,7 +289,7 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
       else 
         {
         $usercounts = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special,Transfer,UpdateDate,Date FROM Count WHERE userID='".$currentuser['userID']."' AND Date='".$current_week[$col-2]."';",$con));
-        echo "        <td class='table_currenthistory";
+        echo "        <td class='currenthistory";
         $currentusershift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE Date='".$current_week[$col-2]."' AND userID='".$currentuser['userID']."'",&$con));
         // This added a class to identify selected user and on shift
         if ((($currentuser['userID'] == $userID) and ($userID != '')) and ( $currentusershift['Shift'] > 0 ))

@@ -28,44 +28,29 @@ pre
 font-family:"Times New Roman", Times, serif;
 }
 
-.page
+div.page
 {
 font-family:"Times New Roman", Times, serif;
 position:relative;
 margin:5px;
 }
 
-.header
+div.header
 {
 text-align:center;
 }
 
-.topmenu
+div.topmenu
 {
 text-align:center;
 }
 
-.mycasecount
+div.notes
 {
 text-align:center;
 }
 
-div.currentqueue
-{
-text-align:center;
-}
-
-.notes
-{
-text-align:center;
-}
-
-.currenthistory
-{
-text-align:center;
-}
-
-.rules
+div.rules
 {
 }
 
@@ -102,10 +87,15 @@ background:white;
 background:wheat;
 }
 
-.showdetails
+div.showdetails
 {
 text-align:right;
 width:100%;
+}
+
+div.currentqueue
+{
+text-align:center;
 }
 
 table.currentqueue
@@ -127,28 +117,38 @@ text-align:center;
 width:10em;
 }
 
-table.table_currenthistory
+div.currenthistory
+{
+text-align:center;
+}
+
+table.currenthistory
 {
 border-collapse:collapse;
 }
 
-th.table_currenthistory
+th.currenthistory
 {
 text-align:center;
 width:10em;
 }
 
-tr.table_currenthistory
+tr.currenthistory
 {
 border:1px solid;
 }
 
-td.table_currenthistory
+td.currenthistory
 {
 padding-left:2px;
 border:1px solid;
 text-align:left;
 width:10em;
+}
+
+div.mycasecount
+{
+text-align:center;
 }
 
 table.mycasecount
@@ -172,7 +172,7 @@ width:10em;
 input.mycasecount
 {
 border:0px none;
-width:7em;
+width:5em;
 text-align:center;
 }
 

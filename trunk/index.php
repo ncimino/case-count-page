@@ -50,6 +50,7 @@ if ( VERIFY_USER($con) )
   </div>
   
   <div id="currentqueue" class="currentqueue">
+		<br />
 <? CURRENTQUEUE($userID,$selecteddate,$con) ?>
   </div>
   
@@ -58,7 +59,6 @@ if ( VERIFY_USER($con) )
   </div>
   
   <div id="currenthistory" class="currenthistory">
-  <br />
 <? CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,$con);
   $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
   echo "    Last updated: ".gmdate("n/j h:i A",mktime()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes\n";

@@ -50,7 +50,7 @@ text-align:center;
 text-align:center;
 }
 
-.currentqueue
+div.currentqueue
 {
 text-align:center;
 }
@@ -108,42 +108,42 @@ text-align:right;
 width:100%;
 }
 
-.table_currentqueue
+table.currentqueue
 {
 border-collapse:collapse;
-/*margin-left:10em;*/
 }
 
-.table_currentqueue_header
+th.currentqueue
 {
+border:0px none;
 text-align:center;
 width:10em;
 }
 
-.table_currentqueue_cell
+td.currentqueue
 {
 border:1px solid;
 text-align:center;
 width:10em;
 }
 
-.table_currenthistory
+table.table_currenthistory
 {
 border-collapse:collapse;
 }
 
-.table_currenthistory_header
+th.table_currenthistory
 {
 text-align:center;
 width:10em;
 }
 
-.table_currenthistory_row
+tr.table_currenthistory
 {
 border:1px solid;
 }
 
-.table_currenthistory_cell
+td.table_currenthistory
 {
 padding-left:2px;
 border:1px solid;
@@ -151,32 +151,32 @@ text-align:left;
 width:10em;
 }
 
-.table_mycasecount
+table.mycasecount
 {
 border-collapse:collapse;
 }
 
-.table_mycasecount_header
+th.mycasecount
 {
 text-align:center;
 width:10em;
 }
 
-.table_mycasecount_cell
+td.mycasecount
 {
 border:1px solid;
 text-align:center;
 width:10em;
 }
 
-.table_mycasecount_input
+input.mycasecount
 {
 border:0px none;
-width:10em;
+width:7em;
 text-align:center;
 }
 
-.table_mycasecount_regular
+.mycasecount_regular
 {
 width:10em;
 color:darkblue;
@@ -184,28 +184,28 @@ font-weight:bold;
 text-align:right;
 }
 
-.table_mycasecount_catones
+.mycasecount_catones
 {
 color:darkred;
 font-weight:bold;
 text-align:right;
 }
 
-.table_mycasecount_special
+.mycasecount_special
 {
 color:darkgreen;
 font-weight:bold;
 text-align:right;
 }
 
-.table_mycasecount_transfer
+.mycasecount_transfer
 {
 color:black;
 font-weight:bold;
 text-align:right;
 }
 
-.table_mycasecount_total
+.mycasecount_total
 {
 color:black;
 font-weight:bold;

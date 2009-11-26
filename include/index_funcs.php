@@ -14,11 +14,11 @@ function MYCASECOUNT($userID,$selecteddate,&$con)
     {
     if ($userID == '') // If user is not set then show a legend to make sense of the colors
       {
-      echo "    <span class='table_mycasecount_total'>Total</span> =\n";
-      echo "    <span class='table_mycasecount_regular'>Regular</span>\n";
-      echo "    <span class='table_mycasecount_catones'>Cat 1</span>\n";
-      echo "    <span class='table_mycasecount_special'>Special</span> |\n";
-      echo "    <span class='table_mycasecount_transfer'>Transfer</span>\n";
+      echo "    <span class='mycasecount_total'>Total</span> =\n";
+      echo "    <span class='mycasecount_regular'>Regular</span>\n";
+      echo "    <span class='mycasecount_catones'>Cat 1</span>\n";
+      echo "    <span class='mycasecount_special'>Special</span> |\n";
+      echo "    <span class='mycasecount_transfer'>Transfer</span>\n";
       }
     else
       {
@@ -163,21 +163,21 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 $username = mysql_fetch_array(mysql_query("SELECT UserName FROM Users WHERE Active=1 AND userID=".$userID.";",$con));
 echo "    <form name='mycasecount' method='post'>\n";
 echo "      <input type='hidden' name='selecteddate' value='".$_GET['selecteddate']."'>\n";
-echo "      <table class='table_mycasecount'>\n";
-echo "        <tr class='table_mycasecount_row'>\n";
-echo "          <th class='table_mycasecount_header'><span class='selecteduser'>".$username['UserName']."</span></th>\n";
+echo "      <table class='mycasecount'>\n";
+echo "        <tr class='mycasecount'>\n";
+echo "          <th class='mycasecount'><span class='selecteduser'>".$username['UserName']."</span></th>\n";
 
 for ($i=0;$i<5;$i++)
-  echo "          <th class='table_mycasecount_header'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+  echo "          <th class='mycasecount'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
 
 echo "        </tr>\n";
-echo "        <tr class='table_mycasecount_row'>\n";
-echo "          <th class='table_mycasecount_cell'><span class='table_mycasecount_regular'>Regular</span></th>\n";
+echo "        <tr class='mycasecount'>\n";
+echo "          <th class='mycasecount'><span class='mycasecount_regular'>Regular</span></th>\n";
 
 for ($i=0;$i<=4;$i++) 
   {
-  echo "          <td class='table_mycasecount_cell'>\n";
-  echo "          <input type='text' class='table_mycasecount_input' name='reg_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
+  echo "          <td class='mycasecount'>\n";
+  echo "          <input type='text' class='mycasecount' name='reg_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
   $getcount= mysql_query("SELECT Regular FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) 
     echo " value='0' ";
@@ -191,13 +191,13 @@ for ($i=0;$i<=4;$i++)
   }
 
 echo "        </tr>\n";
-echo "        <tr class='table_mycasecount_row'>\n";
-echo "          <th class='table_mycasecount_cell'><span class='table_mycasecount_catones'>Cat 1</span></th>\n";
+echo "        <tr class='mycasecount'>\n";
+echo "          <th class='mycasecount'><span class='mycasecount_catones'>Cat 1</span></th>\n";
 
 for ($i=0;$i<=4;$i++)
   {
-  echo "          <td class='table_mycasecount_cell'>\n";
-  echo "          <input type='text' class='table_mycasecount_input' name='cat1_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
+  echo "          <td class='mycasecount'>\n";
+  echo "          <input type='text' class='mycasecount' name='cat1_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
   $getcount= mysql_query("SELECT CatOnes FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) 
     echo " value='0' ";
@@ -211,13 +211,13 @@ for ($i=0;$i<=4;$i++)
   }
 
 echo "        </tr>\n";
-echo "        <tr class='table_mycasecount_row'>\n";
-echo "          <th class='table_mycasecount_cell'><span class='table_mycasecount_special'>Special</span></th>\n";
+echo "        <tr class='mycasecount'>\n";
+echo "          <th class='mycasecount'><span class='mycasecount_special'>Special</span></th>\n";
 
 for ($i=0;$i<=4;$i++)
   { 
-  echo "          <td class='table_mycasecount_cell'>\n";
-  echo "          <input type='text' class='table_mycasecount_input' name='spec_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
+  echo "          <td class='mycasecount'>\n";
+  echo "          <input type='text' class='mycasecount' name='spec_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
   $getcount= mysql_query("SELECT Special FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
   else {
@@ -229,13 +229,13 @@ for ($i=0;$i<=4;$i++)
   }
 
 echo "        </tr>\n";
-echo "        <tr class='table_mycasecount_row'>\n";
-echo "          <th class='table_mycasecount_cell'><span class='table_mycasecount_transfer'>Transfer Out (-)</span></th>\n";
+echo "        <tr class='mycasecount'>\n";
+echo "          <th class='mycasecount'><span class='mycasecount_transfer'>Transfer Out (-)</span></th>\n";
 
 for ($i=0;$i<=4;$i++)
   { 
-  echo "          <td class='table_mycasecount_cell'>\n";
-  echo "          <input type='text' class='table_mycasecount_input' name='tran_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
+  echo "          <td class='mycasecount'>\n";
+  echo "          <input type='text' class='mycasecount' name='tran_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
   $getcount= mysql_query("SELECT Transfer FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
   if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
   else {
@@ -266,19 +266,19 @@ function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con
   
 $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",&$con);
 echo "    <table class='table_currenthistory'>\n";
-echo "      <tr class='table_currenthistory_row'>\n";
-echo "        <th class='table_currenthistory_header'>Name</th>\n";
+echo "      <tr class='table_currenthistory'>\n";
+echo "        <th class='table_currenthistory'>Name</th>\n";
 for ($i=0;$i<5;$i++)
-  echo "        <th class='table_currenthistory_header'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+  echo "        <th class='table_currenthistory'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
 echo "      </tr>\n";
 while ( $currentuser = mysql_fetch_array($activeusers) )
   {
-  echo "      <tr class='table_currenthistory_row'>\n";
+  echo "      <tr class='table_currenthistory'>\n";
   for ($col=1; $col<=6; $col++)
     {
       if ($col==1) 
         {
-        echo "        <td class='table_currenthistory_cell";
+        echo "        <td class='table_currenthistory";
         echo "'>";
         if ($userID == $currentuser['userID'])
           echo "<span class='selecteduser'>".$currentuser['UserName']."</span>";
@@ -289,7 +289,7 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
       else 
         {
         $usercounts = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special,Transfer,UpdateDate,Date FROM Count WHERE userID='".$currentuser['userID']."' AND Date='".$current_week[$col-2]."';",$con));
-        echo "        <td class='table_currenthistory_cell";
+        echo "        <td class='table_currenthistory";
         $currentusershift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE Date='".$current_week[$col-2]."' AND userID='".$currentuser['userID']."'",&$con));
         // This added a class to identify selected user and on shift
         if ((($currentuser['userID'] == $userID) and ($userID != '')) and ( $currentusershift['Shift'] > 0 ))
@@ -324,16 +324,16 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
           $transfercases = $usercounts['Transfer'];
         
         $total = $regularcases + $catonecases + $specialcases;
-        echo "        <span class='table_mycasecount_total'>".$total."</span>\n";
+        echo "        <span class='mycasecount_total'>".$total."</span>\n";
         
         if ( $showdetails == 'on')
           {
           echo "        =\n";
-          echo "        <span class='table_mycasecount_regular'>".$regularcases."</span>\n";
-          echo "        <span class='table_mycasecount_catones'>".$catonecases."</span>\n";
-          echo "        <span class='table_mycasecount_special'>".$specialcases."</span>\n";
+          echo "        <span class='mycasecount_regular'>".$regularcases."</span>\n";
+          echo "        <span class='mycasecount_catones'>".$catonecases."</span>\n";
+          echo "        <span class='mycasecount_special'>".$specialcases."</span>\n";
           echo "        |\n";
-          echo "        <span class='table_mycasecount_transfer'>".$transfercases."</span>\n";
+          echo "        <span class='mycasecount_transfer'>".$transfercases."</span>\n";
           }
         
         $cellhasdata = 1;
@@ -386,10 +386,10 @@ echo "    </script>\n";
 
 function TABLE_CURRENTQUEUE($userID,$current_week,&$con)
 {
-echo "    <table  class='table_currentqueue'>\n";
-// echo "      <tr class='table_currentqueue_row'>\n";
+echo "    <table  class='currentqueue'>\n";
+// echo "      <tr class='currentqueue_row'>\n";
 // for ($i=0;$i<5;$i++)
-  // echo "        <th class='table_currentqueue_header'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+  // echo "        <th class='currentqueue_header'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
 // echo "      </tr>\n";
 
 for ($i = 0; $i <= 4; $i++)
@@ -403,20 +403,17 @@ for ($i = 0; $i <= 4; $i++)
   
 rsort($shiftcount,SORT_NUMERIC);
 
-$total_shift_rows = 1+$shiftcount[0];
-
-echo "      <tr class='table_currentqueue_row'>\n";
-echo "        <td class='table_currentqueue_cell' rowspan='".$total_shift_rows."'>\n";
-echo "          Queue\n";
-echo "        </td>\n";
-echo "      </tr>\n";
-
 for ($row = 1; $row <= $shiftcount[0]; $row++)
   {
-  echo "      <tr class='table_currentqueue_row'>\n";
+  echo "      <tr class='currentqueue'>\n";
   for ($col = 1; $col <= 5; $col++)
     {  
-    echo "       <td class='table_currentqueue_cell";
+		if (($col == 1) and ($row == 1)) {
+			echo "        <th class='currentqueue' rowspan='".$shiftcount[0]."'>\n";
+			echo "          Queue\n";
+			echo "        </th>\n";
+		}
+    echo "       <td class='currentqueue";
     if (($namesAndShifts[$col-1][$row-1]['userID'] == $userID ) and ($userID != ''))
       echo " selectedusercell_queue";
     echo "'>";

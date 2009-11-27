@@ -76,11 +76,22 @@ function CHECKSCHEDULEDATES($con)
     }
 }
 
+
 function ADDEMAILCOLUMNTOUSERS(&$con)
 {
   echo "Adding column 'UserEmail' to 'Users' table...<br />\n";
 	$sql="ALTER TABLE Users ADD UserEmail varchar(255)";
 	if (RUN_QUERY($sql,"UserEmail column was not added.",$con))
+		echo "- The column was <span class='success'>Added</span><br />\n"; 
+}
+
+
+function ADDQUEUEMAXTOOPTIONS(&$con)
+{
+  echo "Adding Queue max to 'Options'...<br />\n";
+	$sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
+        VALUES ('queuemax','Queue max:','8');";
+  if (RUN_QUERY($sql,"Adding Queue max failed",$con))
 		echo "- The column was <span class='success'>Added</span><br />\n"; 
 }
 

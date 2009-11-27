@@ -127,7 +127,7 @@ echo "    </script>\n";
 function SEND_QUEUE_EMAIL($current_week,&$con)
 {
 echo "<form method='post'>\n";
-echo "<input type='submit' id='send_queue_email' value='Send email' />\n";
+echo "<input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send the schedule out?\")' />\n";
 echo "Initial: <input type='radio' checked='checked' name='initial_email' value='1' />\n";
 echo "Updated: <input type='radio' name='initial_email' value='2' />\n";
 echo "</form>\n";

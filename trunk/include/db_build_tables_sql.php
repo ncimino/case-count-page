@@ -8,6 +8,7 @@ userID int NOT NULL AUTO_INCREMENT,
 PRIMARY KEY(userID),
 UserName varchar(255) NOT NULL,
 UNIQUE (UserName),
+UserEmail varchar(255),
 Active bit NOT NULL
 )";
 return DB_TABLE_CREATE($sql,$con);

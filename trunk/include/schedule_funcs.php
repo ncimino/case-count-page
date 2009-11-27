@@ -169,7 +169,12 @@ if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
 
 	$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
 
-	$to = "nik.cimino@gmail.com,nikcimino@gmail.com,";
+	$activeusers = mysql_query("SELECT UserEmail FROM Users WHERE Active=1;",&$con);
+	while ( $currentuser = mysql_fetch_array($activeusers) )
+		{
+		$to .= $currentuser['UserEmail'].",";
+		}
+		
 	$subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
 	if ($_POST['initial_email'] == 2)
 		$subject = "Updated: ".$subject;
@@ -195,6 +200,8 @@ if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
 	$headers .= 'From: '.$from."\r\n";
 	if (mail($to,$subject,$message,$headers))
 		echo "Email sent.";
+	else
+		echo "Email was not sent.";
 	}
 }
 

@@ -50,6 +50,11 @@ if ( VERIFY_USER($con) )
 <? ADDEMAILCOLUMNTOUSERS($con) ?>
   </div>
   
+  <div id="addqueuemaxtooptions" class="addqueuemaxtooptions">
+    <hr width='50%' />
+<? ADDQUEUEMAXTOOPTIONS($con) ?>
+  </div>
+  
 </div>
 </body>
 </html>

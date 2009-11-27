@@ -399,6 +399,8 @@ for ($i = 0; $i <= 4; $i++)
   
 rsort($shiftcount,SORT_NUMERIC);
 
+$queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax';",&$con));
+
 for ($row = 1; $row <= $shiftcount[0]; $row++)
   {
   echo "      <tr class='currentqueue'>\n";
@@ -406,7 +408,8 @@ for ($row = 1; $row <= $shiftcount[0]; $row++)
     {  
 		if (($col == 1) and ($row == 1)) {
 			echo "        <th class='currentqueue' rowspan='".$shiftcount[0]."'>\n";
-			echo "          Queue\n";
+			echo "          Queue<br />\n";
+			echo "          Max: ".$queuemax['OptionValue']."\n";
 			echo "        </th>\n";
 		}
     echo "       <td class='currentqueue";

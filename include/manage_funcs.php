@@ -19,6 +19,9 @@ function CREATE_DEFAULT_OPTIONS(&$con)
   $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
         VALUES ('queuenotes','Queue notes:','Some queue notes');";
   RUN_QUERY($sql,"'queuenotes' Default options were not set",$con);
+	$sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
+        VALUES ('queuemax','Queue max:','8');";
+  RUN_QUERY($sql,"'queuemax' Default options were not set",$con);
 }
 
 
@@ -41,12 +44,20 @@ function UPDATE_DB_OPTIONS(&$con)
     RUN_QUERY($sql,"Queue rules were not updated",$con);
     }
     
-  // Update the 'queuenotes' if it was changed
+  // Update the 'queuenotes' if it was changed 
   $queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes';",&$con));
   if (( $_POST['queuenotes'] != $queuenotes['OptionValue'] ) and ( $_POST['options_datasent'] != '' ))
     {
     $sql="UPDATE Options SET OptionValue = '".$_POST['queuenotes']."' WHERE OptionName = 'queuenotes'";
     RUN_QUERY($sql,"Queue notes were not updated",$con);
+    }
+	
+	// Update the 'queuemax' if it was changed 
+  $queuemax = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuemax';",&$con));
+  if (( $_POST['queuemax'] != $queuemax['OptionValue'] ) and ( $_POST['options_datasent'] != '' ))
+    {
+    $sql="UPDATE Options SET OptionValue = '".$_POST['queuemax']."' WHERE OptionName = 'queuemax'";
+    RUN_QUERY($sql,"Queue Max was not updated",$con);
     }
 
   // Get the already crypted password from the DB
@@ -98,6 +109,24 @@ function TABLE_OPTIONS(&$con)
   echo "    <tr>\n";
   echo "      <td>".$queuenotes['OptionDesc']."</td>\n";  
   echo "      <td><textarea cols='80' rows='8' name='queuenotes'>".$queuenotes['OptionValue']."</textarea></td>\n";  
+  echo "    </tr>\n";
+
+  $queuemax = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuemax';",&$con));
+  echo "    <tr>\n";
+  echo "      <td>".$queuemax['OptionDesc']."</td>\n";  
+  echo "      <td>\n";
+	echo "      	<select name='queuemax'>\n";
+	
+	for ($i = 1; $i < 15; $i++)
+		{
+		echo "      	<option value='$i'";
+		if ($i == $queuemax['OptionValue'])
+			echo " selected='selected'";
+		echo ">$i</option>\n";
+		}
+
+	echo "      	</select>\n";
+	echo "      </td>\n";  
   echo "    </tr>\n";
   
   echo "    </table>\n";

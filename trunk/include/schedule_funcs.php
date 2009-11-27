@@ -15,6 +15,7 @@ else
   {
   UPDATE_DB_SCHEDULE($current_week,$con);
   TABLE_SCHEDULE($current_week,$con);
+	SEND_QUEUE_EMAIL($current_week,&$con);
   }
 }
 
@@ -120,6 +121,81 @@ echo "    <script type='text/javascript'>\n";
 echo "      <!--\n";
 echo "      document.getElementById('schedule_submit').style.display='none'; // hides button if JS is enabled-->\n";
 echo "    </script>\n";
+}
+
+
+function SEND_QUEUE_EMAIL($current_week,&$con)
+{
+echo "<form method='post'>\n";
+echo "<input type='submit' id='send_queue_email' value='Send email' />\n";
+echo "Initial: <input type='radio' checked='checked' name='initial_email' value='1' />\n";
+echo "Updated: <input type='radio' name='initial_email' value='2' />\n";
+echo "</form>\n";
+
+if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
+	{
+	$currentqueue = "<table style=\"border-collapse:collapse;width:50em;\">";
+	
+	$currentqueue .= "      <tr>\n";
+	for ($i=0;$i<5;$i++)
+		$currentqueue .= "        <th style=\"border:0px none;text-align:center;width:10em;\">".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+	$currentqueue .= "      </tr>\n";
+	
+	for ($i = 0; $i <= 4; $i++)
+		{
+		$shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i],$con));
+		$shiftcount[$i] = $shift['COUNT(Shift)'];
+		$currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+		$j = 0;
+		while ($getarray = mysql_fetch_array($currentday)) { $namesAndShifts[$i][$j++] = $getarray; }
+		}
+		
+	rsort($shiftcount,SORT_NUMERIC);
+
+	for ($row = 1; $row <= $shiftcount[0]; $row++)
+		{
+		$currentqueue .= "      <tr class='currentqueue'>\n";
+		for ($col = 1; $col <= 5; $col++)
+			{
+			$currentqueue .= "       <td style=\"border:1px solid;text-align:center;width:10em;\">";
+			$currentqueue .= $namesAndShifts[$col-1][$row-1]['UserName'];
+			if ($namesAndShifts[$col-1][$row-1]['Shift'] == 1)
+				$currentqueue .= "&nbsp;(.5)";
+			$currentqueue .= "</td>\n";
+			}
+		$currentqueue .= "      </tr>\n";
+		}
+	$currentqueue .= "    </table>\n";
+
+	$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
+
+	$to = "nik.cimino@gmail.com,nikcimino@gmail.com,";
+	$subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
+	if ($_POST['initial_email'] == 2)
+		$subject = "Updated: ".$subject;
+	$message = "<html>
+	<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;\">
+	<style>
+	body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}
+	</style>
+	<h3>";
+	if ($_POST['initial_email'] == 2)
+		$message .= "Updated: ";
+	$message .= "Queue Schedule</h3>
+	".$currentqueue."
+	<br />
+	<hr width='50%' />
+	Sent via: ".$site_name['OptionValue']."<br />
+	<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>
+	</body>
+	</html>";
+	$from = MAIN_EMAILS_FROM;
+	$headers = "MIME-Version: 1.0" . "\r\n";
+	$headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
+	$headers .= 'From: '.$from."\r\n";
+	if (mail($to,$subject,$message,$headers))
+		echo "Email sent.";
+	}
 }
 
 ?>

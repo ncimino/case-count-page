@@ -387,10 +387,6 @@ echo "    </script>\n";
 function TABLE_CURRENTQUEUE($userID,$current_week,&$con)
 {
 echo "    <table  class='currentqueue'>\n";
-// echo "      <tr class='currentqueue_row'>\n";
-// for ($i=0;$i<5;$i++)
-  // echo "        <th class='currentqueue_header'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
-// echo "      </tr>\n";
 
 for ($i = 0; $i <= 4; $i++)
   {

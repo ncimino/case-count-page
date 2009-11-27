@@ -44,6 +44,11 @@ if ( VERIFY_USER($con) )
     <hr width='50%' />
 <? CHECKSCHEDULEDATES($con) ?>
   </div>
+
+  <div id="addemailcolumntousers" class="addemailcolumntousers">
+    <hr width='50%' />
+<? ADDEMAILCOLUMNTOUSERS($con) ?>
+  </div>
   
 </div>
 </body>

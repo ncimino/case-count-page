@@ -125,10 +125,10 @@ echo "    <form method='post' name='showdetailsform'>\n";
 // echo "      <input type='submit' id='showdetails_submit' value='update' />\n";
 // echo "     </div>\n";
 echo "    </form>\n";
-echo "    <script type='text/javascript'>\n";
-echo "      <!--\n";
-echo "      document.getElementById('showdetails_submit').style.display='none'; // hides button if JS is enabled-->\n";
-echo "    </script>\n";
+// echo "    <script type='text/javascript'>\n";
+// echo "      <!--\n";
+// echo "      document.getElementById('showdetails_submit').style.display='none'; // hides button if JS is enabled-->\n";
+// echo "    </script>\n";
 }
 
 ?>

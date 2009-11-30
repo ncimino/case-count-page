@@ -254,11 +254,6 @@ function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,
 		echo "Email sent to: ".$userName_of_target."<br />\n";
 	else
 		echo "Email was not sent to: ".$userName_of_target."<br />\n";
-    
-    echo $to."<br />\n";
-    echo $subject."<br />\n";
-    echo $message."<br />\n";
-    echo $headers."<br />\n";
 }
 
 

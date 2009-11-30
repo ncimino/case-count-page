@@ -9,7 +9,7 @@ function USERS(&$con)
 
 function UPDATE_DB_USERS(&$con)
 {
-if ( $_POST['edituser'] != "" and $_POST['newusername'] != "" and $_POST['newuseremail'] != "")
+if ( $_POST['edituser'] != "" and $_POST['newusername'] != "") // Only update changes to user info if the user name is not blank
   {
   $sql="UPDATE Users SET UserName = '".$_POST['newusername']."', UserEmail = '".$_POST['newuseremail']."' WHERE userID = '".$_POST['edituser']."'";
   RUN_QUERY($sql,"User was not updated.",$con);
@@ -37,7 +37,7 @@ if ( $_POST['makeinactive'] != "" )
   RUN_QUERY($sql,"User was not deleted.",$con);
   }
 
-if ( $_POST['createusername'] != "" and $_POST['createuseremail'] != "" )
+if ( $_POST['createusername'] != "" ) // Only add a user if their name is not blank
   {
   $sql="INSERT INTO Users (UserName, UserEmail, Active) VALUES ('".$_POST['createusername']."','".$_POST['createuseremail']."',1)";
   RUN_QUERY($sql,"User was not created.",$con);
@@ -49,7 +49,7 @@ function TABLE_USERS(&$con)
 $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
 $nonactiveusers = mysql_query("SELECT * FROM Users WHERE Active=0;",&$con);
 
-if ( $_POST['edituser'] != "" and $_POST['newusername'] == "" and $_POST['newuseremail'] == "")
+if ( $_POST['edituser'] != "" and $_POST['newusername'] == "" and $_POST['newuseremail'] == "") // If we went to edit user but nothing was entered then display change form
   {
   $username = mysql_fetch_array(mysql_query("SELECT UserName,UserEmail FROM Users WHERE userID=".$_POST['edituser'].";",&$con));
   echo "<h2> Change users info: </h2>\n";

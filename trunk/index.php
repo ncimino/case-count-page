@@ -50,7 +50,7 @@ if ( VERIFY_USER($con) )
   </div>
   
   <div id="currentqueue" class="currentqueue">
-		<br />
+    <br />
 <? CURRENTQUEUE($userID,$selecteddate,$con) ?>
   </div>
   

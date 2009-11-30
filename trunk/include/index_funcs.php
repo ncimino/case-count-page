@@ -134,22 +134,77 @@ function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
 {
 for ($i=0;$i<=4;$i++) 
   {
+  // If any data was sent then add it to the DB
   if (($_POST["reg_".$current_week[$i]] != '') and ($_POST["cat1_".$current_week[$i]] != '') and ($_POST["spec_".$current_week[$i]] != '') and ($_POST["tran_".$current_week[$i]] != ''))
     {
     $checkforentry = mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID ='".$userID."'",&$con);
-    if ( mysql_num_rows($checkforentry) == 0 ) 
+    if ( mysql_num_rows($checkforentry) == 0 ) // If no entry exists then INSERT
+      {
       $sql="INSERT INTO Count (userID, CatOnes, Special, Regular, Transfer, Date, UpdateDate) 
             VALUES ('".$userID."',".$_POST["cat1_".$current_week[$i]].",".$_POST["spec_".$current_week[$i]].",".$_POST["reg_".$current_week[$i]].",".$_POST["tran_".$current_week[$i]].",".$current_week[$i].",".mktime().")";
-    else 
+      }
+    else // If an entry exists then UPDATE it
       {
       $checkchanges = mysql_fetch_array($checkforentry);
-      if (($checkchanges['CatOnes'] == $_POST["cat1_".$current_week[$i]]) and 
-          ($checkchanges['Regular'] == $_POST["reg_".$current_week[$i]]) and 
+      // If data was sent, data exists, but the data was unchanged, then preserve the original update date
+      if (($checkchanges['CatOnes']  == $_POST["cat1_".$current_week[$i]]) and 
+          ($checkchanges['Regular']  == $_POST["reg_".$current_week[$i]]) and 
           ($checkchanges['Transfer'] == $_POST["tran_".$current_week[$i]]) and 
-          ($checkchanges['Special'] == $_POST["spec_".$current_week[$i]])) 
+          ($checkchanges['Special']  == $_POST["spec_".$current_week[$i]])) 
+        {
         $updatedate = $checkchanges['UpdateDate'];
-      else
+        }
+      else // Else if data was sent, data exists, and the data was changed, then update the update date to now
+        {
+        $old_case_total = $checkchanges['CatOnes'] + $checkchanges['Regular'] + $checkchanges['Special'];
+        $new_case_total = $_POST["cat1_".$current_week[$i]] + $_POST["reg_".$current_week[$i]] + $_POST["spec_".$current_week[$i]];
+        $queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax';",&$con));
+        // If prev case count was below max and new one is above or equal to max, then we need to send an email
+        if (($old_case_total < $queuemax['OptionValue']) and ($new_case_total >= $queuemax['OptionValue']))
+          {
+          // Build a list of all users that are currently on queue, and check if the selected user is on queue
+          $get_all_on_queue_count = mysql_query("SELECT Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+          $j = 0;
+          $user_is_on_queue = 0;
+          while ($current_user_count = mysql_fetch_array($get_all_on_queue_count))
+            {
+            if ($current_user_count['Shift'] > 0)
+              {
+              if ($current_user_count['userID'] == $userID) // only continue if user is on queue
+                {
+                $user_is_on_queue = 1;
+                }
+              else // Don't add the current user to the list of those to send and email to
+                {
+                $list_of_users_on_queue[$j++] = $current_user_count['userID'];
+                }
+              }
+            }
+          if ($user_is_on_queue == 1) // Only send email if the user that went above max is on queue
+            {
+            $number_of_maxed = 0;
+            for ($k = 0; $k < $j; $k++)
+              {
+//              echo "SELECT Regular,CatOnes,Special FROM Count WHERE Date = ".$current_week[$i]." AND userID = ".$list_of_users_on_queue[$k]."<br>\n";
+              $case_count_for_user[$k] = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special FROM Count WHERE Date = ".$current_week[$i]." AND userID = ".$list_of_users_on_queue[$k],$con));
+              $case_total_for_user[$k] = $case_count_for_user[$k]['Regular'] + $case_count_for_user[$k]['CatOnes'] + $case_count_for_user[$k]['Special'];
+              if ($case_total_for_user[$k] < $queuemax['OptionValue'])              
+                {
+                SEND_USER_MAX_EMAIL($list_of_users_on_queue[$k],$userID,$current_week[$i],$con);
+                }
+              if ($case_total_for_user[$k] >= $queuemax['OptionValue'])
+                {
+                $number_of_maxed++;
+                if ($number_of_maxed == $j) // All on queue have maxed 
+                  {
+                  SEND_ALL_MAX_EMAIL($current_week[$i],$con);
+                  }
+                }
+              }
+            }
+          }
         $updatedate = mktime();
+        }
       $sql="UPDATE Count SET CatOnes = '".$_POST["cat1_".$current_week[$i]]."', Special = '".$_POST["spec_".$current_week[$i]]."', Regular = '".$_POST["reg_".$current_week[$i]]."', Transfer = '".$_POST["tran_".$current_week[$i]]."', UpdateDate = '".$updatedate."' WHERE userID = '".$userID."' AND Date = '".$current_week[$i]."'";
       }
     RUN_QUERY($sql,"Values were not updated.",$con);
@@ -158,11 +213,99 @@ for ($i=0;$i<=4;$i++)
 }
 
 
+function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,&$con)
+{
+	$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
+
+	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
+	while ( $currentuser = mysql_fetch_array($activeusers) )
+		{
+    if ($currentuser['userID'] == $send_email_to_userID) // Prevent emails from being sent to people that don't have an email
+      {
+      $to = $currentuser['UserEmail'];
+      $userName_of_target = $currentuser['UserName'];
+      }
+    if ($currentuser['userID'] == $userID_that_maxed) // Prevent emails from being sent to people that don't have an email
+      {
+      $userName_that_maxed = $currentuser['UserName'];
+      }
+    }
+		
+	$subject = "Queue - ".gmdate("n/j",$max_date)." - ".$userName_that_maxed." maxed";
+
+	$message = "<html>
+	<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;\">
+	<style>
+	body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}
+	</style>
+	<h3>Queue</h3>
+	".$userName_that_maxed." maxed on ".gmdate("n/j",$max_date)."
+	<br />
+	<hr width='50%' />
+	Sent via: ".$site_name['OptionValue']."<br />
+	<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>
+	</body>
+	</html>";
+	$from = MAIN_EMAILS_FROM;
+	$headers = "MIME-Version: 1.0" . "\r\n";
+	$headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
+	$headers .= 'From: '.$from."\r\n";
+	if (mail($to,$subject,$message,$headers))
+		echo "Email sent to: ".$userName_of_target."<br />\n";
+	else
+		echo "Email was not sent to: ".$userName_of_target."<br />\n";
+    
+    echo $to."<br />\n";
+    echo $subject."<br />\n";
+    echo $message."<br />\n";
+    echo $headers."<br />\n";
+}
+
+
+function SEND_ALL_MAX_EMAIL($max_date,&$con)
+{
+	$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
+
+	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
+	while ( $currentuser = mysql_fetch_array($activeusers) )
+		{
+    if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
+      {
+      $to .= $currentuser['UserEmail'].",";
+      }
+    }
+		
+	$subject = "Queue - ".gmdate("n/j",$max_date)." - Everyone on queue maxed";
+
+	$message = "<html>
+	<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;\">
+	<style>
+	body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}
+	</style>
+	<h3>Queue</h3>
+	Everyone on queue maxed on ".gmdate("n/j",$max_date)."
+	<br />
+	<hr width='50%' />
+	Sent via: ".$site_name['OptionValue']."<br />
+	<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>
+	</body>
+	</html>";
+	$from = MAIN_EMAILS_FROM;
+	$headers = "MIME-Version: 1.0" . "\r\n";
+	$headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
+	$headers .= 'From: '.$from."\r\n";
+	if (mail($to,$subject,$message,$headers))
+		echo "Email sent to everyone.<br />\n";
+	else
+		echo "Email was not sent to everyone.<br />\n";
+}
+
+
 function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 {
 $username = mysql_fetch_array(mysql_query("SELECT UserName FROM Users WHERE Active=1 AND userID=".$userID.";",$con));
 echo "    <form name='mycasecount' method='post'>\n";
-echo "      <input type='hidden' name='selecteddate' value='".$_GET['selecteddate']."'>\n";
+echo "      <input type='hidden' name='selecteddate' value='".$_GET['selecteddate']."' />\n";
 echo "      <table class='mycasecount'>\n";
 echo "        <tr class='mycasecount'>\n";
 echo "          <th class='mycasecount'><span class='selecteduser'>".$username['UserName']."</span></th>\n";

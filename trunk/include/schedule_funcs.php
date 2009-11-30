@@ -172,10 +172,10 @@ if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
 	$activeusers = mysql_query("SELECT UserEmail FROM Users WHERE Active=1;",&$con);
 	while ( $currentuser = mysql_fetch_array($activeusers) )
 		{
-    if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
-      {
+    // if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
+      // {
       $to .= $currentuser['UserEmail'].",";
-      }
+      // }
     }
 		
 	$subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);

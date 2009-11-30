@@ -127,7 +127,7 @@ echo "    </script>\n";
 function SEND_QUEUE_EMAIL($current_week,&$con)
 {
 echo "<form method='post'>\n";
-echo "<input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send the schedule out?\")' />\n";
+echo "<input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
 echo "Initial: <input type='radio' checked='checked' name='initial_email' value='1' />\n";
 echo "Updated: <input type='radio' name='initial_email' value='2' />\n";
 echo "</form>\n";
@@ -172,8 +172,11 @@ if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
 	$activeusers = mysql_query("SELECT UserEmail FROM Users WHERE Active=1;",&$con);
 	while ( $currentuser = mysql_fetch_array($activeusers) )
 		{
-		$to .= $currentuser['UserEmail'].",";
-		}
+    if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
+      {
+      $to .= $currentuser['UserEmail'].",";
+      }
+    }
 		
 	$subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
 	if ($_POST['initial_email'] == 2)

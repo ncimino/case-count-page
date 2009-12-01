@@ -11,7 +11,6 @@ function TOPMENU()
 { ?>
     <a href='index.php'>Home</a> -
     <a href='schedule.php'>Schedule</a> -
-    <a href='reports.php'>Reports</a> -
     <a href='users.php'>Users</a> -
     <a href='manage.php'>Manage</a> -
     <a href='index.php?logout=1'>Logout</a>

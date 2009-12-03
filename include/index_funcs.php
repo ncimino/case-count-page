@@ -134,71 +134,57 @@ function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
 {
 for ($i=0;$i<=4;$i++) 
   {
-  // If any data was sent then add it to the DB
   if (($_POST["reg_".$current_week[$i]] != '') and ($_POST["cat1_".$current_week[$i]] != '') and ($_POST["spec_".$current_week[$i]] != '') and ($_POST["tran_".$current_week[$i]] != ''))
     {
     $checkforentry = mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID ='".$userID."'",&$con);
-    if ( mysql_num_rows($checkforentry) == 0 ) // If no entry exists then INSERT
-      {
+    if ( mysql_num_rows($checkforentry) == 0 ) 
       $sql="INSERT INTO Count (userID, CatOnes, Special, Regular, Transfer, Date, UpdateDate) 
             VALUES ('".$userID."',".$_POST["cat1_".$current_week[$i]].",".$_POST["spec_".$current_week[$i]].",".$_POST["reg_".$current_week[$i]].",".$_POST["tran_".$current_week[$i]].",".$current_week[$i].",".mktime().")";
-      }
-    else // If an entry exists then UPDATE it
+    else 
       {
       $checkchanges = mysql_fetch_array($checkforentry);
-      // If data was sent, data exists, but the data was unchanged, then preserve the original update date
-      if (($checkchanges['CatOnes']  == $_POST["cat1_".$current_week[$i]]) and 
-          ($checkchanges['Regular']  == $_POST["reg_".$current_week[$i]]) and 
+      if (($checkchanges['CatOnes'] == $_POST["cat1_".$current_week[$i]]) and 
+          ($checkchanges['Regular'] == $_POST["reg_".$current_week[$i]]) and 
           ($checkchanges['Transfer'] == $_POST["tran_".$current_week[$i]]) and 
-          ($checkchanges['Special']  == $_POST["spec_".$current_week[$i]])) 
-        {
+          ($checkchanges['Special'] == $_POST["spec_".$current_week[$i]])) 
         $updatedate = $checkchanges['UpdateDate'];
-        }
-      else // Else if data was sent, data exists, and the data was changed, then update the update date to now
+      else
         {
         $old_case_total = $checkchanges['CatOnes'] + $checkchanges['Regular'] + $checkchanges['Special'];
         $new_case_total = $_POST["cat1_".$current_week[$i]] + $_POST["reg_".$current_week[$i]] + $_POST["spec_".$current_week[$i]];
         $queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax';",&$con));
-        // If prev case count was below max and new one is above or equal to max, then we need to send an email
-        if (($old_case_total < $queuemax['OptionValue']) and ($new_case_total >= $queuemax['OptionValue']))
+        $get_all_on_queue_count = mysql_query("SELECT Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+        $j = 0;
+        while ($current_user_count = mysql_fetch_array($get_all_on_queue_count))
           {
-          // Build a list of all users that are currently on queue, and check if the selected user is on queue
-          $get_all_on_queue_count = mysql_query("SELECT Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
-          $j = 0;
-          $user_is_on_queue = 0;
-          while ($current_user_count = mysql_fetch_array($get_all_on_queue_count))
+          $shifts[$j]['Shift']=$current_user_count['Shift'];
+          $shifts[$j]['userID']=$current_user_count['userID'];
+          if ($current_user_count['userID'] == $userID)
+            $current_user_shifts_index = $j;
+          $j++;
+          }
+        // Divide queuemax by 2 if user is on half shift
+        $adjustedmax = $queuemax['OptionValue'] * $shifts[$current_user_shifts_index]['Shift'] / 2;
+        // If user was less than max, but now is greater than max and they are actually on queue
+        if (($old_case_total < $adjustedmax) and ($new_case_total >= $adjustedmax) and ($shifts[$current_user_shifts_index]['Shift'] > 0))
+          {
+          $number_of_maxed = 0;
+          for ($k = 0; $k < $j; $k++)
             {
-            if ($current_user_count['Shift'] > 0)
+            $case_count_for_user[$k] = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special FROM Count WHERE Date = ".$current_week[$i]." AND userID = ".$shifts[$k]['userID'],$con));
+            $case_total_for_user[$k] = $case_count_for_user[$k]['Regular'] + $case_count_for_user[$k]['CatOnes'] + $case_count_for_user[$k]['Special'];
+            $current_user_adjustedmax = $queuemax['OptionValue'] * $shifts[$k]['Shift'] / 2;
+            if (($case_total_for_user[$k] < $current_user_adjustedmax) and ($k != $current_user_shifts_index))           
               {
-              if ($current_user_count['userID'] == $userID) // only continue if user is on queue
-                {
-                $user_is_on_queue = 1;
-                }
-              else // Don't add the current user to the list of those to send and email to
-                {
-                $list_of_users_on_queue[$j++] = $current_user_count['userID'];
-                }
+              SEND_USER_MAX_EMAIL($shifts[$k]['userID'],$userID,$current_week[$i],$con);
               }
-            }
-          if ($user_is_on_queue == 1) // Only send email if the user that went above max is on queue
-            {
-            $number_of_maxed = 0;
-            for ($k = 0; $k < $j; $k++)
+            else 
               {
-//              echo "SELECT Regular,CatOnes,Special FROM Count WHERE Date = ".$current_week[$i]." AND userID = ".$list_of_users_on_queue[$k]."<br>\n";
-              $case_count_for_user[$k] = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special FROM Count WHERE Date = ".$current_week[$i]." AND userID = ".$list_of_users_on_queue[$k],$con));
-              $case_total_for_user[$k] = $case_count_for_user[$k]['Regular'] + $case_count_for_user[$k]['CatOnes'] + $case_count_for_user[$k]['Special'];
-              if ($case_total_for_user[$k] < $queuemax['OptionValue'])              
+              $number_of_maxed++;
+              echo "\$number_of_maxed[$number_of_maxed] = \$j[$j]<br>\n";
+              if ($number_of_maxed == $j) // All on queue have maxed 
                 {
-                SEND_USER_MAX_EMAIL($list_of_users_on_queue[$k],$userID,$current_week[$i],$con);
-                }
-              if ($case_total_for_user[$k] >= $queuemax['OptionValue'])
-                {
-                $number_of_maxed++;
-                if ($number_of_maxed == $j) // All on queue have maxed 
-                  {
-                  SEND_ALL_MAX_EMAIL($current_week[$i],$con);
-                  }
+                SEND_ALL_MAX_EMAIL($current_week[$i],$con);
                 }
               }
             }

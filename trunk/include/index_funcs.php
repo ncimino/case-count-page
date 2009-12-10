@@ -163,8 +163,8 @@ for ($i=0;$i<=4;$i++)
             $current_user_shifts_index = $j;
           $j++;
           }
-        // Divide queuemax by 2 if user is on half shift
-        $adjustedmax = $queuemax['OptionValue'] * $shifts[$current_user_shifts_index]['Shift'] / 2;
+        // Divide queuemax by 2 if user is on half shift, and round to int so if max is 7 email will be sent going from 2 to 3 as 3.5 would be the max
+        $adjustedmax = intval($queuemax['OptionValue'] * $shifts[$current_user_shifts_index]['Shift'] / 2);
         // If user was less than max, but now is greater than max and they are actually on queue
         if (($old_case_total < $adjustedmax) and ($new_case_total >= $adjustedmax) and ($shifts[$current_user_shifts_index]['Shift'] > 0))
           {
@@ -173,7 +173,7 @@ for ($i=0;$i<=4;$i++)
             {
             $case_count_for_user[$k] = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special FROM Count WHERE Date = ".$current_week[$i]." AND userID = ".$shifts[$k]['userID'],$con));
             $case_total_for_user[$k] = $case_count_for_user[$k]['Regular'] + $case_count_for_user[$k]['CatOnes'] + $case_count_for_user[$k]['Special'];
-            $current_user_adjustedmax = $queuemax['OptionValue'] * $shifts[$k]['Shift'] / 2;
+            $current_user_adjustedmax = intval($queuemax['OptionValue'] * $shifts[$k]['Shift'] / 2);
             if (($case_total_for_user[$k] < $current_user_adjustedmax) and ($k != $current_user_shifts_index))           
               {
               SEND_USER_MAX_EMAIL($shifts[$k]['userID'],$userID,$current_week[$i],$con);
@@ -181,7 +181,6 @@ for ($i=0;$i<=4;$i++)
             else 
               {
               $number_of_maxed++;
-              echo "\$number_of_maxed[$number_of_maxed] = \$j[$j]<br>\n";
               if ($number_of_maxed == $j) // All on queue have maxed 
                 {
                 SEND_ALL_MAX_EMAIL($current_week[$i],$con);

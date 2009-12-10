@@ -25,7 +25,7 @@ function CHECKCOUNTDATES($con)
         echo "- <span class='error'>ERROR</span>: The time should be '00:00:00' not '".gmdate('H:i:s',$crc_row['Date'])."'<br />\n";
         $date_at_zero = strtotime(gmdate("d",$crc_row['Date'])." ".gmdate("M",$crc_row['Date'])." ".gmdate("Y",$crc_row['Date'])." 00:00:00 +0000");
         $sql="UPDATE Count SET Date = '".$date_at_zero."' WHERE countID = '".$crc_row['countID']."'";
-        RUN_QUERY($sql,"Entry was not corrected.",$con);
+        //RUN_QUERY($sql,"Entry was not corrected.",$con);
         $check = mysql_fetch_array(mysql_query("SELECT Date FROM Count WHERE countID = '".$crc_row['countID']."'",$con));
         echo "...updated to: ".gmdate('r',$check['Date'])."<br />\n";
         }
@@ -63,7 +63,7 @@ function CHECKSCHEDULEDATES($con)
         echo "- <span class='error'>ERROR</span>: The time should be '00:00:00' not '".gmdate('H:i:s',$crc_row['Date'])."'<br />\n";
         $date_at_zero = strtotime(gmdate("d",$crc_row['Date'])." ".gmdate("M",$crc_row['Date'])." ".gmdate("Y",$crc_row['Date'])." 00:00:00 +0000");
         $sql="UPDATE Schedule SET Date = '".$date_at_zero."' WHERE scheduleID = '".$crc_row['scheduleID']."'";
-        RUN_QUERY($sql,"Entry was not corrected.",$con);
+        //RUN_QUERY($sql,"Entry was not corrected.",$con);
         $check = mysql_fetch_array(mysql_query("SELECT Date FROM Schedule WHERE scheduleID = '".$crc_row['scheduleID']."'",$con));
         echo "...updated to: ".gmdate('r',$check['Date'])."<br />\n";
         }
@@ -77,6 +77,16 @@ function CHECKSCHEDULEDATES($con)
 }
 
 
+function ADDQUEUECCTOOPTIONS(&$con)
+{
+  echo "Adding Queue CC to 'Options'...<br />\n";
+  $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
+        VALUES ('queuecc','CC for MAX and Queue emails:','');";
+  if (RUN_QUERY($sql,"Adding Queue CC failed",$con))
+    echo "- The column was <span class='success'>Added</span><br />\n"; 
+}
+
+	
 function ADDEMAILCOLUMNTOUSERS(&$con)
 {
   echo "Adding column 'UserEmail' to 'Users' table...<br />\n";

@@ -168,16 +168,17 @@ if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
 	$currentqueue .= "    </table>\n";
 
 	$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
+  $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc';",&$con));
 
 	$activeusers = mysql_query("SELECT UserEmail FROM Users WHERE Active=1;",&$con);
 	while ( $currentuser = mysql_fetch_array($activeusers) )
 		{
-    // if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
-      // {
+    if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
+      {
       $to .= $currentuser['UserEmail'].",";
-      // }
+      }
     }
-		
+    
 	$subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
 	if ($_POST['initial_email'] == 2)
 		$subject = "Updated: ".$subject;
@@ -201,6 +202,7 @@ if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
 	$headers = "MIME-Version: 1.0" . "\r\n";
 	$headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
 	$headers .= 'From: '.$from."\r\n";
+	$headers .= 'CC: '.$queuecc['OptionValue']."\r\n";
 	if (mail($to,$subject,$message,$headers))
 		echo "Email sent.";
 	else

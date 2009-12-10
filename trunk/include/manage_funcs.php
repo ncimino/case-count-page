@@ -14,6 +14,9 @@ function CREATE_DEFAULT_OPTIONS(&$con)
         VALUES ('sitename','Name of this site:','_skillset_ Case Count Page');";
   RUN_QUERY($sql,"'sitename' Default options were not set",$con);
   $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
+        VALUES ('queuecc','CC for MAX and Queue emails:','');";
+  RUN_QUERY($sql,"'queuecc' Default options were not set",$con);
+  $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
         VALUES ('queuerules','Queue rules:','Follow the rules');";
   RUN_QUERY($sql,"'queuerules' Default options were not set",$con);
   $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
@@ -36,7 +39,15 @@ function UPDATE_DB_OPTIONS(&$con)
     RUN_QUERY($sql,"Site name was not updated",$con);
     }
     
-  // Update the 'queuerules' if it was changed
+  // Update the 'queuecc' if it was changed
+  $queuecc = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuecc';",&$con));
+  if (( $_POST['queuecc'] != $queuecc['OptionValue'] ) and ( $_POST['options_datasent'] != '' ))
+    {
+    $sql="UPDATE Options SET OptionValue = '".$_POST['queuecc']."' WHERE OptionName = 'queuecc'";
+    RUN_QUERY($sql,"Queue CC was not updated",$con);
+    }
+		
+	// Update the 'queuerules' if it was changed
   $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",&$con));
   if (( $_POST['queuerules'] != $queuerules['OptionValue'] ) and ( $_POST['options_datasent'] != '' ))
     {
@@ -97,6 +108,15 @@ function TABLE_OPTIONS(&$con)
   echo "    <tr>\n";
   echo "      <td>".$sitename['OptionDesc']."</td>\n";  
   echo "      <td><input type='text' name='sitename' value='".$sitename['OptionValue']."' size='80' /></td>\n";  
+  echo "    </tr>\n";
+
+  $queuecc = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuecc';",&$con));
+  echo "    <tr>\n";
+  echo "      <td rowspan='2'>".$queuecc['OptionDesc']."</td>\n";  
+  echo "      <td><input type='text' name='queuecc' value='".$queuecc['OptionValue']."' size='100' /></td>\n";  
+  echo "    </tr>\n";
+  echo "    <tr>\n";  
+  echo "      <td>Enter the email addresses as: tom@domain.com,jane@domain.com,</td>\n";  
   echo "    </tr>\n";
   
   $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",&$con));

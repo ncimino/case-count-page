@@ -56,6 +56,11 @@ if ( VERIFY_USER($con) )
 <? ADDQUEUEMAXTOOPTIONS($con) ?>
   </div>
   
+  <div id="addqueuecctooptions" class="addqueuecctooptions">
+    <hr width='50%' />
+<? ADDQUEUECCTOOPTIONS($con) ?>
+  </div>
+  
 </div>
 </body>
 </html>

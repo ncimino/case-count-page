@@ -2,7 +2,8 @@
 <html>
 <head>
 <title>Software Case Count Page</title>
-<meta http-equiv="REFRESH" content="0;url=http://xilinx.econtriver.com"></HEAD>
+<meta http-equiv="REFRESH" content="0;url="<?php MAIN_DOMAIN ?>">
+</HEAD>
 <BODY>
 Redirecting
 </BODY>

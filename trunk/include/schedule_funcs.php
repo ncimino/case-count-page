@@ -19,7 +19,6 @@ function SCHEDULE($selecteddate,&$con)
     }
 }
 
-
 function UPDATE_DB_SCHEDULE($current_week,&$con)
 {
     $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
@@ -55,7 +54,6 @@ function UPDATE_DB_SCHEDULE($current_week,&$con)
         }
     }
 }
-
 
 function TABLE_SCHEDULE($current_week,&$con)
 {
@@ -123,7 +121,6 @@ function TABLE_SCHEDULE($current_week,&$con)
     echo "    </script>\n";
 }
 
-
 function SEND_QUEUE_EMAIL($current_week,&$con)
 {
     echo "<form method='post'>\n";
@@ -132,81 +129,151 @@ function SEND_QUEUE_EMAIL($current_week,&$con)
     echo "Updated: <input type='radio' name='initial_email' value='2' />\n";
     echo "</form>\n";
 
+    // If it was selected to send an email or an update then continue
     if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
     {
-        $currentqueue = "<table style=\"border-collapse:collapse;width:50em;\">";
-
-        $currentqueue .= "      <tr>\n";
-        for ($i=0;$i<5;$i++)
-        $currentqueue .= "        <th style=\"border:0px none;text-align:center;width:10em;\">".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
-        $currentqueue .= "      </tr>\n";
-
-        for ($i = 0; $i <= 4; $i++)
-        {
-            $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i],$con));
-            $shiftcount[$i] = $shift['COUNT(Shift)'];
-            $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
-            $j = 0;
-            while ($getarray = mysql_fetch_array($currentday)) { $namesAndShifts[$i][$j++] = $getarray; }
-        }
-
-        rsort($shiftcount,SORT_NUMERIC);
-
-        for ($row = 1; $row <= $shiftcount[0]; $row++)
-        {
-            $currentqueue .= "      <tr class='currentqueue'>\n";
-            for ($col = 1; $col <= 5; $col++)
-            {
-                $currentqueue .= "       <td style=\"border:1px solid;text-align:center;width:10em;\">";
-                $currentqueue .= $namesAndShifts[$col-1][$row-1]['UserName'];
-                if ($namesAndShifts[$col-1][$row-1]['Shift'] == 1)
-                $currentqueue .= "&nbsp;(.5)";
-                $currentqueue .= "</td>\n";
-            }
-            $currentqueue .= "      </tr>\n";
-        }
-        $currentqueue .= "    </table>\n";
-
+        $activeusers = mysql_query("SELECT UserEmail,userID FROM Users WHERE Active=1;",&$con);
         $site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
-        $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc';",&$con));
-
-        $activeusers = mysql_query("SELECT UserEmail FROM Users WHERE Active=1;",&$con);
         while ( $currentuser = mysql_fetch_array($activeusers) )
         {
             if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
             {
-                $to .= $currentuser['UserEmail'].",";
+                $currentqueue = "<table style=\"border-collapse:collapse;width:50em;\">";
+        
+                $currentqueue .= "      <tr>\n";
+                for ($i=0;$i<5;$i++)
+                $currentqueue .= "        <th style=\"border:0px none;text-align:center;width:10em;\">".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+                $currentqueue .= "      </tr>\n";
+        
+                for ($i = 0; $i <= 4; $i++)
+                {
+                    $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i],$con));
+                    $shiftcount[$i] = $shift['COUNT(Shift)'];
+                    $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+                    $j = 0;
+                    while ($getarray = mysql_fetch_array($currentday)) { $namesAndShifts[$i][$j++] = $getarray; }
+                }
+        
+                rsort($shiftcount,SORT_NUMERIC);
+        
+                for ($row = 1; $row <= $shiftcount[0]; $row++)
+                {
+                    $currentqueue .= "      <tr class='currentqueue'>\n";
+                    for ($col = 1; $col <= 5; $col++)
+                    {
+                        $currentqueue .= "       <td style=\"border:1px solid;text-align:center;width:10em;";
+                        if (($namesAndShifts[$col-1][$row-1]['userID'] == $currentuser['userID'] ) and ($currentuser['userID'] != ''))
+                            $currentqueue .= " background: lightblue;";
+                        $currentqueue .= "\">\n";
+                        $currentqueue .= $namesAndShifts[$col-1][$row-1]['UserName'];
+                        if ($namesAndShifts[$col-1][$row-1]['Shift'] == 1)
+                        $currentqueue .= "&nbsp;(.5)";
+                        $currentqueue .= "</td>\n";
+                    }
+                    $currentqueue .= "      </tr>\n";
+                }
+                $currentqueue .= "    </table>\n";
+        
+                $to = $currentuser['UserEmail'];
+        
+                $subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
+                if ($_POST['initial_email'] == 2)
+                    $subject = "Updated: ".$subject;
+                $message = "<html>\n";
+            	$message .= "<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;\">\n";
+            	$message .= "<style>\n";
+            	$message .= "body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}\n";
+            	$message .= "</style>\n";
+            	$message .= "<h3>";
+                if ($_POST['initial_email'] == 2)
+                    $message .= "Updated: ";
+                $message .= "Queue Schedule</h3>\n";
+            	$message .= $currentqueue."\n";
+            	$message .= "<br />\n";
+            	$message .= "<hr width='50%' />\n";
+            	$message .= "Sent via: ".$site_name['OptionValue']."<br />\n";
+            	$message .= "<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>\n";
+            	$message .= "</body>\n";
+            	$message .= "</html>";
+                $from = MAIN_EMAILS_FROM;
+                $headers = "MIME-Version: 1.0" . "\r\n";
+                $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
+                $headers .= 'From: '.$from."\r\n";
+                if (mail($to,$subject,$message,$headers))
+                    echo "Email <span class='success'>sent</span> to:".$to."<br />\n";
+                else
+                    echo "Email was <span class='error'>not sent</span> to:".$to."<br />\n";  
             }
         }
-
-        $subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
-        if ($_POST['initial_email'] == 2)
-        $subject = "Updated: ".$subject;
-        $message = "<html>
-	<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;\">
-	<style>
-	body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}
-	</style>
-	<h3>";
-        if ($_POST['initial_email'] == 2)
-        $message .= "Updated: ";
-        $message .= "Queue Schedule</h3>
-	".$currentqueue."
-	<br />
-	<hr width='50%' />
-	Sent via: ".$site_name['OptionValue']."<br />
-	<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>
-	</body>
-	</html>";
-        $from = MAIN_EMAILS_FROM;
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
-        $headers .= 'From: '.$from."\r\n";
-        $headers .= 'CC: '.$queuecc['OptionValue']."\r\n";
-        if (mail($to,$subject,$message,$headers))
-        echo "Email sent.";
-        else
-        echo "Email was not sent.";
+        
+        // Send an email to the CC list with the schedule
+        $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc';",&$con));
+        if ($queuecc['OptionValue'] != "") // Prevent emails from being sent to people that don't have an email
+        {
+            $currentqueue = "<table style=\"border-collapse:collapse;width:50em;\">";
+    
+            $currentqueue .= "      <tr>\n";
+            for ($i=0;$i<5;$i++)
+            $currentqueue .= "        <th style=\"border:0px none;text-align:center;width:10em;\">".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+            $currentqueue .= "      </tr>\n";
+    
+            for ($i = 0; $i <= 4; $i++)
+            {
+                $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i],$con));
+                $shiftcount[$i] = $shift['COUNT(Shift)'];
+                $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+                $j = 0;
+                while ($getarray = mysql_fetch_array($currentday)) { $namesAndShifts[$i][$j++] = $getarray; }
+            }
+    
+            rsort($shiftcount,SORT_NUMERIC);
+    
+            for ($row = 1; $row <= $shiftcount[0]; $row++)
+            {
+                $currentqueue .= "      <tr class='currentqueue'>\n";
+                for ($col = 1; $col <= 5; $col++)
+                {
+                    $currentqueue .= "       <td style=\"border:1px solid;text-align:center;width:10em;";
+                    $currentqueue .= "\">\n";
+                    $currentqueue .= $namesAndShifts[$col-1][$row-1]['UserName'];
+                    if ($namesAndShifts[$col-1][$row-1]['Shift'] == 1)
+                    $currentqueue .= "&nbsp;(.5)";
+                    $currentqueue .= "</td>\n";
+                }
+                $currentqueue .= "      </tr>\n";
+            }
+            $currentqueue .= "    </table>\n";
+    
+            $to .= $queuecc['OptionValue'];
+    
+            $subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
+            if ($_POST['initial_email'] == 2)
+                $subject = "Updated: ".$subject;
+            $message = "<html>\n";
+            $message .= "<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;\">\n";
+            $message .= "<style>\n";
+            $message .= "body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}\n";
+            $message .= "</style>\n";
+            $message .= "<h3>";
+            if ($_POST['initial_email'] == 2)
+                $message .= "Updated: ";
+            $message .= "Queue Schedule</h3>\n";
+            $message .= $currentqueue."\n";
+            $message .= "<br />\n";
+            $message .= "<hr width='50%' />\n";
+            $message .= "Sent via: ".$site_name['OptionValue']."<br />\n";
+            $message .= "<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>\n";
+            $message .= "</body>\n";
+            $message .= "</html>";
+            $from = MAIN_EMAILS_FROM;
+            $headers = "MIME-Version: 1.0" . "\r\n";
+            $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
+            $headers .= 'From: '.$from."\r\n";
+            if (mail($to,$subject,$message,$headers))
+                echo "Email <span class='success'>sent</span> to CC list:".$to."<br />\n";
+            else
+                echo "Email was <span class='error'>not sent</span> to CC list:".$to."<br />\n";  
+        }
     }
 }
 

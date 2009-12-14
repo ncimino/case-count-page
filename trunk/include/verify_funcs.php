@@ -74,7 +74,7 @@ function USER_LOGIN(&$con)
 <div id='topmenu' class='topmenu'><? TOPMENU() ?></div>
 <div id='login' class='login'>
 <form method='post' action='?logout=0'>Password: <input type='password'
-    name='password' size='10' value=''> <input type='submit' value='Go'></form>
+    name='password' size='10' value='' /> <input type='submit' value='Go' /></form>
     <? if ($_GET["logout"]=="0") echo "<span class='error'>Error:</span> You have entered the wrong password.\n"; ?>
 </div>
 </div>
@@ -120,9 +120,9 @@ else
 site.<br />
 <br />
 You need to create a password: <br />
-Password: <input type='password' name='password1' size='10' value=''> <br />
-Verify: <input type='password' name='password2' size='10' value=''> <br />
-<input type='submit' value='Go'></form>
+Password: <input type='password' name='password1' size='10' value='' /> <br />
+Verify: <input type='password' name='password2' size='10' value='' /> <br />
+<input type='submit' value='Go' /></form>
 <?
 }
 // The passwords the user entered do not match

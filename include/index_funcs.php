@@ -28,7 +28,6 @@ function MYCASECOUNT($userID,$selecteddate,&$con)
     }
 }
 
-
 function CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,&$con)
 {
     // Get the dates for the selected week
@@ -43,7 +42,6 @@ function CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,&$con)
         TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,$con);
     }
 }
-
 
 function CURRENTQUEUE($userID,$selecteddate,&$con)
 {
@@ -60,20 +58,17 @@ function CURRENTQUEUE($userID,$selecteddate,&$con)
     }
 }
 
-
 function NOTES(&$con)
 {
     $queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes';",&$con));
     echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
 }
 
-
 function RULES(&$con)
 {
     $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",&$con));
     echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>\n";
 }
-
 
 function SELECTUSER($timezone,$userID,&$con)
 {
@@ -128,7 +123,6 @@ function SELECTUSER($timezone,$userID,&$con)
         echo "    </script>\n";
     }
 }
-
 
 function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
 {
@@ -197,7 +191,6 @@ function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
     }
 }
 
-
 function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,&$con)
 {
     $site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
@@ -241,7 +234,6 @@ function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,
     echo "Email was not sent to: ".$userName_of_target."<br />\n";
 }
 
-
 function SEND_ALL_MAX_EMAIL($max_date,&$con)
 {
     $site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
@@ -279,7 +271,6 @@ function SEND_ALL_MAX_EMAIL($max_date,&$con)
     else
     echo "Email was not sent to everyone.<br />\n";
 }
-
 
 function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 {
@@ -378,7 +369,6 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
     echo "      document.getElementById('mycasecount_submit').style.display='none'; // hides button if JS is enabled-->\n";
     echo "    </script>\n";
 }
-
 
 function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con)
 {
@@ -505,7 +495,6 @@ function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con
     echo "      document.getElementById('showdetails_submit').style.display='none'; // hides button if JS is enabled-->\n";
     echo "    </script>\n";
 }
-
 
 function TABLE_CURRENTQUEUE($userID,$current_week,&$con)
 {

@@ -6,7 +6,6 @@ function MANAGESITE(&$con)
     TABLE_OPTIONS($con);
 }
 
-
 // The below function is called after the Options table is created.
 function CREATE_DEFAULT_OPTIONS(&$con)
 {
@@ -26,7 +25,6 @@ function CREATE_DEFAULT_OPTIONS(&$con)
         VALUES ('queuemax','Queue max:','8');";
     RUN_QUERY($sql,"'queuemax' Default options were not set",$con);
 }
-
 
 function UPDATE_DB_OPTIONS(&$con)
 {
@@ -97,7 +95,6 @@ function UPDATE_DB_OPTIONS(&$con)
     }
 }
 
-
 function TABLE_OPTIONS(&$con)
 {
     echo "    <h2>Options:</h2>\n";
@@ -116,7 +113,7 @@ function TABLE_OPTIONS(&$con)
     echo "      <td><input type='text' name='queuecc' value='".$queuecc['OptionValue']."' size='100' /></td>\n";
     echo "    </tr>\n";
     echo "    <tr>\n";
-    echo "      <td>Enter the email addresses as: tom@domain.com,jane@domain.com,</td>\n";
+    echo "      <td>Enter the email addresses as: tom@domain.com, jane@domain.com,</td>\n";
     echo "    </tr>\n";
 
     $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",&$con));

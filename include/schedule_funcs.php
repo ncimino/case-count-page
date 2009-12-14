@@ -244,7 +244,7 @@ function SEND_QUEUE_EMAIL($current_week,&$con)
             }
             $currentqueue .= "    </table>\n";
     
-            $to .= $queuecc['OptionValue'];
+            $to = $queuecc['OptionValue'];
     
             $subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
             if ($_POST['initial_email'] == 2)

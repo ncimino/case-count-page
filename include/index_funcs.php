@@ -229,9 +229,13 @@ function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,
     $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
     $headers .= 'From: '.$from."\r\n";
     if (mail($to,$subject,$message,$headers))
-    echo "Email sent to: ".$userName_of_target."<br />\n";
+    {
+        echo "Email <span class='success'>sent</span> to: ".$userName_of_target."<br />\n";
+    }
     else
-    echo "Email was not sent to: ".$userName_of_target."<br />\n";
+    {
+        echo "Email was <span class='error'>not sent</span> to: ".$userName_of_target."<br />\n";
+    }
 }
 
 function SEND_ALL_MAX_EMAIL($max_date,&$con)
@@ -262,14 +266,22 @@ function SEND_ALL_MAX_EMAIL($max_date,&$con)
 	<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>
 	</body>
 	</html>";
+    
+    $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc';",&$con));
+    
     $from = MAIN_EMAILS_FROM;
     $headers = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
     $headers .= 'From: '.$from."\r\n";
+    $headers .= 'Cc: '.$queuecc['OptionValue']."\r\n";
     if (mail($to,$subject,$message,$headers))
-    echo "Email sent to everyone.<br />\n";
+    {
+        echo "Email <span class='success'>sent</span> to everyone.<br />\n";
+    }
     else
-    echo "Email was not sent to everyone.<br />\n";
+    {
+        echo "Email was <span class='error'>not sent</span> to everyone.<br />\n";
+    }
 }
 
 function TABLE_MYCASECOUNT($userID,$current_week,&$con)

@@ -7,7 +7,8 @@ function SET_COOKIES(&$showdetails,&$timezone,&$userID,&$con)
 
     // If a TimeZone is passed, then set the cookie for 365 days
     if ($_POST["timezone"] != "") setcookie("timezone", $_POST["timezone"], time()+60*60*24*365);
-
+    if ($_GET["timezone"] != "") setcookie("timezone", $_GET["timezone"], time()+60*60*24*365);
+    
     // $_POST["showdetails"] is a checkbox - checkboxes only send data if checked
     // $_POST["showdetailssent"] is a hidden type submitted with showdetails to differentiate between a submit and a random page load
     // If a showdetails is passed, then set the cookie for 365 days
@@ -45,7 +46,8 @@ function SET_COOKIES(&$showdetails,&$timezone,&$userID,&$con)
     }
 
     // If timezone was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
-    ($_POST['timezone'] == '') ? (($_COOKIE['timezone'] == '') ? $timezone = '' : $timezone = $_COOKIE['timezone']) : $timezone = $_POST['timezone'];
+    ($_POST['timezone'] == '') ?  $settimezone = $_GET['timezone'] : $settimezone = $_POST['timezone'];
+    ($settimezone == '') ? (($_COOKIE['timezone'] == '') ? $timezone = '' : $timezone = $_COOKIE['timezone']) : $timezone = $settimezone;
 
     // If showdetails was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
     ($_POST["showdetailssent"] == '') ? (($_COOKIE['showdetails'] == '') ? $showdetails = '' : $showdetails = $_COOKIE['showdetails']) : $showdetails = $_POST['showdetails'];
@@ -73,7 +75,7 @@ function USER_LOGIN(&$con)
 </div>
 <div id='topmenu' class='topmenu'><? TOPMENU() ?></div>
 <div id='login' class='login'>
-<form method='post' action='?logout=0'>Password: <input type='password'
+<form method='post' action='?logout=0&timezone=-7'>Password: <input type='password'
     name='password' size='10' value='' /> <input type='submit' value='Go' /></form>
     <? if ($_GET["logout"]=="0") echo "<span class='error'>Error:</span> You have entered the wrong password.\n"; ?>
 </div>

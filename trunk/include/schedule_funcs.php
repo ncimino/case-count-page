@@ -200,9 +200,13 @@ function SEND_QUEUE_EMAIL($current_week,&$con)
                 $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
                 $headers .= 'From: '.$from."\r\n";
                 if (mail($to,$subject,$message,$headers))
+                {
                     echo "Email <span class='success'>sent</span> to:".$to."<br />\n";
+                }
                 else
-                    echo "Email was <span class='error'>not sent</span> to:".$to."<br />\n";  
+                {
+                    echo "Email was <span class='error'>not sent</span> to:".$to."<br />\n";
+                }  
             }
         }
         

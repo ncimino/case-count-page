@@ -131,9 +131,14 @@ function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
         if (($_POST["reg_".$current_week[$i]] != '') and ($_POST["cat1_".$current_week[$i]] != '') and ($_POST["spec_".$current_week[$i]] != '') and ($_POST["tran_".$current_week[$i]] != ''))
         {
             $checkforentry = mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID ='".$userID."'",&$con);
+            // If there wasn't any data before, and now there is then directly insert it into the table
             if ( mysql_num_rows($checkforentry) == 0 )
-            $sql="INSERT INTO Count (userID, CatOnes, Special, Regular, Transfer, Date, UpdateDate)
-            VALUES ('".$userID."',".$_POST["cat1_".$current_week[$i]].",".$_POST["spec_".$current_week[$i]].",".$_POST["reg_".$current_week[$i]].",".$_POST["tran_".$current_week[$i]].",".$current_week[$i].",".mktime().")";
+            {
+	            $sql="INSERT INTO Count (userID, CatOnes, Special, Regular, Transfer, Date, UpdateDate)
+	            VALUES ('".$userID."',0,0,0,0,".$current_week[$i].",".mktime().")";
+	            RUN_QUERY($sql,"Values were not updated.",$con);
+	            UPDATE_DB_MYCASECOUNT($userID,$current_week,$con);
+            }
             else
             {
                 $checkchanges = mysql_fetch_array($checkforentry);
@@ -185,8 +190,8 @@ function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
                     $updatedate = mktime();
                 }
                 $sql="UPDATE Count SET CatOnes = '".$_POST["cat1_".$current_week[$i]]."', Special = '".$_POST["spec_".$current_week[$i]]."', Regular = '".$_POST["reg_".$current_week[$i]]."', Transfer = '".$_POST["tran_".$current_week[$i]]."', UpdateDate = '".$updatedate."' WHERE userID = '".$userID."' AND Date = '".$current_week[$i]."'";
+                RUN_QUERY($sql,"Values were not updated.",$con);
             }
-            RUN_QUERY($sql,"Values were not updated.",$con);
         }
     }
 }

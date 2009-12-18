@@ -1,0 +1,192 @@
+a:link {
+    color: black;
+}
+
+a:visited {
+    color: black;
+}
+
+a:hover {
+    color: blue;
+}
+
+a:active {
+    color: darkblue;
+}
+
+body {
+    width: 920px;
+}
+
+pre {
+    font-family: "Times New Roman", Times, serif;
+}
+
+div.page {
+    font-family: "Times New Roman", Times, serif;
+    position: relative;
+    margin: 5px;
+}
+
+div.header {
+    text-align: center;
+}
+
+div.topmenu {
+    text-align: center;
+}
+
+div.notes {
+    text-align: center;
+}
+
+div.rules {
+    
+}
+
+.selectuser {
+    background: white;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+}
+
+.selecteduser {
+    font-weight: bold;
+}
+
+.onshiftcell {
+    background: wheat;
+}
+
+.selectedusercell_queue {
+    background: lightblue;
+}
+
+.selectedusercell {
+    background: white;
+}
+
+.selecteduseronshiftcell {
+    background: wheat;
+}
+
+div.showdetails {
+    text-align: right;
+    width: 100%;
+}
+
+div.currentqueue {
+    text-align: center;
+}
+
+table.currentqueue {
+    border-collapse: collapse;
+}
+
+th.currentqueue {
+    border: 0px none;
+    text-align: center;
+    width: 10em;
+}
+
+td.currentqueue {
+    border: 1px solid;
+    text-align: center;
+    width: 10em;
+}
+
+div.currenthistory {
+    text-align: center;
+}
+
+table.currenthistory {
+    border-collapse: collapse;
+}
+
+th.currenthistory {
+    text-align: center;
+    width: 10em;
+}
+
+tr.currenthistory {
+    border: 1px solid;
+}
+
+td.currenthistory {
+    padding-left: 2px;
+    border: 1px solid;
+    text-align: left;
+    width: 10em;
+}
+
+div.mycasecount {
+    text-align: center;
+}
+
+table.mycasecount {
+    border-collapse: collapse;
+}
+
+th.mycasecount {
+    text-align: center;
+    width: 10em;
+}
+
+td.mycasecount {
+    border: 1px solid;
+    text-align: center;
+    width: 10em;
+}
+
+input.mycasecount {
+    border: 0px none;
+    width: 5em;
+    text-align: center;
+}
+
+.mycasecount_regular {
+    width: 10em;
+    color: darkblue;
+    font-weight: bold;
+    text-align: right;
+}
+
+.mycasecount_catones {
+    color: darkred;
+    font-weight: bold;
+    text-align: right;
+}
+
+.mycasecount_special {
+    color: darkgreen;
+    font-weight: bold;
+    text-align: right;
+}
+
+.mycasecount_transfer {
+    color: black;
+    font-weight: bold;
+    text-align: right;
+}
+
+.mycasecount_total {
+    color: black;
+    font-weight: bold;
+    text-align: right;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}
+
+.warning {
+    color: darkyellow;
+    font-weight: bold;
+}
+
+.success {
+    color: green;
+    font-weight: bold;
+}

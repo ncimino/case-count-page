@@ -1,6 +1,6 @@
 <?php
 
-function SET_COOKIES(&$showdetails,&$timezone,&$userID,&$con)
+function SET_COOKIES(&$option_page,&$showdetails,&$timezone,&$userID,&$con)
 {
     // If a userID is passed, then set the cookie for 365 days
     if ($_POST["userID"] != "") setcookie("userID", $_POST["userID"], time()+60*60*24*365);
@@ -13,7 +13,10 @@ function SET_COOKIES(&$showdetails,&$timezone,&$userID,&$con)
     // $_POST["showdetailssent"] is a hidden type submitted with showdetails to differentiate between a submit and a random page load
     // If a showdetails is passed, then set the cookie for 365 days
     if ($_POST["showdetailssent"] != "") setcookie("showdetails", $_POST["showdetails"], time()+60*60*24*365);
-
+    
+    // If option_page is passed, then set the cookie for 365 days
+    if ($_POST["option_page"] != "") setcookie("option_page", $_POST["option_page"], time()+60*60*24*365);
+    
     // If timezone cookie isn't set, then set the cookie to -7 (MST) for 365 days
     if ($_COOKIE["timezone"] == "") setcookie("timezone", "-7", time()+60*60*24*365);
 
@@ -51,8 +54,10 @@ function SET_COOKIES(&$showdetails,&$timezone,&$userID,&$con)
 
     // If showdetails was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
     ($_POST["showdetailssent"] == '') ? (($_COOKIE['showdetails'] == '') ? $showdetails = '' : $showdetails = $_COOKIE['showdetails']) : $showdetails = $_POST['showdetails'];
-}
 
+    // If option_page was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
+    ($_POST["option_page"] == '') ? (($_COOKIE['option_page'] == '') ? $option_page = '' : $option_page = $_COOKIE['option_page']) : $option_page = $_POST['option_page'];
+}
 
 function USER_LOGIN(&$con)
 {
@@ -84,7 +89,6 @@ function USER_LOGIN(&$con)
 </html>
     <?
 }
-
 
 function CREATE_PASSWORD(&$con)
 {
@@ -136,7 +140,6 @@ if ($_POST["password1"] != $_POST["password2"]) { echo "<span class='error'>Erro
 <?
 }
 
-
 function VERIFY_USER(&$con)
 {
     // Check to see if all DB tables exist, if not, then create them
@@ -157,7 +160,6 @@ function VERIFY_USER(&$con)
     else
     return 0;
 }
-
 
 function VERIFY_FAILED(&$con)
 {

@@ -57,22 +57,6 @@ function UPDATE_DB_SCHEDULE($current_week,&$con)
 
 function TABLE_SCHEDULE($current_week,&$con)
 {
-    // Enable Debug
-    $table_schedule_debug = 0;
-    if ($table_schedule_debug == 1) echo "** Debug Mode is enabled for TABLE_SCHEDULE function. **<br>\n";
-
-    if ($table_schedule_debug == 1)
-    {
-        echo "**The current_week[0] that was passed to TABLE_SCHEDULE is: ".DEBUGDATE($timezone,$dst_value_from_current_time_sec,$current_week[0])."<br>\n";
-        echo "**The current_week[4] that was passed to TABLE_SCHEDULE is: ".DEBUGDATE($timezone,$dst_value_from_current_time_sec,$current_week[4])."<br>\n";
-        $testing_shifts = mysql_query("SELECT * FROM Schedule WHERE Date >= '".$current_week[0]."' AND Date <= '".$current_week[4]."'",$con);
-        while ( $current_shift = mysql_fetch_array($testing_shifts) )
-        {
-            echo "**\$current_shift['Date']: ".DEBUGDATE($timezone,$dst_value_from_current_time_sec,$current_shift['Date'])."<br />\n";
-            echo "**\$current_shift['Shift']: ".$current_shift['Shift']."<br />\n";
-        }
-    }
-
     $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName;",&$con);
     echo "<form method='post' name='schedule'><table>
 <tr>

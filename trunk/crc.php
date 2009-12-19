@@ -1,7 +1,7 @@
 <?php
 include_once("./include/includes.php");
 DB_CONNECT($con);
-SET_COOKIES($showdetails,$timezone,$userID,$con);
+SET_COOKIES($option_page,$showdetails,$timezone,$userID,$con);
 
 // Tell SELECTDATE to show next week in the dropdown
 $shownextweek = 1;

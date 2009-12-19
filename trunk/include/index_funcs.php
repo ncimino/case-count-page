@@ -396,11 +396,6 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 
 function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con)
 {
-	// Enable Debug
-	$determineweek_debug = 0;
-	if ($determineweek_debug == 1) echo "<br>\n";
-	if ($determineweek_debug == 1) echo "  ** Debug Mode is enabled for TABLE_CURRENTHISTORY function. **<br>\n";
-
 	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",&$con);
 	echo "    <table class='currenthistory'>\n";
 	echo "      <tr class='currenthistory'>\n";
@@ -494,9 +489,6 @@ function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con
 					}
 					else echo gmdate("g:ia",$usercounts['UpdateDate'] + 60*60*($timezone) + $dst_value_from_current_time_sec)."\n";
 				}
-				if ($determineweek_debug == 1) echo "<br />(".gmdate("g:ia n/j",$usercounts['Date']).") >=";
-				if ($determineweek_debug == 1) echo "(".gmdate("g:ia n/j",$update_date).") >=";
-				if ($determineweek_debug == 1) echo "(".gmdate("g:ia n/j",$current_date_at_six_pm).")";
 				echo "        </td>\n";
 			}
 		}

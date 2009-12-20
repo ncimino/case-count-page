@@ -1,8 +1,62 @@
 <?php
 
-function SITE_NAME(&$con)
+function SELECTUSER($timezone,$userID,&$con)
 {
-    $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='sitename';",&$con));
+    // Creates timezones add as necessary from GMT
+    $alltimezones['MST'] = -7;
+    $alltimezones['PST'] = -8;
+
+    // This variable is set to 1 if a user that exists is found
+    $userselected = 0;
+
+    // First determine if there are any active users
+    $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName;",$con);
+    if ( mysql_num_rows($activeusers) == 0 )
+    {
+        echo "    No active users found.<br />\n";
+    }
+    else
+    {
+        echo "    <form method='post' name='selectuser'> User:\n";
+        echo "      <select name='userID' OnChange='selectuser.submit();'>\n";
+
+        while ( $currentuser = mysql_fetch_array($activeusers) )
+        {
+            echo "        <option ";
+            if ( $userID == $currentuser['userID'] )
+            {
+                echo "selected='selected' ";
+                $userselected = 1;
+            }
+            echo "value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
+        }
+
+        echo "        <option";
+        if ($userselected != 1)
+        echo " selected='selected'";
+        echo " value='NULL'>-----</option>\n";
+        echo "      </select>\n";
+
+        echo "      <select name='timezone' OnChange='selectuser.submit();'>\n";
+        foreach ( $alltimezones as $key => $value )
+        {
+            echo "        <option ";
+            if ( $timezone == $value ) echo "selected='selected'";
+            echo "value='".$value."'>".$key."</option>\n";
+        }
+        echo "      </select>\n";
+        echo "      <input type='submit' id='selectuser_submit' value='select'>\n";
+        echo "    </form>\n";
+        echo "    <script type='text/javascript'>\n";
+        echo "      <!--\n";
+        echo "      document.getElementById('selectuser_submit').style.display='none'; // hides button if JS is enabled-->\n";
+        echo "    </script>\n";
+    }
+}
+
+function SITE_NAME($selected_page,&$con)
+{
+    $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='sitename' AND siteID='".$selected_page."';",&$con));
     echo $site_name['OptionValue'];
 }
 
@@ -49,6 +103,47 @@ function DETERMINE_WEEK($timestamp)
     $current_week[4] = $current_week['Friday'];
 
     return $current_week;
+}
+
+function SELECTSITE($selected_page,&$con)
+{
+	$pages_query = mysql_query("SELECT Options.siteID,OptionValue FROM Sites,Options WHERE OptionName='sitename' AND Options.siteID=Sites.siteID;",&$con);
+	
+	echo "    <form method='post' name='site_selection'>\n";
+    echo "      <select name='option_page' OnChange='site_selection.submit();'>\n";
+    while($pages = mysql_fetch_array($pages_query))
+    {
+        echo "        <option value='".$pages['siteID']."'";
+        if ($selected_page == $pages['siteID'])
+           echo " selected='selected'";
+        echo ">".$pages['OptionValue']."</option>\n";
+    }
+   /* echo "        <option value='".$main_page['siteID']."'";
+    if ($selected_page == $main_page['siteID'])
+       echo " selected='selected'";
+    echo ">General</option>\n";
+    echo "        <option value='".$phone_page['siteID']."'";
+    if ($selected_page == $phone_page['siteID'])
+       echo " selected='selected'";
+    echo ">Phone Shift</option>\n";
+    while($skillset_pages = mysql_fetch_array($skillset_pages_query))
+    {
+	    echo "        <option value='".$skillset_pages['siteID']."'";
+	    if ($selected_page == $skillset_pages['siteID'])
+	       echo " selected='selected'";
+	    echo ">Software Case Count Page</option>\n";
+    }
+    echo "        <option value='3'";
+    if ($selected_page == $main_page['siteID'])
+       echo " selected='selected'";
+    echo ">Hardware Case Count Page</option>\n";*/
+    echo "      </select>\n";
+    echo "    <input type='submit' id='site_selection_submit' value='Show'>\n";
+    echo "    </form>\n";
+    echo "    <script type='text/javascript'>\n";
+    echo "      <!--\n";
+    echo "      document.getElementById('site_selection_submit').style.display='none'; // hides button if JS is enabled-->\n";
+    echo "    </script>\n";
 }
 
 function SELECTDATE($timezone,$shownextweek,$selecteddate,&$con)

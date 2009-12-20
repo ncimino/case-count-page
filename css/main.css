@@ -30,6 +30,11 @@ div.page {
 
 div.header {
     text-align: center;
+	width: 100%;
+}
+
+table.header {
+    width: 100%;
 }
 
 div.topmenu {
@@ -44,11 +49,18 @@ div.rules {
     
 }
 
-.selectuser {
-    background: white;
-    position: absolute;
-    top: 1px;
-    right: 1px;
+td.selectsite {
+	vertical-align: top;
+    text-align: left;
+}
+
+td.site_name {
+	text-align: center;
+}
+
+td.selectuser {
+	vertical-align: top;
+    text-align: right;
 }
 
 .selecteduser {

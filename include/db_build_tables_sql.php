@@ -53,9 +53,22 @@ function BUILD_TABLE_OPTIONS(&$con)
 optionID int NOT NULL AUTO_INCREMENT, 
 PRIMARY KEY(optionID),
 OptionName varchar(255),
-UNIQUE (OptionName),
 OptionDesc varchar(255),
-OptionValue text(200000)
+OptionValue text(200000),
+siteID int,
+FOREIGN KEY (siteID) REFERENCES Sites(siteID)
+)";
+    return DB_TABLE_CREATE($sql,$con);
+}
+
+function BUILD_TABLE_SITES(&$con)
+{
+    $sql = "CREATE TABLE Sites
+(
+siteID int NOT NULL AUTO_INCREMENT, 
+PRIMARY KEY(siteID),
+SiteName varchar(255),
+Active bit NOT NULL
 )";
     return DB_TABLE_CREATE($sql,$con);
 }

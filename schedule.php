@@ -1,7 +1,7 @@
 <?php
 include_once("./include/includes.php");
 DB_CONNECT($con);
-SET_COOKIES($option_page,$showdetails,$timezone,$userID,$con);
+SET_COOKIES($selected_page,$showdetails,$timezone,$userID,$con);
 
 // Tell SELECTDATE to show next week in the dropdown
 $shownextweek = 1;
@@ -20,21 +20,42 @@ if ( VERIFY_USER($con) )
 <meta name="author" content="<? echo AUTHOR ?>" />
 <meta name="description" content="<? echo DESCRIPTION ?>" />
 <meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($con) ?></title>
+<title><? SITE_NAME($selected_page,$con) ?></title>
 <link rel="icon" href="images/bomb.png" sizes="64x64" />
 <link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
 <script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script>
 </head>
 <body>
 <div id="page" class="page">
+
 <div id="header" class="header">
-<h1><? SITE_NAME($con) ?></h1>
+<table class="header">
+<tr>
+<td class="header selectsite">
+<? SELECTSITE($selected_page,$con) ?>
+</td>
+<td class="header site_name">
+<h1><? SITE_NAME($selected_page,$con) ?></h1>
+</td>
+<td class="header selectuser">
+<? SELECTUSER($timezone,$userID,$con) ?>
+</td>
+</tr>
+</table>
 </div>
+
 <div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
-<div id="selectdate" class="selectdate"><br />
-    <? SELECTDATE($timezone,$shownextweek,$selecteddate,$con) ?></div>
-<div id="schedule" class="schedule"><br />
-    <? SCHEDULE($selecteddate,$con) ?></div>
+
+<div id="selectdate" class="selectdate">
+    <br />
+    <? SELECTDATE($timezone,$shownextweek,$selecteddate,$con) ?>
+</div>
+
+<div id="schedule" class="schedule">
+    <br />
+    <? SCHEDULE($selecteddate,$con) ?>
+</div>
+
 </div>
 </body>
 </html>
@@ -43,7 +64,7 @@ if ( VERIFY_USER($con) )
 }
 else
 {
-    VERIFY_FAILED($con);
+    VERIFY_FAILED($selected_page,$con);
 }
 mysql_close(&$con);
 ?>

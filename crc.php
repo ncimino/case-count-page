@@ -1,7 +1,7 @@
 <?php
 include_once("./include/includes.php");
 DB_CONNECT($con);
-SET_COOKIES($option_page,$showdetails,$timezone,$userID,$con);
+SET_COOKIES($selected_page,$showdetails,$timezone,$userID,$con);
 
 // Tell SELECTDATE to show next week in the dropdown
 $shownextweek = 1;
@@ -9,7 +9,8 @@ $shownextweek = 1;
 $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
 ($_GET['selecteddate'] == '') ? $selecteddate = mktime()+60*60*$timezone+$dst_value_from_current_time_sec : $selecteddate = $_GET['selecteddate'];
 
-if ( VERIFY_USER($con) )
+//if ( VERIFY_USER($con) )
+if (1) // Must be enabled to modify password info
 {
     ?>
 
@@ -20,7 +21,7 @@ if ( VERIFY_USER($con) )
 <meta name="author" content="<? echo AUTHOR ?>" />
 <meta name="description" content="<? echo DESCRIPTION ?>" />
 <meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($con) ?></title>
+<title><? SITE_NAME($selected_page,$con) ?></title>
 <link rel="icon" href="images/bomb.png" sizes="64x64" />
 <link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
 <script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script>
@@ -29,7 +30,19 @@ if ( VERIFY_USER($con) )
 <div id="page" class="page">
 
 <div id="header" class="header">
-<h1><? SITE_NAME($con) ?></h1>
+<table class="header">
+<tr>
+<td class="header selectsite">
+<? SELECTSITE($selected_page,$con) ?>
+</td>
+<td class="header site_name">
+<h1><? SITE_NAME($selected_page,$con) ?></h1>
+</td>
+<td class="header selectuser">
+<? SELECTUSER($timezone,$userID,$con) ?>
+</td>
+</tr>
+</table>
 </div>
 
 <div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
@@ -54,6 +67,42 @@ if ( VERIFY_USER($con) )
 <hr width='50%' />
     <? ADDQUEUECCTOOPTIONS($con) ?></div>
 
+<div id="REMOVEUNIQUEFROMOPTIONNAMES" class="REMOVEUNIQUEFROMOPTIONNAMES">
+<hr width='50%' />
+    <? REMOVEUNIQUEFROMOPTIONNAMES($con) ?></div>
+    
+<div id="ADD_OPTIONNAME_TO_OPTIONS" class="ADD_OPTIONNAME_TO_OPTIONS">
+<hr width='50%' />
+    <? ADD_OPTIONNAME_TO_OPTIONS($con) ?></div>
+
+<div id="ADDUNIQUETOOPTIONNAMES_PERPAGE" class="ADDUNIQUETOOPTIONNAMES_PERPAGE">
+<hr width='50%' />
+    <? ADDUNIQUETOOPTIONNAMES_PERPAGE($con) ?></div>
+    
+<div id="UPDATE_OPTIONS_WITH_siteID" class="UPDATE_OPTIONS_WITH_siteID">
+<hr width='50%' />
+    <? UPDATE_OPTIONS_WITH_siteID($con) ?></div>
+
+<div id="ADD_REPLYTO_OPTION" class="ADD_REPLYTO_OPTION">
+<hr width='50%' />
+    <? ADD_REPLYTO_OPTION($con) ?></div>
+    
+<div id="ADD_GENERAL_OPTION" class="ADD_GENERAL_OPTION">
+<hr width='50%' />
+    <? ADD_GENERAL_OPTIONS($con) ?></div>
+
+<div id="ADD_PHONESHIFT_OPTIONS" class="ADD_PHONESHIFT_OPTIONS">
+<hr width='50%' />
+    <? ADD_PHONESHIFT_OPTIONS($con) ?></div>
+
+<div id="ADD_SITES" class="ADD_SITES">
+<hr width='50%' />
+    <? ADD_SITES($con) ?></div>
+
+<div id="ADDFOREIGNKEYTOOPTION_siteID" class="ADDFOREIGNKEYTOOPTION_siteID">
+<hr width='50%' />
+    <? ADDFOREIGNKEYTOOPTION_siteID($con) ?></div>
+
 </div>
 </body>
 </html>
@@ -62,7 +111,7 @@ if ( VERIFY_USER($con) )
 }
 else
 {
-    VERIFY_FAILED($con);
+    VERIFY_FAILED($selected_page,$con);
 }
 mysql_close(&$con);
 ?>

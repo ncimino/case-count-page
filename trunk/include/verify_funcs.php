@@ -1,6 +1,6 @@
 <?php
 
-function SET_COOKIES(&$option_page,&$showdetails,&$timezone,&$userID,&$con)
+function SET_COOKIES(&$selected_page,&$showdetails,&$timezone,&$userID,&$con)
 {
     // If a userID is passed, then set the cookie for 365 days
     if ($_POST["userID"] != "") setcookie("userID", $_POST["userID"], time()+60*60*24*365);
@@ -56,10 +56,10 @@ function SET_COOKIES(&$option_page,&$showdetails,&$timezone,&$userID,&$con)
     ($_POST["showdetailssent"] == '') ? (($_COOKIE['showdetails'] == '') ? $showdetails = '' : $showdetails = $_COOKIE['showdetails']) : $showdetails = $_POST['showdetails'];
 
     // If option_page was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
-    ($_POST["option_page"] == '') ? (($_COOKIE['option_page'] == '') ? $option_page = '' : $option_page = $_COOKIE['option_page']) : $option_page = $_POST['option_page'];
+    ($_POST["option_page"] == '') ? (($_COOKIE['option_page'] == '') ? $selected_page = '' : $selected_page = $_COOKIE['option_page']) : $selected_page = $_POST['option_page'];
 }
 
-function USER_LOGIN(&$con)
+function USER_LOGIN($selected_page,&$con)
 {
     ?>
 <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
@@ -69,14 +69,14 @@ function USER_LOGIN(&$con)
 <meta name="author" content="<? echo AUTHOR ?>" />
 <meta name="description" content="<? echo DESCRIPTION ?>" />
 <meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($con) ?></title>
+<title><? SITE_NAME($selected_page,$con) ?></title>
 <link rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
 <script src="<? echo MAIN_JS_FILE ?>"></script>
 </head>
 <body>
 <div id='page' class='page'>
 <div id='header' class='header'>
-<h1><? SITE_NAME($con) ?></h1>
+<h1><? SITE_NAME($selected_page,$con) ?></h1>
 </div>
 <div id='topmenu' class='topmenu'><? TOPMENU() ?></div>
 <div id='login' class='login'>
@@ -100,14 +100,14 @@ function CREATE_PASSWORD(&$con)
 <meta name="author" content="<? echo AUTHOR ?>" />
 <meta name="description" content="<? echo DESCRIPTION ?>" />
 <meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($con) ?></title>
+<title><? SITE_NAME($selected_page,$con) ?></title>
 <link rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
 <script src="<? echo MAIN_JS_FILE ?>"></script>
 </head>
 <body>
 <div id='page' class='page'>
 <div id='header' class='header'>
-<h1><? SITE_NAME($con) ?></h1>
+<h1><? SITE_NAME($selected_page,$con) ?></h1>
 </div>
 <div id='topmenu' class='topmenu'><? TOPMENU() ?></div>
 <div id='login' class='login'><?
@@ -115,8 +115,8 @@ function CREATE_PASSWORD(&$con)
 if (($_POST["password1"] == $_POST["password2"]) and ($_POST["password1"] != ""))
 {
     echo "Creating password...<br />";
-    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
-        VALUES ('password','Password to login to site','".crypt(md5($_POST["password1"]),md5(SALT))."')";
+    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue, siteID)
+        VALUES ('password','Password to login to site','".crypt(md5($_POST["password1"]),md5(SALT))."','0')";
     if ( RUN_QUERY($sql,"Password was not stored",$con) )
     echo "Password created please refresh page.\n";
 }
@@ -146,7 +146,8 @@ function VERIFY_USER(&$con)
     BUILD_ALL_DB_TABLES($con);
 
     // Get the already crypted password from the DB
-    $check = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='password';",&$con));
+    $check_query = mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='password' AND Options.siteID=Sites.siteID AND SiteName='main';",&$con);
+    $check = mysql_fetch_array($check_query);
 
     // Crypt the user entered password
     $password = crypt(md5($_POST['password']),md5(SALT));
@@ -161,15 +162,16 @@ function VERIFY_USER(&$con)
     return 0;
 }
 
-function VERIFY_FAILED(&$con)
+function VERIFY_FAILED($selected_page,&$con)
 {
     // Verification failed, so delete user cookies
     setcookie("timezone", "", time()-3600);
     setcookie("password", "", time()-3600);
     setcookie("userID", "", time()-3600);
     // Verify failed, so check that the DB password isn't blank.  If DB password is blank, then prompt user to create site password, else ask user to login
-    $check = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='password';",&$con));
-    ($check['OptionValue'] == "") ? CREATE_PASSWORD($con) : USER_LOGIN($con);
+    $check_query = mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='password' AND Options.siteID=Sites.siteID AND SiteName='main';",&$con);
+    $check = mysql_fetch_array($check_query);
+    ($check['OptionValue'] == "") ? CREATE_PASSWORD($con) : USER_LOGIN($selected_page,$con);
 }
 
 ?>

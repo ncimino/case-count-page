@@ -70,59 +70,6 @@ function RULES(&$con)
 	echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>\n";
 }
 
-function SELECTUSER($timezone,$userID,&$con)
-{
-	// Creates timezones add as necessary from GMT
-	$alltimezones['MST'] = -7;
-	$alltimezones['PST'] = -8;
-
-	// This variable is set to 1 if a user that exists is found
-	$userselected = 0;
-
-	// First determine if there are any active users
-	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName;",$con);
-	if ( mysql_num_rows($activeusers) == 0 )
-	{
-		echo "    No active users found.<br />\n";
-	}
-	else
-	{
-		echo "    <form method='post' name='selectuser'> User:\n";
-		echo "      <select name='userID' OnChange='selectuser.submit();'>\n";
-
-		while ( $currentuser = mysql_fetch_array($activeusers) )
-		{
-			echo "        <option ";
-			if ( $userID == $currentuser['userID'] )
-			{
-				echo "selected='selected' ";
-				$userselected = 1;
-			}
-			echo "value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
-		}
-
-		echo "        <option";
-		if ($userselected != 1)
-		echo " selected='selected'";
-		echo " value='NULL'>-----</option>\n";
-		echo "      </select>\n";
-
-		echo "      <select name='timezone' OnChange='selectuser.submit();'>\n";
-		foreach ( $alltimezones as $key => $value )
-		{
-			echo "        <option ";
-			if ( $timezone == $value ) echo "selected='selected'";
-			echo "value='".$value."'>".$key."</option>\n";
-		}
-		echo "      </select>\n";
-		echo "      <input type='submit' id='selectuser_submit' value='select'>\n";
-		echo "    </form>\n";
-		echo "    <script type='text/javascript'>\n";
-		echo "      <!--\n";
-		echo "      document.getElementById('selectuser_submit').style.display='none'; // hides button if JS is enabled-->\n";
-		echo "    </script>\n";
-	}
-}
 
 function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
 {
@@ -160,6 +107,7 @@ function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
 		}
 	}
 }
+
 
 function CHECK_TO_SEND_EMAILS($userID,$current_day,$checkchanges,&$con)
 {
@@ -202,6 +150,7 @@ function CHECK_TO_SEND_EMAILS($userID,$current_day,$checkchanges,&$con)
 		}
 	}
 }
+
 
 function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,&$con)
 {
@@ -250,6 +199,7 @@ function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,
 	}
 }
 
+
 function SEND_ALL_MAX_EMAIL($max_date,&$con)
 {
 	$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
@@ -295,6 +245,7 @@ function SEND_ALL_MAX_EMAIL($max_date,&$con)
 		echo "Email was <span class='error'>not sent</span> to everyone.<br />\n";
 	}
 }
+
 
 function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 {
@@ -393,6 +344,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 	echo "      document.getElementById('mycasecount_submit').style.display='none'; // hides button if JS is enabled-->\n";
 	echo "    </script>\n";
 }
+
 
 function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con)
 {
@@ -511,6 +463,7 @@ function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con
 	echo "      document.getElementById('showdetails_submit').style.display='none'; // hides button if JS is enabled-->\n";
 	echo "    </script>\n";
 }
+
 
 function TABLE_CURRENTQUEUE($userID,$current_week,&$con)
 {

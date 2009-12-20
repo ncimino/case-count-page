@@ -78,11 +78,19 @@ function CHECKSCHEDULEDATES($con)
 
 function ADDQUEUECCTOOPTIONS(&$con)
 {
-    echo "Adding Queue CC to 'Options'...<br />\n";
-    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
-        VALUES ('queuecc','CC for MAX and Queue emails:','');";
-    if (RUN_QUERY($sql,"Adding Queue CC failed",$con))
-    echo "- The column was <span class='success'>Added</span><br />\n";
+	$number_queue_options = mysql_num_rows(mysql_query("SELECT optionID FROM Options WHERE OptionName='queuecc';",&$con));
+    if ($number_queue_options >= 1)
+    {
+        echo "The 'queuecc' option was already added.<br />\n";
+    }
+    else
+    {
+	    echo "Adding Queue CC to 'Options'...<br />\n";
+	    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
+	        VALUES ('queuecc','CC for MAX and Queue emails:','');";
+	    if (RUN_QUERY($sql,"Adding Queue CC failed",$con))
+	    echo "- The column was <span class='success'>Added</span><br />\n";
+    }
 }
 
 function ADDEMAILCOLUMNTOUSERS(&$con)
@@ -95,11 +103,154 @@ function ADDEMAILCOLUMNTOUSERS(&$con)
 
 function ADDQUEUEMAXTOOPTIONS(&$con)
 {
-    echo "Adding Queue max to 'Options'...<br />\n";
-    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
-        VALUES ('queuemax','Queue max:','8');";
-    if (RUN_QUERY($sql,"Adding Queue max failed",$con))
-    echo "- The column was <span class='success'>Added</span><br />\n";
+	$number_queue_options = mysql_num_rows(mysql_query("SELECT optionID FROM Options WHERE OptionName='queuemax';",&$con));
+	if ($number_queue_options >= 1)
+	{
+		echo "The 'queuemax' option was already added.<br />\n";
+	}
+	else
+	{
+	    echo "Adding Queue max to 'Options'...<br />\n";
+	    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue)
+	        VALUES ('queuemax','Queue max:','8');";
+	    if (RUN_QUERY($sql,"Adding Queue max failed",$con))
+	    echo "- The column was <span class='success'>Added</span><br />\n";
+	}
+}
+
+function REMOVEUNIQUEFROMOPTIONNAMES(&$con)
+{	
+	$sql="ALTER TABLE Options DROP INDEX OptionName;";
+    if (RUN_QUERY($sql,"Removing UNIQUE from OptionName in Options failed",$con))
+    echo "- Removing UNIQUE from OptionName in Options <span class='success'>completed</span><br />\n";
+}
+
+function ADDUNIQUETOOPTIONNAMES_PERPAGE(&$con)
+{   
+    $sql="ALTER TABLE Options ADD UNIQUE (OptionName,siteID);";
+    if (RUN_QUERY($sql,"Adding UNIQUE to OptionName and siteID in Options failed",$con))
+    echo "- Adding UNIQUE to OptionName and siteID in Options <span class='success'>completed</span><br />\n";
+}
+
+function ADD_OPTIONNAME_TO_OPTIONS(&$con)
+{
+    $sql="ALTER TABLE Options ADD siteID int;";
+    if (RUN_QUERY($sql,"Add siteID to Options failed",$con))
+    echo "- Add siteID to Options <span class='success'>completed</span><br />\n";
+}
+
+function UPDATE_OPTIONS_WITH_siteID(&$con)
+{
+	$sql="UPDATE Options SET siteID = '3' WHERE OptionName = 'sitename';";
+	if (RUN_QUERY($sql,"Updating siteID in Options failed",$con))
+    echo "- Updating siteID in Options <span class='success'>completed</span><br />\n";
+    
+    $sql="UPDATE Options SET siteID = '3' WHERE OptionName = 'queuecc'";
+    if (RUN_QUERY($sql,"Updating siteID in Options failed",$con))
+    echo "- Updating siteID in Options <span class='success'>completed</span><br />\n";
+    
+	$sql="UPDATE Options SET siteID = '3' WHERE OptionName = 'queuerules'";
+	if (RUN_QUERY($sql,"Updating siteID in Options failed",$con))
+    echo "- Updating siteID in Options <span class='success'>completed</span><br />\n";
+    
+	$sql="UPDATE Options SET siteID = '3' WHERE OptionName = 'queuenotes'";
+	if (RUN_QUERY($sql,"Updating siteID in Options failed",$con))
+    echo "- Updating siteID in Options <span class='success'>completed</span><br />\n";
+    
+	$sql="UPDATE Options SET siteID = '3' WHERE OptionName = 'queuemax'";
+	if (RUN_QUERY($sql,"Updating siteID in Options failed",$con))
+    echo "- Updating siteID in Options <span class='success'>completed</span><br />\n";
+    
+	$sql="UPDATE Options SET siteID = '1' WHERE OptionName = 'password'";
+	if (RUN_QUERY($sql,"Updating siteID in Options failed",$con))
+    echo "- Updating siteID in Options <span class='success'>completed</span><br />\n";
+}
+
+function ADD_REPLYTO_OPTION(&$con)
+{
+    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue, siteID)
+        VALUES ('replyto','Reply-to for Queue emails:','','3');";
+    if (RUN_QUERY($sql,"Adding 'replyto' option failed",$con))
+    echo "- Adding 'replyto' option <span class='success'>completed</span><br />\n";
+}
+
+function ADD_GENERAL_OPTIONS(&$con)
+{
+    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue, siteID)
+        VALUES ('sitename','Name of this site:','General','1');";
+    if (RUN_QUERY($sql,"Adding 'sitename' option failed",$con))
+    echo "- Adding 'sitename' option <span class='success'>completed</span><br />\n";
+    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue, siteID)
+        VALUES ('mainnotes','Main page notes:','Intro','1');";
+    if (RUN_QUERY($sql,"Adding 'mainnotes' option failed",$con))
+    echo "- Adding 'mainnotes' option <span class='success'>completed</span><br />\n";
+}
+
+function ADD_PHONESHIFT_OPTIONS(&$con)
+{
+	$sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue, siteID)
+        VALUES ('sitename','Name of this site:','Phone Shifts','2');";
+    if (RUN_QUERY($sql,"Adding 'sitename' option failed",$con))
+    echo "- Adding 'sitename' option <span class='success'>completed</span><br />\n";
+    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue, siteID)
+        VALUES ('phonenotes','Phone Shift notes:','Intro','2');";
+    if (RUN_QUERY($sql,"Adding 'phonenotes' option failed",$con))
+    echo "- Adding 'phonenotes' option <span class='success'>completed</span><br />\n";
+    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue, siteID)
+        VALUES ('phonescc','CC for Phone Shift emails:','','2');";
+    if (RUN_QUERY($sql,"Adding 'phonescc' option failed",$con))
+    echo "- Adding 'phonescc' option <span class='success'>completed</span><br />\n";
+    $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue, siteID)
+        VALUES ('replyto','Reply-to for Phone Shift emails:','','2');";
+    if (RUN_QUERY($sql,"Adding 'replyto' option failed",$con))
+    echo "- Adding 'replyto' option <span class='success'>completed</span><br />\n";
+}
+
+function ADD_SITES(&$con)
+{
+	$number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='main';",&$con));
+    if ($number_sites == 0)
+    {
+	    $sql="INSERT INTO Sites (SiteName, Active)
+	        VALUES ('main',1);";
+	    if (RUN_QUERY($sql,"Adding 'main' site failed",$con))
+	    echo "- Adding 'main' site <span class='success'>completed</span><br />\n";
+    }
+    else
+    {
+    	echo "The 'main' site already exists<br />\n";
+    }
+    $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='phoneshift';",&$con));
+    if ($number_sites == 0)
+    {
+	    $sql="INSERT INTO Sites (SiteName, Active)
+	        VALUES ('phoneshift',1);";
+	    if (RUN_QUERY($sql,"Adding 'phoneshift' site failed",$con))
+	    echo "- Adding 'phoneshift' site <span class='success'>completed</span><br />\n";
+    }
+    else
+    {
+        echo "The 'phoneshift' site already exists<br />\n";
+    }
+    $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='skillset';",&$con));
+    if ($number_sites == 0)
+    {
+	    $sql="INSERT INTO Sites (SiteName, Active)
+	        VALUES ('skillset',1);";
+	    if (RUN_QUERY($sql,"Adding 'skillset' site failed",$con))
+	    echo "- Adding 'skillset' site <span class='success'>completed</span><br />\n";
+    }
+    else
+    {
+        echo "The 'skillset' site already exists<br />\n";
+    }
+}
+
+function ADDFOREIGNKEYTOOPTION_siteID(&$con)
+{   
+    $sql="ALTER TABLE Options ADD FOREIGN KEY (siteID) REFERENCES Sites(siteID);";
+    if (RUN_QUERY($sql,"Adding FOREIGN KEY to siteID in Options failed",$con))
+    echo "- Adding FOREIGN KEY to siteID in Options <span class='success'>completed</span><br />\n";
 }
 
 ?>

@@ -46,12 +46,12 @@ function UPDATE_DB_USERS(&$con)
 
 function TABLE_USERS(&$con)
 {
-    $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
-    $nonactiveusers = mysql_query("SELECT * FROM Users WHERE Active=0;",&$con);
+    $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
+    $nonactiveusers = mysql_query("SELECT * FROM Users WHERE Active=0;",$con);
 
     if ( $_POST['edituser'] != "" and $_POST['newusername'] == "" and $_POST['newuseremail'] == "") // If we went to edit user but nothing was entered then display change form
     {
-        $username = mysql_fetch_array(mysql_query("SELECT UserName,UserEmail FROM Users WHERE userID=".$_POST['edituser'].";",&$con));
+        $username = mysql_fetch_array(mysql_query("SELECT UserName,UserEmail FROM Users WHERE userID=".$_POST['edituser'].";",$con));
         echo "<h2> Change users info: </h2>\n";
         echo "<form method='post'>\n";
         echo "  <input type='hidden' name='edituser' value='".$_POST['edituser']."' />\n";

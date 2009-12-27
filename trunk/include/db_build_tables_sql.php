@@ -73,4 +73,18 @@ Active bit NOT NULL
     return DB_TABLE_CREATE($sql,$con);
 }
 
+function BUILD_TABLE_USERSITES(&$con)
+{
+    $sql = "CREATE TABLE UserSites
+(
+usersiteID int NOT NULL AUTO_INCREMENT, 
+PRIMARY KEY(usersiteID),
+userID int,
+FOREIGN KEY (userID) REFERENCES Users(userID),
+siteID int,
+FOREIGN KEY (siteID) REFERENCES Sites(siteID)
+)";
+    return DB_TABLE_CREATE($sql,$con);
+}
+
 ?>

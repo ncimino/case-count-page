@@ -6,7 +6,7 @@ function SCHEDULE($selecteddate,&$con)
     $current_week = DETERMINE_WEEK($selecteddate);
 
     // Determine if any active users exist
-    $activeusers = mysql_query("SELECT userID FROM Users WHERE Active=1;",&$con);
+    $activeusers = mysql_query("SELECT userID FROM Users WHERE Active=1;",$con);
     if ( mysql_num_rows($activeusers) == 0 )
     {
         echo "      No active users found. You need to add users.<br />\n";
@@ -15,13 +15,13 @@ function SCHEDULE($selecteddate,&$con)
     {
         UPDATE_DB_SCHEDULE($current_week,$con);
         TABLE_SCHEDULE($current_week,$con);
-        SEND_QUEUE_EMAIL($current_week,&$con);
+        SEND_QUEUE_EMAIL($current_week,$con);
     }
 }
 
 function UPDATE_DB_SCHEDULE($current_week,&$con)
 {
-    $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
+    $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
     while ( $currentuser = mysql_fetch_array($activeusers) )
     {
         for ($i=0; $i<5; $i++)
@@ -57,7 +57,7 @@ function UPDATE_DB_SCHEDULE($current_week,&$con)
 
 function TABLE_SCHEDULE($current_week,&$con)
 {
-    $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName;",&$con);
+    $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName;",$con);
     echo "<form method='post' name='schedule'><table>
 <tr>
   <th>Name</th>\n";
@@ -116,8 +116,8 @@ function SEND_QUEUE_EMAIL($current_week,&$con)
     // If it was selected to send an email or an update then continue
     if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
     {
-        $activeusers = mysql_query("SELECT UserEmail,userID FROM Users WHERE Active=1;",&$con);
-        $site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
+        $activeusers = mysql_query("SELECT UserEmail,userID FROM Users WHERE Active=1;",$con);
+        $site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",$con));
         while ( $currentuser = mysql_fetch_array($activeusers) )
         {
             if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
@@ -195,7 +195,7 @@ function SEND_QUEUE_EMAIL($current_week,&$con)
         }
         
         // Send an email to the CC list with the schedule
-        $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc';",&$con));
+        $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc';",$con));
         if ($queuecc['OptionValue'] != "") // Prevent emails from being sent to people that don't have an email
         {
             $currentqueue = "<table style=\"border-collapse:collapse;width:50em;\">";

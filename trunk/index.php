@@ -7,7 +7,7 @@ SET_COOKIES($selected_page,$showdetails,$timezone,$userID,$con);
 $shownextweek = 1;
 // If a date isn't selected, then set default to this weeks schedule AND change the date to local time so that next week is based on Monday at 00:00 for local time
 $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
-($_GET['selecteddate'] == '') ? $selecteddate = mktime()+60*60*$timezone+$dst_value_from_current_time_sec : $selecteddate = $_GET['selecteddate'];
+($_GET['selecteddate'] == '') ? $selecteddate = time()+60*60*$timezone+$dst_value_from_current_time_sec : $selecteddate = $_GET['selecteddate'];
 
 if ( VERIFY_USER($con) )
 {
@@ -66,7 +66,7 @@ if ( VERIFY_USER($con) )
 
 <div id="currenthistory" class="currenthistory"><? CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,$con);
 $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
-echo "    Last updated: ".gmdate("n/j h:i A",mktime()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes\n";
+echo "    Last updated: ".gmdate("n/j h:i A",time()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes\n";
 echo "    <hr width='50%' />\n";
 ?></div>
 

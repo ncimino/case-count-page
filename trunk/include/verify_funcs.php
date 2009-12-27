@@ -30,7 +30,7 @@ function SET_COOKIES(&$selected_page,&$showdetails,&$timezone,&$userID,&$con)
         {
             $userID = $_COOKIE['userID'];
             // Check to see if the user set in the cookie is an active user
-            $useractive = mysql_fetch_array(mysql_query("SELECT Active FROM Users WHERE userID=".$userID.";",&$con));
+            $useractive = mysql_fetch_array(mysql_query("SELECT Active FROM Users WHERE userID=".$userID.";",$con));
             if ($useractive['Active'] == 0)
             $userID = '';
         }
@@ -146,7 +146,7 @@ function VERIFY_USER(&$con)
     BUILD_ALL_DB_TABLES($con);
 
     // Get the already crypted password from the DB
-    $check_query = mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='password' AND Options.siteID=Sites.siteID AND SiteName='main';",&$con);
+    $check_query = mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='password' AND Options.siteID=Sites.siteID AND SiteName='main';",$con);
     $check = mysql_fetch_array($check_query);
 
     // Crypt the user entered password
@@ -169,7 +169,7 @@ function VERIFY_FAILED($selected_page,&$con)
     setcookie("password", "", time()-3600);
     setcookie("userID", "", time()-3600);
     // Verify failed, so check that the DB password isn't blank.  If DB password is blank, then prompt user to create site password, else ask user to login
-    $check_query = mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='password' AND Options.siteID=Sites.siteID AND SiteName='main';",&$con);
+    $check_query = mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='password' AND Options.siteID=Sites.siteID AND SiteName='main';",$con);
     $check = mysql_fetch_array($check_query);
     ($check['OptionValue'] == "") ? CREATE_PASSWORD($con) : USER_LOGIN($selected_page,$con);
 }

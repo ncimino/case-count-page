@@ -78,7 +78,7 @@ function CHECKSCHEDULEDATES($con)
 
 function ADDQUEUECCTOOPTIONS(&$con)
 {
-	$number_queue_options = mysql_num_rows(mysql_query("SELECT optionID FROM Options WHERE OptionName='queuecc';",&$con));
+	$number_queue_options = mysql_num_rows(mysql_query("SELECT optionID FROM Options WHERE OptionName='queuecc';",$con));
     if ($number_queue_options >= 1)
     {
         echo "The 'queuecc' option was already added.<br />\n";
@@ -103,7 +103,7 @@ function ADDEMAILCOLUMNTOUSERS(&$con)
 
 function ADDQUEUEMAXTOOPTIONS(&$con)
 {
-	$number_queue_options = mysql_num_rows(mysql_query("SELECT optionID FROM Options WHERE OptionName='queuemax';",&$con));
+	$number_queue_options = mysql_num_rows(mysql_query("SELECT optionID FROM Options WHERE OptionName='queuemax';",$con));
 	if ($number_queue_options >= 1)
 	{
 		echo "The 'queuemax' option was already added.<br />\n";
@@ -208,7 +208,7 @@ function ADD_PHONESHIFT_OPTIONS(&$con)
 
 function ADD_SITES(&$con)
 {
-	$number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='main';",&$con));
+	$number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='main';",$con));
     if ($number_sites == 0)
     {
 	    $sql="INSERT INTO Sites (SiteName, Active)
@@ -220,7 +220,7 @@ function ADD_SITES(&$con)
     {
     	echo "The 'main' site already exists<br />\n";
     }
-    $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='phoneshift';",&$con));
+    $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='phoneshift';",$con));
     if ($number_sites == 0)
     {
 	    $sql="INSERT INTO Sites (SiteName, Active)
@@ -232,7 +232,7 @@ function ADD_SITES(&$con)
     {
         echo "The 'phoneshift' site already exists<br />\n";
     }
-    $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='skillset';",&$con));
+    $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='skillset';",$con));
     if ($number_sites == 0)
     {
 	    $sql="INSERT INTO Sites (SiteName, Active)

@@ -29,7 +29,7 @@ if ( VERIFY_USER($con) )
 <? SELECTSITE($selected_page,$con) ?>
 </td>
 <td class="header site_name">
-<h1><? SITE_NAME($selected_page,$con) ?></h1>
+<h1>Users</h1>
 </td>
 <td class="header selectuser">
 <? SELECTUSER($timezone,$userID,$con) ?>

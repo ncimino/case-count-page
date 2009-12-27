@@ -53,21 +53,21 @@ function CREATE_DEFAULT_OPTIONS(&$con)
 // The below function is called after the Sites table is created.
 function CREATE_DEFAULT_SITES(&$con)
 {
-   $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='main';",&$con));
+   $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='main';",$con));
     if ($number_sites == 0)
     {
         $sql="INSERT INTO Sites (SiteName, Active)
             VALUES ('main',1);";
         RUN_QUERY($sql,"Adding 'main' site failed",$con);
     }
-    $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='phoneshift';",&$con));
+    $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='phoneshift';",$con));
     if ($number_sites == 0)
     {
         $sql="INSERT INTO Sites (SiteName, Active)
             VALUES ('phoneshift',1);";
         RUN_QUERY($sql,"Adding 'phoneshift' site failed",$con);
     }
-    $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='skillset';",&$con));
+    $number_sites = mysql_num_rows(mysql_query("SELECT SiteName FROM Sites WHERE SiteName='skillset';",$con));
     if ($number_sites == 0)
     {
         $sql="INSERT INTO Sites (SiteName, Active)
@@ -106,9 +106,17 @@ function UPDATE_DB_OPTIONS($selected_page,&$con)
         $sql="UPDATE Options SET OptionValue = '".$_POST['replyto']."' WHERE OptionName = 'replyto' AND siteID='".$selected_page."'";
         RUN_QUERY($sql,"Phone Reply-To was not updated",$con);
     }
+    
+    if ( $_POST['general_datasent'] != '' )
+    {
+        $sql="UPDATE Options SET OptionValue = '".$_POST['sitename']."' WHERE OptionName = 'sitename' AND siteID='".$selected_page."'";
+        RUN_QUERY($sql,"Site name was not updated",$con);
+        $sql="UPDATE Options SET OptionValue = '".$_POST['mainnotes']."' WHERE OptionName = 'mainnotes' AND siteID='".$selected_page."'";
+        RUN_QUERY($sql,"Main notes were not updated",$con);
+    }
 
 	// Get the already crypted password from the DB
-	$check = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='password';",&$con));
+	$check = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='password';",$con));
 
 	// Crypt the user entered password
 	$oldpassword = crypt(md5($_POST['oldpassword']),md5(SALT));
@@ -136,14 +144,15 @@ function UPDATE_DB_OPTIONS($selected_page,&$con)
 function TABLE_OPTIONS($selected_page,&$con)
 {
 	echo "    <h2>";
-	SITE_NAME($selected_page,&$con);
+	SITE_NAME($selected_page,$con);
 	echo " Options:</h2>\n";
-	$main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",&$con));
-    $phone_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='phoneshift';",&$con));
-    $skillset_pages = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='skillset';",&$con));
+	$main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));
+    $phone_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='phoneshift';",$con));
+    $skillset_pages = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='skillset';",$con));
     
 	if ($selected_page == $main_page['siteID'])
 	{
+		GENERAL_OPTIONS_TABLE($selected_page,$con);
 		CHANGE_PASSWORD_TABLE();
 	}
 	elseif ($selected_page == $phone_page['siteID'])
@@ -156,24 +165,48 @@ function TABLE_OPTIONS($selected_page,&$con)
 	}
 }
 
-function PHONESHIFT_OPTIONS_TABLE($selected_page,&$con)
+function GENERAL_OPTIONS_TABLE($selected_page,&$con)
 {
     echo "    <form method='post'>\n";
-	echo "    <table>\n";
+    echo "    <table>\n";
     
-    $sitename = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename' AND siteID='".$selected_page."';",&$con));
+    $sitename = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename' AND siteID='".$selected_page."';",$con));
     echo "    <tr>\n";
     echo "      <td>".$sitename['OptionDesc']."</td>\n";
     echo "      <td><input type='text' name='sitename' value='".$sitename['OptionValue']."' size='80' /></td>\n";
     echo "    </tr>\n";
 
-    $phonescc = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='phonescc' AND siteID='".$selected_page."';",&$con));
+    $mainnotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='mainnotes' AND siteID='".$selected_page."';",$con));
+    echo "    <tr>\n";
+    echo "      <td>".$mainnotes['OptionDesc']."</td>\n";
+    echo "      <td><textarea cols='80' rows='15' name='mainnotes'>".$mainnotes['OptionValue']."</textarea></td>\n";
+    echo "    </tr>\n";
+
+    echo "    </table>\n";
+
+    echo "    <input type='hidden' id='phoneshift_datasent' name='general_datasent' value='1'>\n";
+    echo "    <input type='submit' id='options_submit' value='Update'>\n";
+    echo "    </form>\n";	
+}
+
+function PHONESHIFT_OPTIONS_TABLE($selected_page,&$con)
+{
+    echo "    <form method='post'>\n";
+	echo "    <table>\n";
+    
+    $sitename = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename' AND siteID='".$selected_page."';",$con));
+    echo "    <tr>\n";
+    echo "      <td>".$sitename['OptionDesc']."</td>\n";
+    echo "      <td><input type='text' name='sitename' value='".$sitename['OptionValue']."' size='80' /></td>\n";
+    echo "    </tr>\n";
+
+    $phonescc = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='phonescc' AND siteID='".$selected_page."';",$con));
     echo "    <tr>\n";
     echo "      <td>".$phonescc['OptionDesc']."</td>\n";
     echo "      <td><input type='text' name='phonescc' value='".$phonescc['OptionValue']."' size='80' /></td>\n";
     echo "    </tr>\n";
     
-    $replyto = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='replyto' AND siteID='".$selected_page."';",&$con));
+    $replyto = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='replyto' AND siteID='".$selected_page."';",$con));
     echo "    <tr>\n";
     echo "      <td>".$replyto['OptionDesc']."</td>\n";
     echo "      <td><input type='text' name='replyto' value='".$replyto['OptionValue']."' size='80' /></td>\n";
@@ -183,7 +216,7 @@ function PHONESHIFT_OPTIONS_TABLE($selected_page,&$con)
     echo "      <td colspan='2'>&nbsp;&nbsp;Enter the email addresses as: tom@domain.com, jane@domain.com</td>\n";
     echo "    </tr>\n";
 
-    $phonenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='phonenotes' AND siteID='".$selected_page."';",&$con));
+    $phonenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='phonenotes' AND siteID='".$selected_page."';",$con));
     echo "    <tr>\n";
     echo "      <td>".$phonenotes['OptionDesc']."</td>\n";
     echo "      <td><textarea cols='80' rows='15' name='phonenotes'>".$phonenotes['OptionValue']."</textarea></td>\n";
@@ -201,19 +234,19 @@ function SKILLSET_OPTIONS_TABLE($selected_page,&$con)
 	echo "    <form method='post'>\n";
 	echo "    <table>\n";
 	
-    $sitename = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename' AND siteID='".$selected_page."';",&$con));
+    $sitename = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename' AND siteID='".$selected_page."';",$con));
     echo "    <tr>\n";
     echo "      <td>".$sitename['OptionDesc']."</td>\n";
     echo "      <td><input type='text' name='sitename' value='".$sitename['OptionValue']."' size='80' /></td>\n";
     echo "    </tr>\n";
 
-    $queuecc = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuecc' AND siteID='".$selected_page."';",&$con));
+    $queuecc = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuecc' AND siteID='".$selected_page."';",$con));
     echo "    <tr>\n";
     echo "      <td>".$queuecc['OptionDesc']."</td>\n";
     echo "      <td><input type='text' name='queuecc' value='".$queuecc['OptionValue']."' size='80' /></td>\n";
     echo "    </tr>\n";
 
-    $replyto = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='replyto' AND siteID='".$selected_page."';",&$con));
+    $replyto = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='replyto' AND siteID='".$selected_page."';",$con));
     echo "    <tr>\n";
     echo "      <td>".$replyto['OptionDesc']."</td>\n";
     echo "      <td><input type='text' name='replyto' value='".$replyto['OptionValue']."' size='80' /></td>\n";
@@ -223,19 +256,19 @@ function SKILLSET_OPTIONS_TABLE($selected_page,&$con)
     echo "      <td colspan='2'>&nbsp;&nbsp;Enter the email addresses as: tom@domain.com, jane@domain.com</td>\n";
     echo "    </tr>\n";
     
-    $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules' AND siteID='".$selected_page."';",&$con));
+    $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules' AND siteID='".$selected_page."';",$con));
     echo "    <tr>\n";
     echo "      <td>".$queuerules['OptionDesc']."</td>\n";
     echo "      <td><textarea cols='80' rows='15' name='queuerules'>".$queuerules['OptionValue']."</textarea></td>\n";
     echo "    </tr>\n";
 
-    $queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes' AND siteID='".$selected_page."';",&$con));
+    $queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes' AND siteID='".$selected_page."';",$con));
     echo "    <tr>\n";
     echo "      <td>".$queuenotes['OptionDesc']."</td>\n";
     echo "      <td><textarea cols='80' rows='8' name='queuenotes'>".$queuenotes['OptionValue']."</textarea></td>\n";
     echo "    </tr>\n";
 
-    $queuemax = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuemax' AND siteID='".$selected_page."';",&$con));
+    $queuemax = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuemax' AND siteID='".$selected_page."';",$con));
     echo "    <tr>\n";
     echo "      <td>".$queuemax['OptionDesc']."</td>\n";
     echo "      <td>\n";
@@ -262,7 +295,7 @@ function SKILLSET_OPTIONS_TABLE($selected_page,&$con)
 
 function CHANGE_PASSWORD_TABLE()
 {
-    echo "    <h3>Passwords:</h3>\n";
+    echo "    <h3>Site Password:</h3>\n";
     echo "    <form method='post'>\n";
     echo "    <table>\n";
 

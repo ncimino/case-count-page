@@ -56,7 +56,7 @@ function SELECTUSER($timezone,$userID,&$con)
 
 function SITE_NAME($selected_page,&$con)
 {
-    $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='sitename' AND siteID='".$selected_page."';",&$con));
+    $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='sitename' AND siteID='".$selected_page."';",$con));
     echo $site_name['OptionValue'];
 }
 
@@ -107,7 +107,7 @@ function DETERMINE_WEEK($timestamp)
 
 function SELECTSITE($selected_page,&$con)
 {
-	$pages_query = mysql_query("SELECT Options.siteID,OptionValue FROM Sites,Options WHERE OptionName='sitename' AND Options.siteID=Sites.siteID;",&$con);
+	$pages_query = mysql_query("SELECT Options.siteID,OptionValue FROM Sites,Options WHERE OptionName='sitename' AND Options.siteID=Sites.siteID;",$con);
 	
 	echo "    <form method='post' name='site_selection'>\n";
     echo "      <select name='option_page' OnChange='site_selection.submit();'>\n";
@@ -187,7 +187,7 @@ function SELECTDATE($timezone,$shownextweek,$selecteddate,&$con)
 
         // Pick the oldest date of schedule_date and case_date and set the oldest_date equal to that date
         ($schedule_date > $case_date) ? $oldest_date = $case_date : $oldest_date = $schedule_date;
-        $this_week = DETERMINE_WEEK(mktime()+60*60*$timezone+$dst_value_from_current_time_sec); // Set last date in drop-down to todays date
+        $this_week = DETERMINE_WEEK(time()+60*60*$timezone+$dst_value_from_current_time_sec); // Set last date in drop-down to todays date
 
         // If 'shownextweek' is set, then add next week to the drop-down
         ($shownextweek == 1) ? $most_recent_date = $this_week['Monday']+60*60*24*7 : $most_recent_date = $this_week['Monday'];

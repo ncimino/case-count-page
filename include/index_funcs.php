@@ -6,7 +6,7 @@ function MYCASECOUNT($userID,$selecteddate,&$con)
 	$current_week = DETERMINE_WEEK($selecteddate);
 
 	// If a user is not selected then we can't do anything here, if there is a cookie set but no users exist, then
-	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
+	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
 
 	if ( mysql_num_rows($activeusers) == 0 )
 	echo "    No user has been selected, cannot display user case count editor.<br />\n";
@@ -34,7 +34,7 @@ function CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,&$con)
 	$current_week = DETERMINE_WEEK($selecteddate);
 
 	// If no active user exists then we can't do anything here
-	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
+	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
 	if ( mysql_num_rows($activeusers) == 0 )
 	echo "    Cannot display case counts until active users are added.<br />\n";
 	else
@@ -49,7 +49,7 @@ function CURRENTQUEUE($userID,$selecteddate,&$con)
 	$current_week = DETERMINE_WEEK($selecteddate);
 
 	// If no active schedule exists then we can't do anything here
-	$selectedschedule = mysql_query("SELECT Date FROM Schedule,Users WHERE Date >= '".$current_week['Monday']."' AND Date <= '".$current_week['Friday']."' AND Users.userID = Schedule.userID AND Users.Active = 1",&$con);
+	$selectedschedule = mysql_query("SELECT Date FROM Schedule,Users WHERE Date >= '".$current_week['Monday']."' AND Date <= '".$current_week['Friday']."' AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
 	if ( mysql_num_rows($selectedschedule) == 0 )
 	echo "    No active schedule found.<br />\n";
 	else
@@ -60,13 +60,13 @@ function CURRENTQUEUE($userID,$selecteddate,&$con)
 
 function NOTES(&$con)
 {
-	$queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes';",&$con));
+	$queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes';",$con));
 	echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
 }
 
 function RULES(&$con)
 {
-	$queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",&$con));
+	$queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",$con));
 	echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>\n";
 }
 
@@ -77,7 +77,7 @@ function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
 	{
 		if (($_POST["reg_".$current_week[$i]] != '') and ($_POST["cat1_".$current_week[$i]] != '') and ($_POST["spec_".$current_week[$i]] != '') and ($_POST["tran_".$current_week[$i]] != ''))
 		{
-			$checkforentry = mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID ='".$userID."'",&$con);
+			$checkforentry = mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID ='".$userID."'",$con);
 			// If there wasn't any data before, and now there is then directly insert it into the table
 			if ( mysql_num_rows($checkforentry) == 0 )
 			{
@@ -113,7 +113,7 @@ function CHECK_TO_SEND_EMAILS($userID,$current_day,$checkchanges,&$con)
 {
 	$old_case_total = $checkchanges['CatOnes'] + $checkchanges['Regular'] + $checkchanges['Special'];
 	$new_case_total = $_POST["cat1_".$current_day] + $_POST["reg_".$current_day] + $_POST["spec_".$current_day];
-	$queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax';",&$con));
+	$queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax';",$con));
 	$get_all_on_queue_count = mysql_query("SELECT Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_day." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
 	$j = 0;
 	while ($current_user_count = mysql_fetch_array($get_all_on_queue_count))
@@ -154,9 +154,9 @@ function CHECK_TO_SEND_EMAILS($userID,$current_day,$checkchanges,&$con)
 
 function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,&$con)
 {
-	$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
+	$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",$con));
 
-	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
+	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
 	while ( $currentuser = mysql_fetch_array($activeusers) )
 	{
 		if ($currentuser['userID'] == $send_email_to_userID) // Prevent emails from being sent to people that don't have an email
@@ -202,9 +202,9 @@ function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,
 
 function SEND_ALL_MAX_EMAIL($max_date,&$con)
 {
-	$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",&$con));
+	$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",$con));
 
-	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",&$con);
+	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
 	while ( $currentuser = mysql_fetch_array($activeusers) )
 	{
 		if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
@@ -229,7 +229,7 @@ function SEND_ALL_MAX_EMAIL($max_date,&$con)
 	</body>
 	</html>";
 
-	$queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc';",&$con));
+	$queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc';",$con));
 
 	$from = MAIN_EMAILS_FROM;
 	$headers = "MIME-Version: 1.0" . "\r\n";
@@ -267,7 +267,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 	{
 		echo "          <td class='mycasecount'>\n";
 		echo "          <input type='text' class='mycasecount' name='reg_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
-		$getcount= mysql_query("SELECT Regular FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
+		$getcount= mysql_query("SELECT Regular FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",$con);
 		if ( mysql_num_rows($getcount) == 0 )
 		echo " value='0' ";
 		else
@@ -287,7 +287,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 	{
 		echo "          <td class='mycasecount'>\n";
 		echo "          <input type='text' class='mycasecount' name='cat1_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
-		$getcount= mysql_query("SELECT CatOnes FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
+		$getcount= mysql_query("SELECT CatOnes FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",$con);
 		if ( mysql_num_rows($getcount) == 0 )
 		echo " value='0' ";
 		else
@@ -307,7 +307,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 	{
 		echo "          <td class='mycasecount'>\n";
 		echo "          <input type='text' class='mycasecount' name='spec_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
-		$getcount= mysql_query("SELECT Special FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
+		$getcount= mysql_query("SELECT Special FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",$con);
 		if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
 		else {
 			$currentusercount = mysql_fetch_array($getcount);
@@ -325,7 +325,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 	{
 		echo "          <td class='mycasecount'>\n";
 		echo "          <input type='text' class='mycasecount' name='tran_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
-		$getcount= mysql_query("SELECT Transfer FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",&$con);
+		$getcount= mysql_query("SELECT Transfer FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",$con);
 		if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
 		else {
 			$currentusercount = mysql_fetch_array($getcount);
@@ -348,7 +348,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 
 function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con)
 {
-	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",&$con);
+	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",$con);
 	echo "    <table class='currenthistory'>\n";
 	echo "      <tr class='currenthistory'>\n";
 	echo "        <th class='currenthistory'>Name</th>\n";
@@ -374,7 +374,7 @@ function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con
 			{
 				$usercounts = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special,Transfer,UpdateDate,Date FROM Count WHERE userID='".$currentuser['userID']."' AND Date='".$current_week[$col-2]."';",$con));
 				echo "        <td class='currenthistory";
-				$currentusershift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE Date='".$current_week[$col-2]."' AND userID='".$currentuser['userID']."'",&$con));
+				$currentusershift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE Date='".$current_week[$col-2]."' AND userID='".$currentuser['userID']."'",$con));
 				// This added a class to identify selected user and on shift
 				if ((($currentuser['userID'] == $userID) and ($userID != '')) and ( $currentusershift['Shift'] > 0 ))
 				echo " selecteduseronshiftcell";
@@ -480,7 +480,7 @@ function TABLE_CURRENTQUEUE($userID,$current_week,&$con)
 
 	rsort($shiftcount,SORT_NUMERIC);
 
-	$queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax';",&$con));
+	$queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax';",$con));
 
 	for ($row = 1; $row <= $shiftcount[0]; $row++)
 	{

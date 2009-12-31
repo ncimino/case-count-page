@@ -23,19 +23,22 @@ if ( VERIFY_USER($con) )
 <div id="page" class="page">
 
 <div id="header" class="header">
-<table class="header">
-<tr>
-<td class="header selectsite">
+
+<div id="selectsite" class="selectsite">
 <? SELECTSITE($selected_page,$con) ?>
-</td>
-<td class="header site_name">
+</div>
+
+<div id="title" class="title">
 <h1>Users</h1>
-</td>
-<td class="header selectuser">
-<? SELECTUSER($timezone,$userID,$con) ?>
-</td>
-</tr>
-</table>
+</div>
+
+<div id="selectuser" class="selectuser">
+<? 
+UPDATE_DB_USERS($con);
+SELECTUSER($timezone,$userID,$con);
+?>
+</div>
+
 </div>
 
 <div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
@@ -52,5 +55,5 @@ else
 {
     VERIFY_FAILED($selected_page,$con);
 }
-mysql_close(&$con);
+mysql_close($con);
 ?>

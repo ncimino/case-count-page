@@ -1,5 +1,6 @@
 <?php
 include_once("./include/includes.php");
+include_once("./include/crc_funcs.php");
 DB_CONNECT($con);
 SET_COOKIES($selected_page,$showdetails,$timezone,$userID,$con);
 
@@ -102,7 +103,15 @@ if (1) // Must be enabled to modify password info
 <div id="ADDFOREIGNKEYTOOPTION_siteID" class="ADDFOREIGNKEYTOOPTION_siteID">
 <hr width='50%' />
     <? ADDFOREIGNKEYTOOPTION_siteID($con) ?></div>
-
+    
+<div id="DROP_UNIQUE_USERNAME" class="DROP_UNIQUE_USERNAME">
+<hr width='50%' />
+    <? DROP_UNIQUE_USERNAME($con) ?></div>
+    
+<div id="ADD_UNIQUE_usersites_IDs" class="ADD_UNIQUE_usersites_IDs">
+<hr width='50%' />
+    <? ADD_UNIQUE_usersites_IDs($con) ?></div>
+    
 </div>
 </body>
 </html>

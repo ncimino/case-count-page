@@ -127,7 +127,7 @@ function REMOVEUNIQUEFROMOPTIONNAMES(&$con)
 
 function ADDUNIQUETOOPTIONNAMES_PERPAGE(&$con)
 {   
-    $sql="ALTER TABLE Options ADD UNIQUE (OptionName,siteID);";
+    $sql="ALTER TABLE Options ADD CONSTRAINT OptionName_siteID UNIQUE (OptionName,siteID);";
     if (RUN_QUERY($sql,"Adding UNIQUE to OptionName and siteID in Options failed",$con))
     echo "- Adding UNIQUE to OptionName and siteID in Options <span class='success'>completed</span><br />\n";
 }
@@ -248,9 +248,23 @@ function ADD_SITES(&$con)
 
 function ADDFOREIGNKEYTOOPTION_siteID(&$con)
 {   
-    $sql="ALTER TABLE Options ADD FOREIGN KEY (siteID) REFERENCES Sites(siteID);";
+    $sql="ALTER TABLE Options ADD CONSTRAINT siteID FOREIGN KEY (siteID) REFERENCES Sites(siteID);";
     if (RUN_QUERY($sql,"Adding FOREIGN KEY to siteID in Options failed",$con))
     echo "- Adding FOREIGN KEY to siteID in Options <span class='success'>completed</span><br />\n";
+}
+
+function DROP_UNIQUE_USERNAME(&$con)
+{   
+    $sql="ALTER TABLE Users DROP INDEX UserName;";
+    if (RUN_QUERY($sql,"Removing Unique from table Users on UserName failed",$con))
+    echo "- Removing Unique from table Users on UserName <span class='success'>completed</span><br />\n";
+}
+
+function ADD_UNIQUE_usersites_IDs(&$con)
+{   
+    $sql="ALTER TABLE UserSites ADD CONSTRAINT userID_siteID UNIQUE (userID,siteID);";
+    if (RUN_QUERY($sql,"Adding Unique to table UserSites on userID,siteID failed",$con))
+    echo "- Adding Unique to table UserSites on userID,siteID <span class='success'>completed</span><br />\n";
 }
 
 ?>

@@ -100,23 +100,19 @@ function CREATE_PASSWORD(&$con)
 <meta name="author" content="<? echo AUTHOR ?>" />
 <meta name="description" content="<? echo DESCRIPTION ?>" />
 <meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($selected_page,$con) ?></title>
 <link rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
 <script src="<? echo MAIN_JS_FILE ?>"></script>
 </head>
 <body>
 <div id='page' class='page'>
-<div id='header' class='header'>
-<h1><? SITE_NAME($selected_page,$con) ?></h1>
-</div>
-<div id='topmenu' class='topmenu'><? TOPMENU() ?></div>
 <div id='login' class='login'><?
 
 if (($_POST["password1"] == $_POST["password2"]) and ($_POST["password1"] != ""))
 {
+	$main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));
     echo "Creating password...<br />";
     $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue, siteID)
-        VALUES ('password','Password to login to site','".crypt(md5($_POST["password1"]),md5(SALT))."','0')";
+        VALUES ('password','Password to login to site','".crypt(md5($_POST["password1"]),md5(SALT))."','".$main_page['siteID']."')";
     if ( RUN_QUERY($sql,"Password was not stored",$con) )
     echo "Password created please refresh page.\n";
 }

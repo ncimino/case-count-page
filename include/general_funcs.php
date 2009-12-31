@@ -45,7 +45,7 @@ function SELECTUSER($timezone,$userID,&$con)
             echo "value='".$value."'>".$key."</option>\n";
         }
         echo "      </select>\n";
-        echo "      <input type='submit' id='selectuser_submit' value='select'>\n";
+        echo "      <input type='submit' id='selectuser_submit' value='select' />\n";
         echo "    </form>\n";
         echo "    <script type='text/javascript'>\n";
         echo "      <!--\n";
@@ -107,7 +107,7 @@ function DETERMINE_WEEK($timestamp)
 
 function SELECTSITE($selected_page,&$con)
 {
-	$pages_query = mysql_query("SELECT Options.siteID,OptionValue FROM Sites,Options WHERE OptionName='sitename' AND Options.siteID=Sites.siteID;",$con);
+	$pages_query = mysql_query("SELECT Options.siteID,OptionValue FROM Sites,Options WHERE Active='1' AND OptionName='sitename' AND Options.siteID=Sites.siteID;",$con);
 	
 	echo "    <form method='post' name='site_selection'>\n";
     echo "      <select name='option_page' OnChange='site_selection.submit();'>\n";
@@ -118,27 +118,8 @@ function SELECTSITE($selected_page,&$con)
            echo " selected='selected'";
         echo ">".$pages['OptionValue']."</option>\n";
     }
-   /* echo "        <option value='".$main_page['siteID']."'";
-    if ($selected_page == $main_page['siteID'])
-       echo " selected='selected'";
-    echo ">General</option>\n";
-    echo "        <option value='".$phone_page['siteID']."'";
-    if ($selected_page == $phone_page['siteID'])
-       echo " selected='selected'";
-    echo ">Phone Shift</option>\n";
-    while($skillset_pages = mysql_fetch_array($skillset_pages_query))
-    {
-	    echo "        <option value='".$skillset_pages['siteID']."'";
-	    if ($selected_page == $skillset_pages['siteID'])
-	       echo " selected='selected'";
-	    echo ">Software Case Count Page</option>\n";
-    }
-    echo "        <option value='3'";
-    if ($selected_page == $main_page['siteID'])
-       echo " selected='selected'";
-    echo ">Hardware Case Count Page</option>\n";*/
     echo "      </select>\n";
-    echo "    <input type='submit' id='site_selection_submit' value='Show'>\n";
+    echo "    <input type='submit' id='site_selection_submit' value='Show' />\n";
     echo "    </form>\n";
     echo "    <script type='text/javascript'>\n";
     echo "      <!--\n";

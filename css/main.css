@@ -33,6 +33,27 @@ div.header {
 	width: 100%;
 }
 
+div.selectsite {
+	vertical-align: top;
+    text-align: left;
+	position:absolute;		
+	top:1px;
+	left:1px;	
+}
+
+div.title {
+    text-align: center;
+	width: 100%;	
+}
+
+div.selectuser {
+	vertical-align: top;
+    text-align: right;
+	position:absolute;		
+	top:1px;
+	right:1px;	
+}
+
 table.header {
     width: 100%;
 }

@@ -257,7 +257,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 	echo "          <th class='mycasecount'><span class='selecteduser'>".$username['UserName']."</span></th>\n";
 
 	for ($i=0;$i<5;$i++)
-	echo "          <th class='mycasecount'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+	echo "          <th class='mycasecount'>".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
 
 	echo "        </tr>\n";
 	echo "        <tr class='mycasecount'>\n";
@@ -353,7 +353,7 @@ function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con
 	echo "      <tr class='currenthistory'>\n";
 	echo "        <th class='currenthistory'>Name</th>\n";
 	for ($i=0;$i<5;$i++)
-	echo "        <th class='currenthistory'>".substr(gmdate("l",$current_week[$i]),0,3)."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+	echo "        <th class='currenthistory'>".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
 	echo "      </tr>\n";
 	while ( $currentuser = mysql_fetch_array($activeusers) )
 	{

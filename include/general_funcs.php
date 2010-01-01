@@ -189,7 +189,7 @@ function SELECTDATE($timezone,$shownextweek,$selecteddate,&$con)
             echo "        <option value='" . $value . "'";
             if ($display_week['Monday'] == $value)
             echo " selected='selected' ";
-            echo ">" . substr(gmdate("l",$value),0,3) . " " . gmdate("m/d",$value) . " - " . substr(gmdate("l",$value+60*60*24*4),0,3) . " " . gmdate("m/d",$value+60*60*24*4) . "</option>\n";
+            echo ">" . gmdate("D m/d",$value) . " - " . gmdate("D m/d",$value+60*60*24*4) . "</option>\n";
         }
         echo "      </select>\n";
         echo "      <input type='submit' id='dateselection_submit' value='go'>\n";

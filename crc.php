@@ -31,19 +31,22 @@ if (1) // Must be enabled to modify password info
 <div id="page" class="page">
 
 <div id="header" class="header">
-<table class="header">
-<tr>
-<td class="header selectsite">
-<? SELECTSITE($selected_page,$con) ?>
-</td>
-<td class="header site_name">
-<h1><? SITE_NAME($selected_page,$con) ?></h1>
-</td>
-<td class="header selectuser">
+
+<div id="selectsite" class="selectsite">
+<?
+UPDATE_DB_OPTIONS($selected_page,$con); 
+SELECTSITE($selected_page,$con);
+?>
+</div>
+
+<div id="title" class="title">
+<h1>CRC Page</h1>
+</div>
+
+<div id="selectuser" class="selectuser">
 <? SELECTUSER($timezone,$userID,$con) ?>
-</td>
-</tr>
-</table>
+</div>
+
 </div>
 
 <div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
@@ -111,6 +114,10 @@ if (1) // Must be enabled to modify password info
 <div id="ADD_UNIQUE_usersites_IDs" class="ADD_UNIQUE_usersites_IDs">
 <hr width='50%' />
     <? ADD_UNIQUE_usersites_IDs($con) ?></div>
+    
+<div id="ADD_siteID_TO_SCHEDULE" class="ADD_siteID_TO_SCHEDULE">
+<hr width='50%' />
+    <? ADD_siteID_TO_SCHEDULE($con) ?></div>
     
 </div>
 </body>

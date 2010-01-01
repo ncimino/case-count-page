@@ -30,19 +30,22 @@ if ( VERIFY_USER($con) )
 <div id="page" class="page">
 
 <div id="header" class="header">
-<table class="header">
-<tr>
-<td class="header selectsite">
-<? SELECTSITE($selected_page,$con) ?>
-</td>
-<td class="header site_name">
+
+<div id="selectsite" class="selectsite">
+<?
+UPDATE_DB_OPTIONS($selected_page,$con); 
+SELECTSITE($selected_page,$con);
+?>
+</div>
+
+<div id="title" class="title">
 <h1><? SITE_NAME($selected_page,$con) ?></h1>
-</td>
-<td class="header selectuser">
+</div>
+
+<div id="selectuser" class="selectuser">
 <? SELECTUSER($timezone,$userID,$con) ?>
-</td>
-</tr>
-</table>
+</div>
+
 </div>
 
 <div id="topmenu" class="topmenu"><? TOPMENU() ?></div>

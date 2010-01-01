@@ -59,24 +59,24 @@ function SET_COOKIES(&$selected_page,&$showdetails,&$timezone,&$userID,&$con)
     ($_POST["option_page"] == '') ? (($_COOKIE['option_page'] == '') ? $selected_page = '' : $selected_page = $_COOKIE['option_page']) : $selected_page = $_POST['option_page'];
 }
 
-function USER_LOGIN($selected_page,&$con)
+function USER_LOGIN(&$con)
 {
-    ?>
-<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
+  $mainsite = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));
+  ?><!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
 <html xmlns='http://www.w3.org/1999/xhtml'>
 <head>
 <meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1' />
 <meta name="author" content="<? echo AUTHOR ?>" />
 <meta name="description" content="<? echo DESCRIPTION ?>" />
 <meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($selected_page,$con) ?></title>
+<title><? SITE_NAME($mainsite['siteID'],$con) ?></title>
 <link rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
 <script src="<? echo MAIN_JS_FILE ?>"></script>
 </head>
 <body>
 <div id='page' class='page'>
 <div id='header' class='header'>
-<h1><? SITE_NAME($selected_page,$con) ?></h1>
+<h1><? SITE_NAME($mainsite['siteID'],$con) ?></h1>
 </div>
 <div id='topmenu' class='topmenu'><? TOPMENU() ?></div>
 <div id='login' class='login'>
@@ -114,7 +114,7 @@ if (($_POST["password1"] == $_POST["password2"]) and ($_POST["password1"] != "")
     $sql="INSERT INTO Options (OptionName, OptionDesc, OptionValue, siteID)
         VALUES ('password','Password to login to site','".crypt(md5($_POST["password1"]),md5(SALT))."','".$main_page['siteID']."')";
     if ( RUN_QUERY($sql,"Password was not stored",$con) )
-    echo "Password created please refresh page.\n";
+    echo "Password created please <a href='index.php'>refresh</a> page.\n";
 }
 else
 { ?>
@@ -167,7 +167,7 @@ function VERIFY_FAILED($selected_page,&$con)
     // Verify failed, so check that the DB password isn't blank.  If DB password is blank, then prompt user to create site password, else ask user to login
     $check_query = mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='password' AND Options.siteID=Sites.siteID AND SiteName='main';",$con);
     $check = mysql_fetch_array($check_query);
-    ($check['OptionValue'] == "") ? CREATE_PASSWORD($con) : USER_LOGIN($selected_page,$con);
+    ($check['OptionValue'] == "") ? CREATE_PASSWORD($con) : USER_LOGIN($con);
 }
 
 ?>

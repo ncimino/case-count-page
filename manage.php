@@ -41,8 +41,6 @@ SELECTSITE($selected_page,$con);
 
 </div>
 
-
-
 <div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
 
 <div id="managesite" class="managesite"><? MANAGESITE($selected_page,$con) ?></div>

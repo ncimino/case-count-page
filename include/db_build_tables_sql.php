@@ -20,7 +20,7 @@ function BUILD_TABLE_COUNT(&$con)
 countID int NOT NULL AUTO_INCREMENT, 
 CONSTRAINT countID PRIMARY KEY(countID),
 userID int,
-CONSTRAINT userID FOREIGN KEY (userID) REFERENCES Users(userID),
+CONSTRAINT count_userID FOREIGN KEY (userID) REFERENCES Users(userID),
 CatOnes int,
 Special int,
 Regular int,
@@ -38,9 +38,26 @@ function BUILD_TABLE_SCHEDULE(&$con)
 scheduleID int NOT NULL AUTO_INCREMENT, 
 CONSTRAINT scheduleID PRIMARY KEY(scheduleID),
 userID int,
-CONSTRAINT userID FOREIGN KEY (userID) REFERENCES Users(userID),
+CONSTRAINT schedule_userID FOREIGN KEY (userID) REFERENCES Users(userID),
+siteID int,
+CONSTRAINT schedule_siteID FOREIGN KEY (siteID) REFERENCES Sites(siteID),
 Date int,
 Shift smallint
+)";
+    return DB_TABLE_CREATE($sql,$con);
+}
+
+function BUILD_TABLE_PHONESCHEDULE(&$con)
+{
+    $sql = "CREATE TABLE PhoneSchedule
+(
+phonescheduleID int NOT NULL AUTO_INCREMENT, 
+CONSTRAINT phonescheduleID PRIMARY KEY(phonescheduleID),
+userID int,
+CONSTRAINT phoneschedule_userID FOREIGN KEY (userID) REFERENCES Users(userID),
+Date int,
+Shift smallint,
+CONSTRAINT phoneschedule_userID_Date_Shift UNIQUE (userID,Date,Shift)
 )";
     return DB_TABLE_CREATE($sql,$con);
 }
@@ -55,8 +72,8 @@ OptionName varchar(255),
 OptionDesc varchar(255),
 OptionValue text(200000),
 siteID int,
-CONSTRAINT OptionName_siteID UNIQUE (OptionName,siteID),
-CONSTRAINT siteID FOREIGN KEY (siteID) REFERENCES Sites(siteID)
+CONSTRAINT options_OptionName_siteID UNIQUE (OptionName,siteID),
+CONSTRAINT options_siteID FOREIGN KEY (siteID) REFERENCES Sites(siteID)
 )";
     return DB_TABLE_CREATE($sql,$con);
 }
@@ -80,10 +97,10 @@ function BUILD_TABLE_USERSITES(&$con)
 usersiteID int NOT NULL AUTO_INCREMENT, 
 CONSTRAINT usersiteID PRIMARY KEY(usersiteID),
 userID int,
-CONSTRAINT userID FOREIGN KEY (userID) REFERENCES Users(userID),
+CONSTRAINT usersites_userID FOREIGN KEY (userID) REFERENCES Users(userID),
 siteID int,
-CONSTRAINT siteID FOREIGN KEY (siteID) REFERENCES Sites(siteID),
-CONSTRAINT userID_siteID UNIQUE (userID,siteID)
+CONSTRAINT usersites_siteID FOREIGN KEY (siteID) REFERENCES Sites(siteID),
+CONSTRAINT usersites_userID_siteID UNIQUE (userID,siteID)
 )";
     return DB_TABLE_CREATE($sql,$con);
 }

@@ -1,22 +1,45 @@
 <?php
 
-function SCHEDULE($selecteddate,&$con)
+function SCHEDULE($selected_page,$selecteddate,&$con)
 {
-    // Get the dates for the selected week
-    $current_week = DETERMINE_WEEK($selecteddate);
-
+  // Get the dates for the selected week
+  $current_week = DETERMINE_WEEK($selecteddate);
+  
+  // If the selected page is the main page then print some notice
+  $main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));
+  if ($selected_page == $main_page['siteID'])
+  {
+    echo "		Select a site to show the schedule for.<br />\n";
+  }
+  else
+  {
+    echo "<h2>Schedule for ";
+    SITE_NAME($selected_page,$con);
+    echo "</h2>\n";
+    
     // Determine if any active users exist
     $activeusers = mysql_query("SELECT userID FROM Users WHERE Active=1;",$con);
     if ( mysql_num_rows($activeusers) == 0 )
     {
-        echo "      No active users found. You need to add users.<br />\n";
+      echo "      No active users found. You need to add users.<br />\n";
     }
     else
     {
-        UPDATE_DB_SCHEDULE($current_week,$con);
-        TABLE_SCHEDULE($current_week,$con);
-        SEND_QUEUE_EMAIL($current_week,$con);
-    }
+      $phone_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='phoneshift';",$con));
+      if ($selected_page == $phone_page['siteID'])
+      {
+        //UPDATE_DB_PHONE_SCHEDULE($current_week,$con);
+        TABLE_PHONE_SCHEDULE($selected_page,$current_week,$con);
+        //SEND_PHONE_EMAIL($current_week,$con);
+      }
+      else
+      {
+        UPDATE_DB_SCHEDULE($selected_page,$current_week,$con);
+        TABLE_SCHEDULE($selected_page,$current_week,$con);
+        SEND_QUEUE_EMAIL($selected_page,$current_week,$con);
+      }
+    } 
+  }
 }
 
 function UPDATE_DB_SCHEDULE($current_week,&$con)
@@ -53,6 +76,56 @@ function UPDATE_DB_SCHEDULE($current_week,&$con)
             }
         }
     }
+}
+
+function TABLE_PHONE_SCHEDULE($selected_page,$current_week,&$con)
+{
+    $activeusers = mysql_query("SELECT userID,UserName FROM Users WHERE Active=1 ORDER BY UserName;",$con);
+    echo "<form method='post' name='schedule'><table>\n";
+    echo "<tr>\n";
+    echo "  <th>Name</th>\n";
+    for ($i=0;$i<5;$i++)
+    echo "  <th>".substr(gmdate("l",$current_week[$i]),0,3)."<br />".gmdate("n/j",$current_week[$i])."</th>\n";
+    echo "  <th>Total</th>";
+    echo "</tr>\n";
+
+    while ( $currentuser = mysql_fetch_array($activeusers) )
+    {
+        echo "<tr>\n";
+        for ($col=1; $col<=7; $col++)
+        {
+            if ($col==1) echo "  <td>".$currentuser['UserName']."</td>";
+            else if ($col==7) {
+                $currentshift = mysql_fetch_array(mysql_query("SELECT SUM(Shift) FROM Schedule WHERE userID = '".$currentuser['userID']."' AND Date >= '".$current_week[0]."' AND Date <= '".$current_week[4]."'",$con));
+                echo "  <td>" . $currentshift['SUM(Shift)'] / 2 . "</td>\n";
+            }
+            else {
+                $postvariable = "sched_".$current_week[$col-2]."_".$currentuser['userID'];
+                $currentshift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE userID = '".$currentuser['userID']."' AND Date = '".$current_week[$col-2]."'",$con));
+                echo "  <td>
+      <select name='".$postvariable."' OnChange='schedule.submit();'>
+      <option value='2' "; 
+                if ( $currentshift['Shift'] == 2 ) echo "selected='selected'";
+                echo ">FULL</option>
+      <option value='1' "; 
+                if ( $currentshift['Shift'] == 1 ) echo "selected='selected'";
+                echo ">HALF</option>
+      <option value='0' "; 
+                if ( $currentshift['Shift'] == '' ) echo "selected='selected'";
+                echo "></option></select>\n";
+                echo "  </td>\n";
+            }
+        }
+        echo "</tr>\n";
+    }
+
+    echo "</table>\n";
+    echo "<input type='submit' id='schedule_submit' value='submit'>\n";
+    echo "</form>\n";
+    echo "    <script type='text/javascript'>\n";
+    echo "      <!--\n";
+    echo "      document.getElementById('schedule_submit').style.display='none'; // hides button if JS is enabled-->\n";
+    echo "    </script>\n";
 }
 
 function TABLE_SCHEDULE($current_week,&$con)

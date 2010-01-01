@@ -48,7 +48,20 @@ SELECTSITE($selected_page,$con);
 </div>
 
 <div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
-
+  <? 
+  // If the selected page is the main page then print some notice
+  $main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));
+  if ($selected_page == $main_page['siteID'])
+  {
+    ?>
+    <div id="schedule" class="schedule">
+      <br />
+  		Select a site to show the schedule for.<br />
+    <?
+  }
+  else
+  {
+    ?>
 <div id="selectdate" class="selectdate">
     <br />
     <? SELECTDATE($timezone,$shownextweek,$selecteddate,$con) ?>
@@ -56,14 +69,14 @@ SELECTSITE($selected_page,$con);
 
 <div id="schedule" class="schedule">
     <br />
-    <? SCHEDULE($selected_page,$selecteddate,$con) ?>
+    <? SCHEDULE($timezone,$selected_page,$selecteddate,$con) ?>
 </div>
 
 </div>
 </body>
 </html>
-
     <?
+  }
 }
 else
 {

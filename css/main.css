@@ -43,7 +43,7 @@ div.selectsite {
 
 div.title {
     text-align: center;
-	width: 100%;	
+	width: 100%;
 }
 
 div.selectuser {
@@ -68,6 +68,30 @@ div.notes {
 
 div.rules {
     
+}
+
+table.phoneshift {
+	border-collapse:collapse;
+}
+
+table.phoneshift, th.phoneshift, td.phoneshift
+{
+	border: 1px solid black;
+}
+
+td.phoneshift {
+	width: 10em;
+	text-align: center;
+	vertical-align: middle;
+}
+
+div.phoneshift {
+	min-height: 4em;
+	vertical-align: bottom;
+}
+
+select.phoneshift {
+	width: 10em;
 }
 
 td.selectsite {

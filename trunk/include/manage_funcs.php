@@ -211,7 +211,7 @@ function CREATE_SITES_TABLE(&$con)
    	while ($pages = mysql_fetch_array($pages_query))
     {
       echo "    <tr>\n";
-      echo " 	   <td>".$pages['OptionValue']."</td>\n";
+      echo " 	   <td>&nbsp;&nbsp;&nbsp;".$pages['OptionValue']."</td>\n";
       echo "      <td>\n";
       echo "        <form method='post'>\n";
       echo "          <input type='hidden' name='makesiteinactive' value='".$pages['siteID']."' />\n";
@@ -224,7 +224,7 @@ function CREATE_SITES_TABLE(&$con)
   }
   else
   {
-    echo "		No Active Sites found.";
+    echo "		&nbsp;&nbsp;&nbsp;No Active Sites found.";
   }
   
   echo "    <h5>Inactive Sites:</h5>\n";
@@ -235,7 +235,7 @@ function CREATE_SITES_TABLE(&$con)
     while ($pages = mysql_fetch_array($pages_query))
     {
       echo "    <tr>\n";
-      echo " 	   <td>".$pages['OptionValue']."</td>\n";
+      echo " 	   <td>&nbsp;&nbsp;&nbsp;".$pages['OptionValue']."</td>\n";
       echo "      <td>\n";
       echo "        <form method='post'>\n";
       echo "          <input type='hidden' name='makesiteactive' value='".$pages['siteID']."' />\n";
@@ -248,11 +248,12 @@ function CREATE_SITES_TABLE(&$con)
   }
   else
   {
-    echo "		No Inactive Sites found.";
+    echo "		&nbsp;&nbsp;&nbsp;No Inactive Sites found.";
   }
   
   echo "    <h5>Create A New Skillset:</h5>\n";
   echo "        <form method='post'>\n";
+  echo "          &nbsp;&nbsp;&nbsp;\n";
   echo "          <input type='hidden' name='createsite' value='1' />\n";
   echo "          <input type='submit' value='Create a New Skillset' onClick='return confirmSubmit(\"Are you sure you want to create a new site? NOTE: Once a site is created it cannot be deleted, but it can be made inactive.\")' />\n";
   echo "        </form>\n";

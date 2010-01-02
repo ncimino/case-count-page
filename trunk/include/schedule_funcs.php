@@ -20,8 +20,10 @@ function SCHEDULE($timezone,$selected_page,$selecteddate,&$con)
     $phone_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='phoneshift';",$con));
     if ($selected_page == $phone_page['siteID'])
     {
-      //UPDATE_DB_PHONE_SCHEDULE($current_week,$con);
+      UPDATE_DB_PHONE_SCHEDULE($current_week,$con);
       TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,$con);
+      echo "      <br />\n";
+      MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,$con);
       //SEND_PHONE_EMAIL($current_week,$con);
     }
     else
@@ -29,6 +31,25 @@ function SCHEDULE($timezone,$selected_page,$selecteddate,&$con)
       UPDATE_DB_SCHEDULE($selected_page,$current_week,$con);
       TABLE_SCHEDULE($selected_page,$current_week,$con);
       SEND_QUEUE_EMAIL($selected_page,$current_week,$con);
+    }
+  }
+}
+
+function UPDATE_DB_PHONE_SCHEDULE($selected_page,&$con)
+{
+  if ($_POST['phonesched_user']!='')
+  {
+    $currentshift = mysql_query("SELECT phonescheduleID FROM PhoneSchedule WHERE userID = '".$_POST['phonesched_user']."' AND Date = '".$_POST['phonesched_date']."' AND Shift = '".$_POST['phonesched_shift']."'",$con);
+    
+    // DB doesn't have data, and user entered data - insert
+    if ( mysql_num_rows($currentshift) == 0 )
+    {
+      $sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",".$_POST['phonesched_shift'].")";
+      RUN_QUERY($sql,"Entry was not added.",$con);
+    }
+    else
+    {
+      echo "This user already has this shift on this day.<br />\n";
     }
   }
 }
@@ -90,16 +111,62 @@ function CREATE_PHONESHIFTS(&$phoneshifs,$date,$timezone)
   $phoneshifs[5]['end']   = $date+60*60*$timezone+60*60*(8+17);   // 5:00pm PST
 }
 
+function MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
+{
+  $activeusers = mysql_query("SELECT UserName,Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
+  
+  echo "	Manually added a phone shift:<br />\n";
+  echo "    <form method='post' name='manual_phone_shift'>\n";
+  
+  echo "      <select name='manual_phone_date'>\n";
+  for ($i=0;$i<5;$i++)
+    echo "        <option value='".$current_week[$i]."'>".gmdate("D n/j",$current_week[$i])."</option>\n";
+  echo "        <option value='NULL' disabled='disabled'></option>\n";
+  echo "        <option selected='selected' value='NULL' disabled='disabled'>Date</option>\n";
+  echo "      </select>\n";
+  
+  // Creates phone shift times
+  CREATE_PHONESHIFTS($phoneshifs,$current_week[0],$timezone);
+  
+  echo "      <select name='manual_phone_shift'>\n";
+  echo "        <option value='6'>Full ".gmdate("g:ia",$phoneshifs[0]['start'])." - ".gmdate("g:ia",$phoneshifs[1]['end'])."</option>\n";
+  echo "        <option value='7'>Full ".gmdate("g:ia",$phoneshifs[4]['start'])." - ".gmdate("g:ia",$phoneshifs[5]['end'])."</option>\n";
+  echo "        <option value='NULL' disabled='disabled'></option>\n";
+  for ($shift_index=0;$shift_index<=5;$shift_index++)
+  {
+    echo "        <option value='".$shift_index."'>";
+    if ($shift_index==2 or $shift_index==3)
+      echo "Cover ";
+    echo gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
+    echo "</option>\n";
+    if ($shift_index==2)
+      echo "        <option value='NULL' disabled='disabled'></option>\n";
+  }
+  echo "        <option value='NULL' disabled='disabled'></option>\n";
+  echo "        <option selected='selected' value='NULL' disabled='disabled'>Phone Shift</option>\n";
+  echo "      </select>\n";
+
+  echo "      <select name='manual_phone_user'>\n";
+  while ( $currentuser = mysql_fetch_array($activeusers) )
+    echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
+  echo "        <option value='NULL' disabled='disabled'></option>\n";
+  echo "        <option selected='selected' value='NULL' disabled='disabled'>User</option>\n";
+  echo "      </select>\n";
+  
+  echo "      <input type='submit' id='form_".$postvariable."_submit' value='select' />\n";
+  echo "    </form>\n";
+}
+
 function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
 {
   $activeusers = mysql_query("SELECT UserName,Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
+  
   echo "<table class='phoneshift'>\n";
+  
   echo "<tr class='phoneshift'>\n";
   echo "  <th class='phoneshift'>Shift</th>\n";
   for ($i=0;$i<5;$i++)
-  {
     echo "  <th class='phoneshift'>".gmdate("D n/j",$current_week[$i])."</th>\n";
-  }
   echo "</tr>\n";
 
   // Creates phone shift times
@@ -113,25 +180,41 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
       if ($col==1)
       {
         echo "  <td class='phoneshift'>";
-        echo gmdate("h:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("h:ia",$phoneshifs[$shift_index]['end']);
+        echo gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
         if ($shift_index==2 or $shift_index==3) echo "<br />Cover";
         echo "</td>\n";
       }
       else 
       {
         $postvariable = "phonesched_".$current_week[$col-2]."_".$shift_index;
-        $currentshift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE userID = '".$currentuser['userID']."' AND Date = '".$current_week[$col-2]."'",$con));
-        echo "  <td class='phoneshift'><div class='phoneshift'><span class='phoneshift'>
-      <select name='".$postvariable."' class='phoneshift' OnChange='schedule.submit();'>
-      <option value='2' "; 
-        if ( $currentshift['Shift'] == 2 ) echo "selected='selected'";
-        echo ">FULL</option>
-      <option value='1' "; 
-        if ( $currentshift['Shift'] == 1 ) echo "selected='selected'";
-        echo ">HALF</option>
-      <option value='0' "; 
-        if ( $currentshift['Shift'] == '' ) echo "selected='selected'";
-        echo "></option></select>\n";
+        //$postvariable = "phonesched_user";
+        echo "  <td class='phoneshift'><div class='phoneshift'><span class='phoneshift'>\n";
+        
+        echo "    <form method='post' name='form_".$postvariable."'>\n";
+        echo "      <select name='phonesched_user' class='phoneshift' OnChange='form_".$postvariable.".submit();'>\n";
+        
+        mysql_data_seek($activeusers,0);
+        while ( $currentuser = mysql_fetch_array($activeusers) )
+          echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
+
+        echo "        <option selected='selected' value='NULL'></option>\n";
+        echo "      </select>\n";
+        
+        echo "      <input type='hidden' name='phonesched_date' value='".$current_week[$col-2]."' />\n";
+        echo "      <input type='hidden' name='phonesched_shift' value='".$shift_index."' />\n";
+
+        echo "      <input type='submit' id='form_".$postvariable."_submit' value='select' />\n";
+        echo "    </form>\n";
+        
+        echo "    <script type='text/javascript'>\n";
+        echo "      <!--\n";
+        echo "      document.getElementById('form_".$postvariable."_submit').style.display='none'; // hides button if JS is enabled-->\n";
+        echo "    </script>\n";
+        
+        $users_on_shift = mysql_query("SELECT UserName FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
+        while ( $current_user_on_shift = mysql_fetch_array($users_on_shift) )
+          echo "        ".$current_user_on_shift['UserName']."<br />\n";
+        
         echo "  </span></div></td>\n";
       }
     }
@@ -139,12 +222,6 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
   }
 
   echo "</table>\n";
-  echo "<input type='submit' id='schedule_submit' value='submit'>\n";
-  echo "</form>\n";
-  echo "    <script type='text/javascript'>\n";
-  echo "      <!--\n";
-  echo "      document.getElementById('schedule_submit').style.display='none'; // hides button if JS is enabled-->\n";
-  echo "    </script>\n";
 }
 
 function TABLE_SCHEDULE($selected_page,$current_week,&$con)
@@ -154,7 +231,7 @@ function TABLE_SCHEDULE($selected_page,$current_week,&$con)
   echo "<tr>\n";
   echo "  <th>Name</th>\n";
   for ($i=0;$i<5;$i++)
-  echo "  <th>".gmdate("D",$current_week[$i])."<br />".gmdate("n/j",$current_week[$i])."</th>\n";
+    echo "  <th>".gmdate("D",$current_week[$i])."<br />".gmdate("n/j",$current_week[$i])."</th>\n";
   echo "  <th>Total</th>";
   echo "</tr>\n";
 

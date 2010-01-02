@@ -74,7 +74,7 @@ table.phoneshift {
 	border-collapse:collapse;
 }
 
-table.phoneshift, th.phoneshift, td.phoneshift
+table.phoneshift, td.phoneshift
 {
 	border: 1px solid black;
 }
@@ -82,7 +82,7 @@ table.phoneshift, th.phoneshift, td.phoneshift
 td.phoneshift {
 	width: 10em;
 	text-align: center;
-	vertical-align: middle;
+	vertical-align: top;
 }
 
 div.phoneshift {

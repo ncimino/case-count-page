@@ -69,38 +69,60 @@ function UPDATE_DB_SCHEDULE($selected_page,$current_week,&$con)
   }
 }
 
+function CREATE_PHONESHIFTS(&$phoneshifs,$date,$timezone)
+{
+  $phoneshifs[0]['start'] = $date+60*60*$timezone+60*60*(8+7);    // 7:00am PST -
+  $phoneshifs[0]['end']   = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST
+  
+  $phoneshifs[1]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST -
+  $phoneshifs[1]['end']   = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST
+  
+  $phoneshifs[2]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // Cover 9:30am PST -
+  $phoneshifs[2]['end']   = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST
+
+  $phoneshifs[3]['start'] = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST -
+  $phoneshifs[3]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // Cover 2:30pm PST
+  
+  $phoneshifs[4]['start'] = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST -
+  $phoneshifs[4]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST
+  
+  $phoneshifs[5]['start'] = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST -
+  $phoneshifs[5]['end']   = $date+60*60*$timezone+60*60*(8+17);   // 5:00pm PST
+}
+
 function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
 {
   $activeusers = mysql_query("SELECT UserName,Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
-  echo "<table>\n";
-  echo "<tr>\n";
-  echo "  <th>Shift</th>\n";
+  echo "<table class='phoneshift'>\n";
+  echo "<tr class='phoneshift'>\n";
+  echo "  <th class='phoneshift'>Shift</th>\n";
   for ($i=0;$i<5;$i++)
-  echo "  <th>".gmdate("D",$current_week[$i])."<br />".gmdate("n/j",$current_week[$i])."</th>\n";
+  {
+    echo "  <th class='phoneshift'>".gmdate("D n/j",$current_week[$i])."</th>\n";
+  }
   echo "</tr>\n";
 
   // Creates phone shift times
-  $phoneshifs[0]['start'] = date("h:ia",$current_week[0]+60*60*$timezone-60*60*8);
-  $phoneshifs[1]['start'] = date("h:ia",$current_week[0]);
-  echo "pho=".$phoneshifs[0]['start'];
-  echo "pho=".$phoneshifs[1]['start'];
-  $phoneshifs['PST'] = -8;
+  CREATE_PHONESHIFTS($phoneshifs,$current_week[0],$timezone);
   
-  while ( $currentuser = mysql_fetch_array($activeusers) )
+  for ($shift_index=0;$shift_index<=5;$shift_index++)
   {
-    echo "<tr>\n";
-    for ($col=1; $col<=7; $col++)
+    echo "<tr class='phoneshift'>\n";
+    for ($col=1; $col<=6; $col++)
     {
-      if ($col==1) echo "  <td>".$currentuser['UserName']."</td>";
-      else if ($col==7) {
-        $currentshift = mysql_fetch_array(mysql_query("SELECT SUM(Shift) FROM Schedule WHERE userID = '".$currentuser['userID']."' AND Date >= '".$current_week[0]."' AND Date <= '".$current_week[4]."'",$con));
-        echo "  <td>" . $currentshift['SUM(Shift)'] / 2 . "</td>\n";
+      if ($col==1)
+      {
+        echo "  <td class='phoneshift'>";
+        echo gmdate("h:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("h:ia",$phoneshifs[$shift_index]['end']);
+        if ($shift_index==2 or $shift_index==3) echo "<br />Cover";
+        echo "</td>\n";
       }
-      else {
-        $postvariable = "sched_".$current_week[$col-2]."_".$currentuser['userID'];
+      else 
+      {
+        $postvariable = "phonesched_".$current_week[$col-2]."_".$shift_index;
         $currentshift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE userID = '".$currentuser['userID']."' AND Date = '".$current_week[$col-2]."'",$con));
-        echo "  <td>
-      <select name='".$postvariable."' OnChange='schedule.submit();'>
+        echo "  <td class='phoneshift'><div class='phoneshift'><span class='phoneshift'>
+      <select name='".$postvariable."' class='phoneshift' OnChange='schedule.submit();'>
       <option value='2' "; 
         if ( $currentshift['Shift'] == 2 ) echo "selected='selected'";
         echo ">FULL</option>
@@ -110,7 +132,7 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
       <option value='0' "; 
         if ( $currentshift['Shift'] == '' ) echo "selected='selected'";
         echo "></option></select>\n";
-        echo "  </td>\n";
+        echo "  </span></div></td>\n";
       }
     }
     echo "</tr>\n";

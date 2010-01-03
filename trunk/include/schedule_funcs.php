@@ -39,18 +39,46 @@ function UPDATE_DB_PHONE_SCHEDULE($selected_page,&$con)
 {
   if ($_POST['phonesched_user']!='')
   {
-    $currentshift = mysql_query("SELECT phonescheduleID FROM PhoneSchedule WHERE userID = '".$_POST['phonesched_user']."' AND Date = '".$_POST['phonesched_date']."' AND Shift = '".$_POST['phonesched_shift']."'",$con);
+    if ($_POST['phonesched_shift'] == 6)
+      $currentshift = mysql_query("SELECT phonescheduleID FROM PhoneSchedule WHERE userID = '".$_POST['phonesched_user']."' AND Date = '".$_POST['phonesched_date']."' AND ( Shift = '0' OR Shift = '1')",$con);
+    else if ($_POST['phonesched_shift'] == 7)
+      $currentshift = mysql_query("SELECT phonescheduleID FROM PhoneSchedule WHERE userID = '".$_POST['phonesched_user']."' AND Date = '".$_POST['phonesched_date']."' AND ( Shift = '4' OR Shift = '5')",$con);
+    else
+      $currentshift = mysql_query("SELECT phonescheduleID FROM PhoneSchedule WHERE userID = '".$_POST['phonesched_user']."' AND Date = '".$_POST['phonesched_date']."' AND Shift = '".$_POST['phonesched_shift']."'",$con);
     
     // DB doesn't have data, and user entered data - insert
     if ( mysql_num_rows($currentshift) == 0 )
     {
-      $sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",".$_POST['phonesched_shift'].")";
-      RUN_QUERY($sql,"Entry was not added.",$con);
+      if ($_POST['phonesched_shift'] == 6)
+      {
+        $sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",0)";
+        RUN_QUERY($sql,"Entry was not added.",$con);
+        $sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",1)";
+        RUN_QUERY($sql,"Entry was not added.",$con);
+      }
+      else if ($_POST['phonesched_shift'] == 7)
+      {
+        $sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",4)";
+        RUN_QUERY($sql,"Entry was not added.",$con);
+        $sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",5)";
+        RUN_QUERY($sql,"Entry was not added.",$con);
+      }
+      else
+      {
+        $sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",".$_POST['phonesched_shift'].")";
+        RUN_QUERY($sql,"Entry was not added.",$con);
+      }
     }
     else
     {
       echo "This user already has this shift on this day.<br />\n";
     }
+  }
+  
+  if ($_POST['phonesched_del_user']!='')
+  {
+    $sql="DELETE FROM PhoneSchedule WHERE userID='".$_POST['phonesched_del_user']."' AND Date='".$_POST['phonesched_del_date']."' AND Shift='".$_POST['phonesched_del_shift']."'";
+    RUN_QUERY($sql,"Entry was not deleted.",$con);
   }
 }
 
@@ -118,7 +146,7 @@ function MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
   echo "	Manually added a phone shift:<br />\n";
   echo "    <form method='post' name='manual_phone_shift'>\n";
   
-  echo "      <select name='manual_phone_date'>\n";
+  echo "      <select name='phonesched_date'>\n";
   for ($i=0;$i<5;$i++)
     echo "        <option value='".$current_week[$i]."'>".gmdate("D n/j",$current_week[$i])."</option>\n";
   echo "        <option value='NULL' disabled='disabled'></option>\n";
@@ -128,7 +156,7 @@ function MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
   // Creates phone shift times
   CREATE_PHONESHIFTS($phoneshifs,$current_week[0],$timezone);
   
-  echo "      <select name='manual_phone_shift'>\n";
+  echo "      <select name='phonesched_shift'>\n";
   echo "        <option value='6'>Full ".gmdate("g:ia",$phoneshifs[0]['start'])." - ".gmdate("g:ia",$phoneshifs[1]['end'])."</option>\n";
   echo "        <option value='7'>Full ".gmdate("g:ia",$phoneshifs[4]['start'])." - ".gmdate("g:ia",$phoneshifs[5]['end'])."</option>\n";
   echo "        <option value='NULL' disabled='disabled'></option>\n";
@@ -146,7 +174,7 @@ function MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
   echo "        <option selected='selected' value='NULL' disabled='disabled'>Phone Shift</option>\n";
   echo "      </select>\n";
 
-  echo "      <select name='manual_phone_user'>\n";
+  echo "      <select name='phonesched_user'>\n";
   while ( $currentuser = mysql_fetch_array($activeusers) )
     echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
   echo "        <option value='NULL' disabled='disabled'></option>\n";
@@ -211,9 +239,17 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
         echo "      document.getElementById('form_".$postvariable."_submit').style.display='none'; // hides button if JS is enabled-->\n";
         echo "    </script>\n";
         
-        $users_on_shift = mysql_query("SELECT UserName FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
+        $users_on_shift = mysql_query("SELECT UserName,PhoneSchedule.userID FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
         while ( $current_user_on_shift = mysql_fetch_array($users_on_shift) )
-          echo "        ".$current_user_on_shift['UserName']."<br />\n";
+        {
+          echo "    <form method='post' name='form_del_".$postvariable."_".$current_user_on_shift['userID']."'>\n";
+          echo "        ".$current_user_on_shift['UserName']."\n";
+          echo "      <input type='hidden' name='phonesched_del_date' value='".$current_week[$col-2]."' />\n";
+          echo "      <input type='hidden' name='phonesched_del_shift' value='".$shift_index."' />\n";
+          echo "      <input type='hidden' name='phonesched_del_user' value='".$current_user_on_shift['userID']."' />\n";
+          echo "      <input type='submit' id='form_del_".$postvariable."_".$current_user_on_shift['userID']."' value='X' onClick='return confirmSubmit(\"Are you sure you want to remove ".$current_user_on_shift['UserName']."\")' />\n";
+          echo "    </form>\n";
+        }
         
         echo "  </span></div></td>\n";
       }

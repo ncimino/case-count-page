@@ -22,6 +22,11 @@ pre {
     font-family: "Times New Roman", Times, serif;
 }
 
+form 
+{ 
+   margin:0; 
+}    
+
 div.page {
     font-family: "Times New Roman", Times, serif;
     position: relative;

@@ -62,8 +62,9 @@ function SET_COOKIES(&$selected_page,&$showdetails,&$timezone,&$userID,&$con)
 function USER_LOGIN(&$con)
 {
   $mainsite = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));
-  ?><!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
-<html xmlns='http://www.w3.org/1999/xhtml'>
+  echo "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>\n";
+  echo "<html xmlns='http://www.w3.org/1999/xhtml'>\n";
+  ?>
 <head>
 <meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1' />
 <meta name="author" content="<? echo AUTHOR ?>" />
@@ -86,15 +87,15 @@ function USER_LOGIN(&$con)
 </div>
 </div>
 </body>
-</html>
-    <?
+  <?
+  echo "</html>\n";
 }
 
 function CREATE_PASSWORD(&$con)
 {
-    ?>
-<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
-<html xmlns='http://www.w3.org/1999/xhtml'>
+  echo "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>\n";
+  echo "<html xmlns='http://www.w3.org/1999/xhtml'>\n";
+  ?>
 <head>
 <meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1' />
 <meta name="author" content="<? echo AUTHOR ?>" />
@@ -132,8 +133,8 @@ if ($_POST["password1"] != $_POST["password2"]) { echo "<span class='error'>Erro
 </div>
 </div>
 </body>
-</html>
-<?
+  <?
+  echo "</html>\n";
 }
 
 function VERIFY_USER(&$con)

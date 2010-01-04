@@ -141,6 +141,10 @@ function ADD_OPTIONNAME_TO_OPTIONS(&$con)
 
 function UPDATE_OPTIONS_WITH_siteID(&$con)
 {
+  
+  $number_sites = mysql_query("SELECT optionID FROM Options WHERE siteID IS NULL;",$con);
+  if (mysql_num_rows($number_sites) > 0)
+  {
   $sql="UPDATE Options SET siteID = '3' WHERE OptionName = 'sitename';";
   if (RUN_QUERY($sql,"Updating siteID in Options failed",$con))
   echo "- Updating siteID in Options <span class='success'>completed</span><br />\n";
@@ -164,6 +168,11 @@ function UPDATE_OPTIONS_WITH_siteID(&$con)
   $sql="UPDATE Options SET siteID = '1' WHERE OptionName = 'password'";
   if (RUN_QUERY($sql,"Updating siteID in Options failed",$con))
   echo "- Updating siteID in Options <span class='success'>completed</span><br />\n";
+  }
+  else
+  {
+    echo "All options have a siteID.<br />\n";
+  }
 }
 
 function ADD_REPLYTO_OPTION(&$con)
@@ -273,7 +282,7 @@ function ADD_siteID_TO_SCHEDULE(&$con)
   if (RUN_QUERY($sql,"Add siteID to Schedule failed",$con))
   echo "- Add siteID to Schedule <span class='success'>completed</span><br />\n";
   
-  $number_sites = mysql_query("SELECT siteID FROM Schedule WHERE siteID='';",$con);
+  $number_sites = mysql_query("SELECT siteID FROM Schedule WHERE siteID IS NULL;",$con);
   if (mysql_num_rows($number_sites) > 0)
   {
     $sql="UPDATE Schedule SET siteID = '3'";
@@ -296,10 +305,10 @@ function ADD_siteID_TO_COUNT(&$con)
   if (RUN_QUERY($sql,"Add siteID to Count failed",$con))
   echo "- Add siteID to Count <span class='success'>completed</span><br />\n";
   
-  $number_sites = mysql_query("SELECT siteID FROM Count WHERE siteID='';",$con);
+  $number_sites = mysql_query("SELECT countID FROM Count WHERE siteID IS NULL;",$con);
   if (mysql_num_rows($number_sites) > 0)
   {
-    $sql="UPDATE Schedule SET siteID = '3'";
+    $sql="UPDATE Count SET siteID = '3'";
     if (RUN_QUERY($sql,"Updating siteID in Count failed",$con))
     echo "- Updating siteID in Count <span class='success'>completed</span><br />\n";
   }

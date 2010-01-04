@@ -55,7 +55,7 @@ function SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextwe
   echo "</div>\n";
 
   echo "<div id='currenthistory' class='currenthistory'>\n";
-  CURRENTHISTORY($selected_page,showdetails,$timezone,$userID,$selecteddate,$con);
+  CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$selecteddate,$con);
   $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
   echo "    Last updated: ".gmdate("n/j h:i A",time()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes\n";
   echo "    <hr width='50%' />\n";
@@ -275,7 +275,6 @@ function CHECK_TO_SEND_EMAILS($selected_page,$userID,$current_day,$checkchanges,
 function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,&$con)
 {
   $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='sitename' AND Options.siteID=Sites.siteID AND SiteName='main';",$con));
-  //$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename' AND siteID='';",$con));
 
   $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
   while ( $currentuser = mysql_fetch_array($activeusers) )
@@ -323,8 +322,8 @@ function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,
 
 function SEND_ALL_MAX_EMAIL($selected_page,$max_date,&$con)
 {
-  $site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",$con));
-
+  $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='sitename' AND Options.siteID=Sites.siteID AND SiteName='main';",$con));
+  
   $activeusers = mysql_query("SELECT * FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."';",$con);
   while ( $currentuser = mysql_fetch_array($activeusers) )
   {
@@ -475,7 +474,6 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
 
 function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$current_week,&$con)
 {
-  //$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",$con);
   $activeusers = mysql_query("SELECT UserName,Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName ASC",$con);
 
   echo "    <table class='currenthistory'>\n";

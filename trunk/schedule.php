@@ -57,6 +57,7 @@ SELECTSITE($selected_page,$con);
     <div id="schedule" class="schedule">
       <br />
   		Select a site to show the schedule for.<br />
+  	</div>
     <?
   }
   else

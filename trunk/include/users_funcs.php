@@ -60,6 +60,8 @@ function UPDATE_DB_USERS(&$con)
 		RUN_QUERY($sql,"User was not deleted table UserSites.",$con);
 		$sql="DELETE FROM Users WHERE userID='".$_POST['permdeleteuser']."'";
 		RUN_QUERY($sql,"User was not deleted table Users.",$con);
+		$sql="DELETE FROM PhoneSchedule WHERE userID='".$_POST['permdeleteuser']."'";
+		RUN_QUERY($sql,"User was not deleted table PhoneSchedule.",$con);
 		$sql="DELETE FROM Schedule WHERE userID='".$_POST['permdeleteuser']."'";
 		RUN_QUERY($sql,"User was not deleted table Schedule.",$con);
 		$sql="DELETE FROM Count WHERE userID='".$_POST['permdeleteuser']."'";

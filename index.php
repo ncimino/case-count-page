@@ -18,13 +18,13 @@ if ( VERIFY_USER($con) )
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <meta http-equiv='refresh' content='300; URL=./index.php' />
-<meta name="author" content="<? echo AUTHOR ?>" />
-<meta name="description" content="<? echo DESCRIPTION ?>" />
-<meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($selected_page,$con) ?></title>
+<meta name="author" content="<? echo AUTHOR; ?>" />
+<meta name="description" content="<? echo DESCRIPTION; ?>" />
+<meta name="keywords" content="<? echo KEYWORDS; ?>" />
+<title><? SITE_NAME($selected_page,$con); ?></title>
 <link rel="icon" href="images/bomb.png" sizes="64x64" />
-<link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
-<script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script>
+<link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE; ?>" />
+<script type="text/javascript" src="<? echo MAIN_JS_FILE; ?>"></script>
 </head>
 <body>
 <div id="page" class="page">
@@ -33,53 +33,29 @@ if ( VERIFY_USER($con) )
 
 <div id="selectsite" class="selectsite">
 <?
-UPDATE_DB_OPTIONS($selected_page,$con); 
 SELECTSITE($selected_page,$con);
 ?>
 </div>
 
 <div id="title" class="title">
-<h1><? SITE_NAME($selected_page,$con) ?></h1>
+<h1><? SITE_NAME($selected_page,$con); ?></h1>
 </div>
 
 <div id="selectuser" class="selectuser">
-<? SELECTUSER($timezone,$userID,$con) ?>
+<? 
+SELECTUSER($timezone,$userID,$con); 
+?>
 </div>
 
 </div>
 
 <div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
-
-<div id="selectdate" class="selectdate">
-    <br />
-    <? SELECTDATE($timezone,$shownextweek,$selecteddate,$con) ?>
-</div>
-
-<div id="mycasecount" class="mycasecount">
-    <br />
-	<? MYCASECOUNT($userID,$selecteddate,$con) ?>
-</div>
-
-<div id="currentqueue" class="currentqueue">
-    <br />
-	<? CURRENTQUEUE($userID,$selecteddate,$con) ?>
-</div>
-
-<div id="notes" class="notes"><? NOTES($con) ?></div>
-
-<div id="currenthistory" class="currenthistory"><? CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,$con);
-$dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
-echo "    Last updated: ".gmdate("n/j h:i A",time()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes\n";
-echo "    <hr width='50%' />\n";
-?></div>
-
-<div id="rules" class="rules">
-<h3>Queue Expectations</h3>
-<? RULES($con) ?></div>
+<? 
+INDEX($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,$con); 
+?>
 </div>
 </body>
 </html>
-
 <?
 }
 else

@@ -1,45 +1,104 @@
 <?php
 
-function MYCASECOUNT($userID,$selecteddate,&$con)
+function INDEX($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)
+{
+  $main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));
+  $phone_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='phoneshift';",$con));
+  if ($selected_page == $main_page['siteID'])
+  {
+    $sitenotes = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='mainnotes' AND siteID='".$selected_page."';",$con));
+    echo "<pre>".htmlentities($sitenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
+  }
+  else if ($selected_page == $phone_page['siteID'])
+  {
+    PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,$con);
+  }
+  else
+  {
+    SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,$con);
+  }
+}
+
+function PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)
+{
+  echo "<div id='selectdate' class='selectdate'>\n";
+  echo "    <br />\n";
+  SELECTDATE($timezone,$shownextweek,$selecteddate,$con);
+  echo "</div>\n";
+
+  echo "<div id='currentqueue' class='currentqueue'>\n";
+  echo "    <br />\n";
+  CURRENTPHONES($timezone,$selected_page,$userID,$selecteddate,$con);
+  echo "</div>\n";
+
+  PHONENOTES($selected_page,$con);
+}
+
+function SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)
+{
+  echo "<div id='selectdate' class='selectdate'>\n";
+  echo "    <br />\n";
+  SELECTDATE($timezone,$shownextweek,$selecteddate,$con);
+  echo "</div>\n";
+
+  echo "<div id='mycasecount' class='mycasecount'>\n";
+  echo "    <br />\n";
+  MYCASECOUNT($selected_page,$userID,$selecteddate,$con);
+  echo "</div>\n";
+
+  echo "<div id='currentqueue' class='currentqueue'>\n";
+  echo "    <br />\n";
+  CURRENTQUEUE($selected_page,$userID,$selecteddate,$con);
+  echo "</div>\n";
+
+  NOTES($selected_page,$con);
+  echo "</div>\n";
+
+  echo "<div id='currenthistory' class='currenthistory'>\n";
+  CURRENTHISTORY($selected_page,showdetails,$timezone,$userID,$selecteddate,$con);
+  $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
+  echo "    Last updated: ".gmdate("n/j h:i A",time()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes\n";
+  echo "    <hr width='50%' />\n";
+  echo "</div>\n";
+
+  RULES($selected_page,$con);
+}
+
+function MYCASECOUNT($selected_page,$userID,$selecteddate,&$con)
 {
   // Get the dates for the selected week
   $current_week = DETERMINE_WEEK($selecteddate);
 
   // If a user is not selected then we can't do anything here, if there is a cookie set but no users exist, then
-  $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
+  $activeusers = mysql_query("SELECT Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' AND Users.userID='".$userID."';",$con);
 
-  if ( mysql_num_rows($activeusers) == 0 )
-  echo "    No user has been selected, cannot display user case count editor.<br />\n";
+  if (( $userID == '' ) OR ( mysql_num_rows($activeusers) == 0 )) // If user is not set then show a legend to make sense of the colors
+  {
+    echo "    <span class='mycasecount_total'>Total</span> =\n";
+    echo "    <span class='mycasecount_regular'>Regular</span>\n";
+    echo "    <span class='mycasecount_catones'>Cat 1</span>\n";
+    echo "    <span class='mycasecount_special'>Special</span> |\n";
+    echo "    <span class='mycasecount_transfer'>Transfer</span>\n";
+  }
   else
   {
-    if ($userID == '') // If user is not set then show a legend to make sense of the colors
-    {
-      echo "    <span class='mycasecount_total'>Total</span> =\n";
-      echo "    <span class='mycasecount_regular'>Regular</span>\n";
-      echo "    <span class='mycasecount_catones'>Cat 1</span>\n";
-      echo "    <span class='mycasecount_special'>Special</span> |\n";
-      echo "    <span class='mycasecount_transfer'>Transfer</span>\n";
-    }
-    else
-    {
-      UPDATE_DB_MYCASECOUNT($userID,$current_week,$con);
-      TABLE_MYCASECOUNT($userID,$current_week,$con);
-    }
+    UPDATE_DB_MYCASECOUNT($selected_page,$userID,$current_week,$con);
+    TABLE_MYCASECOUNT($selected_page,$userID,$current_week,$con);
   }
 }
 
-function CURRENTHISTORY($showdetails,$timezone,$userID,$selecteddate,&$con)
+function CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$selecteddate,&$con)
 {
   // Get the dates for the selected week
   $current_week = DETERMINE_WEEK($selecteddate);
 
   // If no active user exists then we can't do anything here
-  $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
+  $activeusers = mysql_query("SELECT Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."';",$con);
   if ( mysql_num_rows($activeusers) == 0 )
-  echo "    Cannot display case counts until active users are added.<br />\n";
+  echo "    Cannot display case counts until active users are added to this skillset.<br />\n";
   else
   {
-    TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,$con);
+    TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$current_week,$con);
   }
 }
 
@@ -49,7 +108,13 @@ function CURRENTPHONES($timezone,$selected_page,$userID,$selecteddate,&$con)
   $current_week = DETERMINE_WEEK($selecteddate);
 
   // If no active schedule exists then we can't do anything here
-  $selectedschedule = mysql_query("SELECT Date FROM PhoneSchedule,Users WHERE Date >= '".$current_week['Monday']."' AND Date <= '".$current_week['Friday']."' AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+  $sql = "SELECT Date
+  FROM PhoneSchedule,Users 
+  WHERE Date >= '".$current_week['Monday']."' 
+    AND Date <= '".$current_week['Friday']."' 
+    AND Users.userID = PhoneSchedule.userID 
+    AND Users.Active = 1";
+  $selectedschedule = mysql_query($sql,$con);
   if ( mysql_num_rows($selectedschedule) == 0 )
   echo "    No active phone schedule found.<br />\n";
   else
@@ -58,52 +123,82 @@ function CURRENTPHONES($timezone,$selected_page,$userID,$selecteddate,&$con)
   }
 }
 
-function CURRENTQUEUE($userID,$selecteddate,&$con)
+function CURRENTQUEUE($selected_page,$userID,$selecteddate,&$con)
 {
   // Get the dates for the selected week
   $current_week = DETERMINE_WEEK($selecteddate);
 
   // If no active schedule exists then we can't do anything here
-  $selectedschedule = mysql_query("SELECT Date FROM Schedule,Users WHERE Date >= '".$current_week['Monday']."' AND Date <= '".$current_week['Friday']."' AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+  $sql = "SELECT Date FROM Schedule,Users
+  WHERE Date >= '".$current_week['Monday']."' 
+  AND Date <= '".$current_week['Friday']."' 
+  AND Users.userID = Schedule.userID 
+  AND Users.Active = 1 
+  AND siteID = ".$selected_page;
+  $selectedschedule = mysql_query($sql,$con);
   if ( mysql_num_rows($selectedschedule) == 0 )
   echo "    No active schedule found.<br />\n";
   else
   {
-    TABLE_CURRENTQUEUE($userID,$current_week,$con);
+    TABLE_CURRENTQUEUE($selected_page,$userID,$current_week,$con);
   }
 }
 
-function NOTES(&$con)
+function PHONENOTES($selected_page,&$con)
 {
-  $queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes';",$con));
-  echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
+  $phonenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='phonenotes' AND siteID=".$selected_page.";",$con));
+  if ($phonenotes['OptionValue'] != '')
+  {
+    echo "<div id='rules' class='rules'>\n";
+    echo "<h3>Phone notes</h3>\n";
+    echo "<pre>".htmlentities($phonenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
+    echo "</div>\n";
+  }
 }
 
-function RULES(&$con)
+function NOTES($selected_page,&$con)
 {
-  $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules';",$con));
-  echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>\n";
+  $queuenotes = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuenotes' AND siteID=".$selected_page.";",$con));
+  if ($queuenotes['OptionValue'] != '')
+  {
+    echo "<div id='notes' class='notes'>\n";
+    echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
+    echo "</div>\n";
+  }
+}
+
+function RULES($selected_page,&$con)
+{
+  $queuerules = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='queuerules' AND siteID=".$selected_page.";",$con));
+  if ($queuerules['OptionValue'] != '')
+  {
+    echo "<div id='rules' class='rules'>\n";
+    echo "<h3>Queue Expectations</h3>\n";
+    echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>\n";
+    echo "</div>\n";
+  }
 }
 
 
-function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
+function UPDATE_DB_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
 {
   for ($i=0;$i<=4;$i++)
   {
     if (($_POST["reg_".$current_week[$i]] != '') and ($_POST["cat1_".$current_week[$i]] != '') and ($_POST["spec_".$current_week[$i]] != '') and ($_POST["tran_".$current_week[$i]] != ''))
     {
-      $checkforentry = mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID ='".$userID."'",$con);
+      $checkforentry = mysql_query("SELECT * FROM Count WHERE Date = '".$current_week[$i]."' AND userID ='".$userID."' AND siteID=".$selected_page,$con);
       // If there wasn't any data before, and now there is then directly insert it into the table
       if ( mysql_num_rows($checkforentry) == 0 )
       {
-        CHECK_TO_SEND_EMAILS($userID,$current_week[$i],$checkchanges,$con);
-        $sql="INSERT INTO Count (userID, CatOnes, Special, Regular, Transfer, Date, UpdateDate)
-	            VALUES ('".$userID."',".$_POST["cat1_".$current_week[$i]].",".$_POST["spec_".$current_week[$i]].",".$_POST["reg_".$current_week[$i]].",".$_POST["tran_".$current_week[$i]].",".$current_week[$i].",".mktime().")";
+        CHECK_TO_SEND_EMAILS($selected_page,$userID,$current_week[$i],$checkchanges,$con);
+        $sql="INSERT INTO Count (userID, CatOnes, Special, Regular, Transfer, Date, UpdateDate, siteID)
+	            VALUES ('".$userID."',".$_POST["cat1_".$current_week[$i]].",".$_POST["spec_".$current_week[$i]].",".$_POST["reg_".$current_week[$i]].",".$_POST["tran_".$current_week[$i]].",".$current_week[$i].",".mktime().",".$selected_page.")";
       }
       else
       {
         $checkchanges = mysql_fetch_array($checkforentry);
 
+        // If the data for this day ($current_week[$i]) hasn't changed, then don't change the update date
         if (($checkchanges['CatOnes'] == $_POST["cat1_".$current_week[$i]]) and
         ($checkchanges['Regular'] == $_POST["reg_".$current_week[$i]]) and
         ($checkchanges['Transfer'] == $_POST["tran_".$current_week[$i]]) and
@@ -113,10 +208,20 @@ function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
         }
         else
         {
-          CHECK_TO_SEND_EMAILS($userID,$current_week[$i],$checkchanges,$con);
+          CHECK_TO_SEND_EMAILS($selected_page,$userID,$current_week[$i],$checkchanges,$con);
           $updatedate = mktime();
         }
-        $sql="UPDATE Count SET CatOnes = '".$_POST["cat1_".$current_week[$i]]."', Special = '".$_POST["spec_".$current_week[$i]]."', Regular = '".$_POST["reg_".$current_week[$i]]."', Transfer = '".$_POST["tran_".$current_week[$i]]."', UpdateDate = '".$updatedate."' WHERE userID = '".$userID."' AND Date = '".$current_week[$i]."'";
+        $sql="UPDATE Count
+        SET 
+          CatOnes = '".$_POST["cat1_".$current_week[$i]]."', 
+          Special = '".$_POST["spec_".$current_week[$i]]."', 
+          Regular = '".$_POST["reg_".$current_week[$i]]."', 
+          Transfer = '".$_POST["tran_".$current_week[$i]]."', 
+          UpdateDate = '".$updatedate."' 
+        WHERE 
+          userID = '".$userID."' 
+          AND Date = '".$current_week[$i]."' 
+          AND siteID = '".$selected_page."'";
       }
       RUN_QUERY($sql,"Values were not updated.",$con);
     }
@@ -124,12 +229,12 @@ function UPDATE_DB_MYCASECOUNT($userID,$current_week,&$con)
 }
 
 
-function CHECK_TO_SEND_EMAILS($userID,$current_day,$checkchanges,&$con)
+function CHECK_TO_SEND_EMAILS($selected_page,$userID,$current_day,$checkchanges,&$con)
 {
   $old_case_total = $checkchanges['CatOnes'] + $checkchanges['Regular'] + $checkchanges['Special'];
   $new_case_total = $_POST["cat1_".$current_day] + $_POST["reg_".$current_day] + $_POST["spec_".$current_day];
-  $queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax';",$con));
-  $get_all_on_queue_count = mysql_query("SELECT Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_day." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+  $queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax' AND siteID='".$selected_page."';",$con));
+  $get_all_on_queue_count = mysql_query("SELECT Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_day." AND Users.userID = Schedule.userID AND Users.Active = 1 AND siteID='".$selected_page."'",$con);
   $j = 0;
   while ($current_user_count = mysql_fetch_array($get_all_on_queue_count))
   {
@@ -147,7 +252,7 @@ function CHECK_TO_SEND_EMAILS($userID,$current_day,$checkchanges,&$con)
     $number_of_maxed = 0;
     for ($k = 0; $k < $j; $k++)
     {
-      $case_count_for_user[$k] = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special FROM Count WHERE Date = ".$current_day." AND userID = ".$shifts[$k]['userID'],$con));
+      $case_count_for_user[$k] = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special FROM Count WHERE Date = ".$current_day." AND userID = ".$shifts[$k]['userID']." AND siteID='".$selected_page."'",$con));
       $case_total_for_user[$k] = $case_count_for_user[$k]['Regular'] + $case_count_for_user[$k]['CatOnes'] + $case_count_for_user[$k]['Special'];
       $current_user_adjustedmax = intval($queuemax['OptionValue'] * $shifts[$k]['Shift'] / 2);
       if (($case_total_for_user[$k] < $current_user_adjustedmax) and ($k != $current_user_shifts_index))
@@ -159,7 +264,7 @@ function CHECK_TO_SEND_EMAILS($userID,$current_day,$checkchanges,&$con)
         $number_of_maxed++;
         if ($number_of_maxed == $j) // All on queue have maxed
         {
-          SEND_ALL_MAX_EMAIL($current_day,$con);
+          SEND_ALL_MAX_EMAIL($selected_page,$current_day,$con);
         }
       }
     }
@@ -169,17 +274,18 @@ function CHECK_TO_SEND_EMAILS($userID,$current_day,$checkchanges,&$con)
 
 function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,&$con)
 {
-  $site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",$con));
+  $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='sitename' AND Options.siteID=Sites.siteID AND SiteName='main';",$con));
+  //$site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename' AND siteID='';",$con));
 
   $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
   while ( $currentuser = mysql_fetch_array($activeusers) )
   {
-    if ($currentuser['userID'] == $send_email_to_userID) // Prevent emails from being sent to people that don't have an email
+    if ($currentuser['userID'] == $send_email_to_userID)
     {
       $to = $currentuser['UserEmail'];
       $userName_of_target = $currentuser['UserName'];
     }
-    if ($currentuser['userID'] == $userID_that_maxed) // Prevent emails from being sent to people that don't have an email
+    if ($currentuser['userID'] == $userID_that_maxed)
     {
       $userName_that_maxed = $currentuser['UserName'];
     }
@@ -215,11 +321,11 @@ function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,
 }
 
 
-function SEND_ALL_MAX_EMAIL($max_date,&$con)
+function SEND_ALL_MAX_EMAIL($selected_page,$max_date,&$con)
 {
   $site_name = mysql_fetch_array(mysql_query("SELECT * FROM Options WHERE OptionName='sitename';",$con));
 
-  $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
+  $activeusers = mysql_query("SELECT * FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."';",$con);
   while ( $currentuser = mysql_fetch_array($activeusers) )
   {
     if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
@@ -262,9 +368,15 @@ function SEND_ALL_MAX_EMAIL($max_date,&$con)
 }
 
 
-function TABLE_MYCASECOUNT($userID,$current_week,&$con)
+function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
 {
-  $username = mysql_fetch_array(mysql_query("SELECT UserName FROM Users WHERE Active=1 AND userID=".$userID.";",$con));
+  $sql = "SELECT UserName FROM Users,UserSites
+  WHERE Active=1 
+  AND Users.userID=UserSites.userID 
+  AND siteID='".$selected_page."'
+  AND Users.userID='".$userID."';";
+  $username = mysql_fetch_array(mysql_query($sql,$con));
+
   echo "    <form name='mycasecount' method='post'>\n";
   echo "      <input type='hidden' name='selecteddate' value='".$_GET['selecteddate']."' />\n";
   echo "      <table class='mycasecount'>\n";
@@ -282,7 +394,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
   {
     echo "          <td class='mycasecount'>\n";
     echo "          <input type='text' class='mycasecount' name='reg_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
-    $getcount= mysql_query("SELECT Regular FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",$con);
+    $getcount= mysql_query("SELECT Regular FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 )
     echo " value='0' ";
     else
@@ -302,7 +414,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
   {
     echo "          <td class='mycasecount'>\n";
     echo "          <input type='text' class='mycasecount' name='cat1_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
-    $getcount= mysql_query("SELECT CatOnes FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",$con);
+    $getcount= mysql_query("SELECT CatOnes FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 )
     echo " value='0' ";
     else
@@ -322,7 +434,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
   {
     echo "          <td class='mycasecount'>\n";
     echo "          <input type='text' class='mycasecount' name='spec_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
-    $getcount= mysql_query("SELECT Special FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",$con);
+    $getcount= mysql_query("SELECT Special FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
     else {
       $currentusercount = mysql_fetch_array($getcount);
@@ -340,7 +452,7 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
   {
     echo "          <td class='mycasecount'>\n";
     echo "          <input type='text' class='mycasecount' name='tran_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
-    $getcount= mysql_query("SELECT Transfer FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."'",$con);
+    $getcount= mysql_query("SELECT Transfer FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
     else {
       $currentusercount = mysql_fetch_array($getcount);
@@ -361,9 +473,11 @@ function TABLE_MYCASECOUNT($userID,$current_week,&$con)
 }
 
 
-function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con)
+function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$current_week,&$con)
 {
-  $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",$con);
+  //$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",$con);
+  $activeusers = mysql_query("SELECT UserName,Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName ASC",$con);
+
   echo "    <table class='currenthistory'>\n";
   echo "      <tr class='currenthistory'>\n";
   echo "        <th class='currenthistory'>Name</th>\n";
@@ -387,18 +501,21 @@ function TABLE_CURRENTHISTORY($showdetails,$timezone,$userID,$current_week,&$con
       }
       else
       {
-        $usercounts = mysql_fetch_array(mysql_query("SELECT Regular,CatOnes,Special,Transfer,UpdateDate,Date FROM Count WHERE userID='".$currentuser['userID']."' AND Date='".$current_week[$col-2]."';",$con));
+        $sql = "SELECT Regular,CatOnes,Special,Transfer,UpdateDate,Date
+        FROM Count 
+        WHERE userID='".$currentuser['userID']."' 
+          AND Date='".$current_week[$col-2]."' 
+          AND siteID=".$selected_page.";";
+        $usercounts = mysql_fetch_array(mysql_query($sql,$con));
         echo "        <td class='currenthistory";
-        $currentusershift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE Date='".$current_week[$col-2]."' AND userID='".$currentuser['userID']."'",$con));
+        $currentusershift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE Date='".$current_week[$col-2]."' AND userID='".$currentuser['userID']."' AND siteID=".$selected_page,$con));
         // This added a class to identify selected user and on shift
         if ((($currentuser['userID'] == $userID) and ($userID != '')) and ( $currentusershift['Shift'] > 0 ))
         echo " selecteduseronshiftcell";
-        else
         // This added a class to identify selected user
-        if (($currentuser['userID'] == $userID) and ($userID != ''))
+        else if (($currentuser['userID'] == $userID) and ($userID != ''))
         echo " selectedusercell";
-        else
-        if ( $currentusershift['Shift'] > 0 )
+        else if ( $currentusershift['Shift'] > 0 )
         echo " onshiftcell";
         echo "'>\n";
 
@@ -508,35 +625,31 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
       }
       else
       {
-        $postvariable = "phonesched_".$current_week[$col-2]."_".$shift_index;
-        //$postvariable = "phonesched_user";
-        echo "  <td class='phoneshift'><div class='phoneshift'><span class='phoneshift'>\n";
+        $users_on_shift_query = mysql_query("SELECT UserName,Users.userID FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
 
-        $users_on_shift = mysql_query("SELECT UserName FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
-        while ( $current_user_on_shift = mysql_fetch_array($users_on_shift) )
-        echo "        ".$current_user_on_shift['UserName']."<br />\n";
+        $onqueue = 0;
+        $user_log = '';
+        while ( $users_on_shift = mysql_fetch_array($users_on_shift_query) )
+        {
+          if ($users_on_shift['userID'] == $userID)
+          {
+            $onqueue = 1;
+            $user_log .= "        <span class='selecteduser'>".$users_on_shift['UserName']."</span><br />\n";
+          }
+          else
+          {
+            $user_log .= "        ".$users_on_shift['UserName']."<br />\n";
+          }
+        }
 
-        echo "    <form method='post' name='form_".$postvariable."'>\n";
-        echo "      <select name='phonesched_user' class='phoneshift' OnChange='form_".$postvariable.".submit();'>\n";
-
-        mysql_data_seek($activeusers,0);
-        while ( $currentuser = mysql_fetch_array($activeusers) )
-        echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
-
-        echo "        <option selected='selected' value='NULL'></option>\n";
-        echo "      </select>\n";
-
-        echo "      <input type='hidden' name='phonesched_date' value='".$current_week[$col-2]."' />\n";
-        echo "      <input type='hidden' name='phonesched_shift' value='".$shift_index."' />\n";
-
-        echo "      <input type='submit' id='form_".$postvariable."_submit' value='select' />\n";
-        echo "    </form>\n";
-
-        echo "    <script type='text/javascript'>\n";
-        echo "      <!--\n";
-        echo "      document.getElementById('form_".$postvariable."_submit').style.display='none'; // hides button if JS is enabled-->\n";
-        echo "    </script>\n";
-
+        echo "  <td class='phoneshift\n";
+        if ($onqueue == 1)
+        {
+          echo " selectedusercell_queue";
+        }
+        echo "'>";
+        echo "<div class='phoneshift'><span class='phoneshift'>\n";
+        echo $user_log;
         echo "  </span></div></td>\n";
       }
     }
@@ -546,15 +659,15 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
   echo "</table>\n";
 }
 
-function TABLE_CURRENTQUEUE($userID,$current_week,&$con)
+function TABLE_CURRENTQUEUE($selected_page,$userID,$current_week,&$con)
 {
   echo "    <table  class='currentqueue'>\n";
 
   for ($i = 0; $i <= 4; $i++)
   {
-    $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i],$con));
+    $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND siteID = ".$selected_page." AND Date = ".$current_week[$i],$con));
     $shiftcount[$i] = $shift['COUNT(Shift)'];
-    $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+    $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1 AND siteID = ".$selected_page,$con);
     $j = 0;
     while ($getarray = mysql_fetch_array($currentday)) { $namesAndShifts[$i][$j++] = $getarray; }
   }
@@ -574,16 +687,20 @@ function TABLE_CURRENTQUEUE($userID,$current_week,&$con)
         echo "          Max: ".$queuemax['OptionValue']."\n";
         echo "        </th>\n";
       }
+
       echo "       <td class='currentqueue";
       if (($namesAndShifts[$col-1][$row-1]['userID'] == $userID ) and ($userID != ''))
       echo " selectedusercell_queue";
       echo "'>";
+
       if ($namesAndShifts[$col-1][$row-1]['userID'] == $userID )
       echo "<span class='selecteduser'>".$namesAndShifts[$col-1][$row-1]['UserName']."</span>";
       else
       echo $namesAndShifts[$col-1][$row-1]['UserName'];
+
       if ($namesAndShifts[$col-1][$row-1]['Shift'] == 1)
       echo "&nbsp;(.5)";
+
       echo "</td>\n";
     }
     echo "      </tr>\n";

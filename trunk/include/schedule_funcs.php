@@ -37,7 +37,15 @@ function SCHEDULE($timezone,$selected_page,$selecteddate,&$con)
 
 function UPDATE_DB_PHONE_SCHEDULE($selected_page,&$con)
 {
+  $data = 0;
   if ($_POST['phonesched_user']!='')
+    $data++;
+  if ($_POST['phonesched_date']!='')
+    $data++;
+  if ($_POST['phonesched_shift']!='')
+    $data++;
+  
+  if ($data == 3)
   {
     if ($_POST['phonesched_shift'] == 6)
       $currentshift = mysql_query("SELECT phonescheduleID FROM PhoneSchedule WHERE userID = '".$_POST['phonesched_user']."' AND Date = '".$_POST['phonesched_date']."' AND ( Shift = '0' OR Shift = '1')",$con);
@@ -73,6 +81,10 @@ function UPDATE_DB_PHONE_SCHEDULE($selected_page,&$con)
     {
       echo "This user already has this shift on this day.<br />\n";
     }
+  }
+  else if ($data > 0)
+  {
+    echo "You must enter data for all of the fields.<br />\n";
   }
   
   if ($_POST['phonesched_del_user']!='')
@@ -143,7 +155,7 @@ function MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
 {
   $activeusers = mysql_query("SELECT UserName,Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
   
-  echo "	Manually added a phone shift:<br />\n";
+  echo "	Manually add a phone shift:<br />\n";
   echo "    <form method='post' name='manual_phone_shift'>\n";
   
   echo "      <select name='phonesched_date'>\n";
@@ -215,7 +227,6 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
       else 
       {
         $postvariable = "phonesched_".$current_week[$col-2]."_".$shift_index;
-        //$postvariable = "phonesched_user";
         echo "  <td class='phoneshift'><div class='phoneshift'><span class='phoneshift'>\n";
         
         echo "    <form method='post' name='form_".$postvariable."'>\n";

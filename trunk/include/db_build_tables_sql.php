@@ -26,7 +26,9 @@ Special int,
 Regular int,
 Transfer int,
 Date int,
-UpdateDate int
+UpdateDate int,
+siteID int,
+CONSTRAINT count_siteID FOREIGN KEY (siteID) REFERENCES Sites(siteID)
 )";
     return DB_TABLE_CREATE($sql,$con);
 }

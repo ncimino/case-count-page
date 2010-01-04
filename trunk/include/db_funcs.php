@@ -44,8 +44,8 @@ function BUILD_ALL_DB_TABLES(&$con)
         echo "This is the first time you have viewed this page, or the database isn't setup correctly. <br /><br />";
         echo "This page will try to create the tables in the database: <br />";
         echo BUILD_TABLE_USERS($con);
-        echo BUILD_TABLE_COUNT($con);
         echo BUILD_TABLE_SITES($con);
+        echo BUILD_TABLE_COUNT($con);
         echo BUILD_TABLE_SCHEDULE($con);
         echo BUILD_TABLE_PHONESCHEDULE($con);
         CREATE_DEFAULT_SITES($con);

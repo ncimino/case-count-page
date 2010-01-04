@@ -119,6 +119,10 @@ SELECTSITE($selected_page,$con);
 <hr width='50%' />
     <? ADD_siteID_TO_SCHEDULE($con) ?></div>
     
+<div id="ADD_siteID_TO_COUNT" class="ADD_siteID_TO_COUNT">
+<hr width='50%' />
+    <? ADD_siteID_TO_COUNT($con) ?></div>
+    
 </div>
 </body>
 </html>

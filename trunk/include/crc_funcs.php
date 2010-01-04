@@ -290,4 +290,27 @@ function ADD_siteID_TO_SCHEDULE(&$con)
   echo "- Adding FOREIGN KEY (siteID) to table Schedule <span class='success'>completed</span><br />\n";
 }
 
+function ADD_siteID_TO_COUNT(&$con)
+{
+  $sql="ALTER TABLE Count ADD siteID int;";
+  if (RUN_QUERY($sql,"Add siteID to Count failed",$con))
+  echo "- Add siteID to Count <span class='success'>completed</span><br />\n";
+  
+  $number_sites = mysql_query("SELECT siteID FROM Count WHERE siteID='';",$con);
+  if (mysql_num_rows($number_sites) > 0)
+  {
+    $sql="UPDATE Schedule SET siteID = '3'";
+    if (RUN_QUERY($sql,"Updating siteID in Count failed",$con))
+    echo "- Updating siteID in Count <span class='success'>completed</span><br />\n";
+  }
+  else
+  {
+    echo "All Schedule entries have a 'siteID'<br />\n";
+  }
+  
+  $sql="ALTER TABLE Count ADD CONSTRAINT count_siteID FOREIGN KEY (siteID) REFERENCES Sites(siteID)";
+  if (RUN_QUERY($sql,"Adding FOREIGN KEY (siteID) to table Count failed",$con))
+  echo "- Adding FOREIGN KEY (siteID) to table Count <span class='success'>completed</span><br />\n";
+}
+
 ?>

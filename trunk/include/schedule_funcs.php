@@ -188,10 +188,10 @@ function MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
   echo "      </select>\n";
 
   echo "      <select name='phonesched_user'>\n";
-  while ( $currentuser = mysql_fetch_array($activeusers) )
-  echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
-  echo "        <option value='NULL' disabled='disabled'></option>\n";
   echo "        <option selected='selected' value='NULL' disabled='disabled'>User</option>\n";
+  echo "        <option value='NULL' disabled='disabled'></option>\n";
+  while ( $currentuser = mysql_fetch_array($activeusers) )
+    echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
   echo "      </select>\n";
 
   echo "      <input type='submit' id='form_".$postvariable."_submit' value='select' />\n";
@@ -232,12 +232,12 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
 
         echo "    <form method='post' name='form_".$postvariable."'>\n";
         echo "      <select name='phonesched_user' class='phoneshift' OnChange='form_".$postvariable.".submit();'>\n";
-
+        echo "        <option selected='selected' value='NULL'></option>\n";
+        
         mysql_data_seek($activeusers,0);
         while ( $currentuser = mysql_fetch_array($activeusers) )
         echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
 
-        echo "        <option selected='selected' value='NULL'></option>\n";
         echo "      </select>\n";
 
         echo "      <input type='hidden' name='phonesched_date' value='".$current_week[$col-2]."' />\n";

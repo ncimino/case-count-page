@@ -6,7 +6,6 @@ function USERS(&$con)
 	TABLE_USERS($con);
 }
 
-
 function UPDATE_DB_USERS(&$con)
 {
 
@@ -145,18 +144,18 @@ function TABLE_USERS(&$con)
 	{
 		echo "    <table class='activeusers'>\n";
 		echo "      <tr>\n";
-		echo "        <td class='activeusers_cell'>User Name</td>\n";
-		echo "        <td class='activeusers_cell'>User Email</td>\n";
+		echo "        <th class='activeusers_cell'>User Name</th>\n";
+		echo "        <th class='activeusers_cell'>User Email</th>\n";
 		
 		$skillset_pages_query = mysql_query("SELECT siteID FROM Sites WHERE SiteName<>'main' AND Active='1';",$con);
 		while ($skillset_pages = mysql_fetch_array($skillset_pages_query))
 		{
 			$sitename = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='sitename' AND siteID='".$skillset_pages['siteID']."';",$con));
-			echo "        <td class='activeusers_cell'>".$sitename['OptionValue']."</td>\n";
+			echo "        <th class='activeusers_cell'>".$sitename['OptionValue']."</th>\n";
 		}
 		
-		echo "        <td class='activeusers_cell'></td>\n";
-		echo "        <td class='activeusers_cell'></td>\n";
+		echo "        <th class='activeusers_cell'></th>\n";
+		echo "        <th class='activeusers_cell'></th>\n";
 		echo "      </tr>\n";
 		while ( $currentuser = mysql_fetch_array($activeusers) )
 		{

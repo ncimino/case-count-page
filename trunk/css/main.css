@@ -84,6 +84,10 @@ table.phoneshift, td.phoneshift
 	border: 1px solid black;
 }
 
+td.activeusers_cell {
+	border-top: 1px solid black;
+}
+
 td.phoneshift {
 	width: 10em;
 	text-align: center;

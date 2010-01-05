@@ -56,7 +56,7 @@ function SET_COOKIES(&$selected_page,&$showdetails,&$timezone,&$userID,&$con)
     ($_POST["showdetailssent"] == '') ? (($_COOKIE['showdetails'] == '') ? $showdetails = '' : $showdetails = $_COOKIE['showdetails']) : $showdetails = $_POST['showdetails'];
 
     // If option_page was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
-    ($_POST["option_page"] == '') ? (($_COOKIE['option_page'] == '') ? $selected_page = '' : $selected_page = $_COOKIE['option_page']) : $selected_page = $_POST['option_page'];
+    ($_POST["option_page"] == '') ? (($_COOKIE['option_page'] == '') ? $selected_page = '1' : $selected_page = $_COOKIE['option_page']) : $selected_page = $_POST['option_page'];
 }
 
 function USER_LOGIN(&$con)

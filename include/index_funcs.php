@@ -165,6 +165,10 @@ function NOTES($selected_page,&$con)
     echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
     echo "</div>\n";
   }
+  else 
+  {
+  	echo "<br />\n";
+  }
 }
 
 function RULES($selected_page,&$con)
@@ -672,7 +676,7 @@ function TABLE_CURRENTQUEUE($selected_page,$userID,$current_week,&$con)
 
   rsort($shiftcount,SORT_NUMERIC);
 
-  $queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax';",$con));
+  $queuemax = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuemax' AND siteID = ".$selected_page.";",$con));
 
   for ($row = 1; $row <= $shiftcount[0]; $row++)
   {

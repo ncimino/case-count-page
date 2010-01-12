@@ -75,6 +75,10 @@ div.rules {
     
 }
 
+div.bottommenu {
+    text-align: center;
+}
+
 table.phoneshift {
 	border-collapse:collapse;
 }
@@ -95,8 +99,7 @@ td.phoneshift {
 }
 
 div.phoneshift {
-	min-height: 3em;
-	vertical-align: bottom;
+	height: 3em;
 }
 
 select.phoneshift {

@@ -32,6 +32,20 @@ function PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,
   echo "</div>\n";
 
   PHONENOTES($selected_page,$con);
+  
+  echo "<div id='currentphones' class='currentphones'>\n";
+  echo "<iframe src ='http://172.19.68.184:5800/' width='1074' height='850'>";
+  echo "  <p>Your browser does not support iframes.</p>";
+  echo "</iframe>";
+  echo "</div>\n";
+  
+//  echo "<div id='currentphones' class='currentphones'>\n";
+//  echo "<APPLET CODE=vncviewer.class ARCHIVE=http://172.19.68.184:5800/vncviewer.jar WIDTH=900 HEIGHT=800>\n";
+//  echo "<param name=address value=172.19.68.184>\n";
+//  echo "<param name=PORT value=5900>\n";
+//  echo "</APPLET>\n";
+//  echo "</div>\n";
+   
 }
 
 function SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)
@@ -52,7 +66,6 @@ function SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextwe
   echo "</div>\n";
 
   NOTES($selected_page,$con);
-  echo "</div>\n";
 
   echo "<div id='currenthistory' class='currenthistory'>\n";
   CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$selecteddate,$con);
@@ -152,6 +165,7 @@ function PHONENOTES($selected_page,&$con)
     echo "<div id='rules' class='rules'>\n";
     echo "<h3>Phone notes</h3>\n";
     echo "<pre>".htmlentities($phonenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
+    echo "<hr width='50%' />\n";
     echo "</div>\n";
   }
 }
@@ -179,6 +193,7 @@ function RULES($selected_page,&$con)
     echo "<div id='rules' class='rules'>\n";
     echo "<h3>Queue Expectations</h3>\n";
     echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>\n";
+    echo "<hr width='50%' />\n";
     echo "</div>\n";
   }
 }
@@ -261,7 +276,7 @@ function CHECK_TO_SEND_EMAILS($selected_page,$userID,$current_day,$checkchanges,
       $current_user_adjustedmax = intval($queuemax['OptionValue'] * $shifts[$k]['Shift'] / 2);
       if (($case_total_for_user[$k] < $current_user_adjustedmax) and ($k != $current_user_shifts_index))
       {
-        SEND_USER_MAX_EMAIL($shifts[$k]['userID'],$userID,$current_day,$con);
+        SEND_USER_MAX_EMAIL($selected_page,$shifts[$k]['userID'],$userID,$current_day,$con);
       }
       else
       {
@@ -276,11 +291,11 @@ function CHECK_TO_SEND_EMAILS($selected_page,$userID,$current_day,$checkchanges,
 }
 
 
-function SEND_USER_MAX_EMAIL($send_email_to_userID,$userID_that_maxed,$max_date,&$con)
+function SEND_USER_MAX_EMAIL($selected_page,$send_email_to_userID,$userID_that_maxed,$max_date,&$con)
 {
   $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='sitename' AND Options.siteID=Sites.siteID AND SiteName='main';",$con));
 
-  $activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
+  $activeusers = mysql_query("SELECT * FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID=".$selected_page.";",$con);
   while ( $currentuser = mysql_fetch_array($activeusers) )
   {
     if ($currentuser['userID'] == $send_email_to_userID)
@@ -620,10 +635,10 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
     {
       if ($col==1)
       {
-        echo "  <td class='phoneshift'>";
+        echo "  <td class='phoneshift'><div class='phoneshift'>";
         echo gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
         if ($shift_index==2 or $shift_index==3) echo "<br />Cover";
-        echo "</td>\n";
+        echo "</div></td>\n";
       }
       else
       {
@@ -650,9 +665,8 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
           echo " selectedusercell_queue";
         }
         echo "'>";
-        echo "<div class='phoneshift'><span class='phoneshift'>\n";
         echo $user_log;
-        echo "  </span></div></td>\n";
+        echo "  </td>\n";
       }
     }
     echo "</tr>\n";

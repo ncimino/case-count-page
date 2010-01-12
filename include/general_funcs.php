@@ -73,6 +73,19 @@ function TOPMENU()
 <a href='index.php?logout=1'>Logout</a>
 <? }
 
+function BOTTOMMENU(&$con)
+{
+	$pages_query = mysql_query("SELECT Options.siteID,OptionValue FROM Sites,Options WHERE Active='1' AND OptionName='sitename' AND SiteName<>'main' AND Options.siteID=Sites.siteID;",$con);
+
+	$dash_check = 0;
+	while($pages = mysql_fetch_array($pages_query))
+	{
+		if ($dash_check++ != 0)
+			echo "-\n";
+		echo "<a href='?option_page=".$pages['siteID']."'>".$pages['OptionValue']."</a>\n";
+	}
+}
+
 function DETERMINE_WEEK($timestamp)
 {
   if ( $timestamp == '' )

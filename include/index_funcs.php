@@ -33,19 +33,6 @@ function PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,
 
   PHONENOTES($selected_page,$con);
   
-  echo "<div id='currentphones' class='currentphones'>\n";
-  echo "<iframe src ='http://172.19.68.184:5800/' width='1074' height='850'>";
-  echo "  <p>Your browser does not support iframes.</p>";
-  echo "</iframe>";
-  echo "</div>\n";
-  
-//  echo "<div id='currentphones' class='currentphones'>\n";
-//  echo "<APPLET CODE=vncviewer.class ARCHIVE=http://172.19.68.184:5800/vncviewer.jar WIDTH=900 HEIGHT=800>\n";
-//  echo "<param name=address value=172.19.68.184>\n";
-//  echo "<param name=PORT value=5900>\n";
-//  echo "</APPLET>\n";
-//  echo "</div>\n";
-   
 }
 
 function SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)

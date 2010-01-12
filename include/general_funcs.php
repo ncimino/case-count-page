@@ -78,10 +78,11 @@ function BOTTOMMENU(&$con)
 	$pages_query = mysql_query("SELECT Options.siteID,OptionValue FROM Sites,Options WHERE Active='1' AND OptionName='sitename' AND SiteName<>'main' AND Options.siteID=Sites.siteID;",$con);
 
 	$dash_check = 0;
+	echo "<a href='http://172.19.68.184:5800/' target='_blank'>Phone VNC Viewer</a>\n";
 	while($pages = mysql_fetch_array($pages_query))
 	{
-		if ($dash_check++ != 0)
-			echo "-\n";
+		//if ($dash_check++ != 0)
+		echo "-\n";
 		echo "<a href='?option_page=".$pages['siteID']."'>".$pages['OptionValue']."</a>\n";
 	}
 }

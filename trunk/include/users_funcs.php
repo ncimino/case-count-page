@@ -161,7 +161,7 @@ function TABLE_USERS(&$con)
 		{
 			echo "      <tr>\n";
 			echo "        <td class='activeusers_cell'>".$currentuser['UserName']."</td>\n";
-			echo "        <td class='activeusers_cell'>".$currentuser['UserEmail']."</td>\n";
+			echo "        <td class='activeusers_cell'>".$currentuser['UserEmail']."&nbsp;</td>\n";
 			
 			$skillset_pages_query = mysql_query("SELECT siteID FROM Sites WHERE SiteName<>'main' AND Active='1';",$con);
 			while ($skillset_pages = mysql_fetch_array($skillset_pages_query))

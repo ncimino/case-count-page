@@ -16,6 +16,7 @@ function SET_COOKIES(&$selected_page,&$showdetails,&$timezone,&$userID,&$con)
     
     // If option_page is passed, then set the cookie for 365 days
     if ($_POST["option_page"] != "") setcookie("option_page", $_POST["option_page"], time()+60*60*24*365);
+    if ($_GET["option_page"] != "") setcookie("option_page", $_GET["option_page"], time()+60*60*24*365);
     
     // If timezone cookie isn't set, then set the cookie to -7 (MST) for 365 days
     if ($_COOKIE["timezone"] == "") setcookie("timezone", "-7", time()+60*60*24*365);
@@ -56,7 +57,9 @@ function SET_COOKIES(&$selected_page,&$showdetails,&$timezone,&$userID,&$con)
     ($_POST["showdetailssent"] == '') ? (($_COOKIE['showdetails'] == '') ? $showdetails = '' : $showdetails = $_COOKIE['showdetails']) : $showdetails = $_POST['showdetails'];
 
     // If option_page was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
-    ($_POST["option_page"] == '') ? (($_COOKIE['option_page'] == '') ? $selected_page = '1' : $selected_page = $_COOKIE['option_page']) : $selected_page = $_POST['option_page'];
+    //($_POST["option_page"] == '') ? (($_COOKIE['option_page'] == '') ? $selected_page = '1' : $selected_page = $_COOKIE['option_page']) : $selected_page = $_POST['option_page'];
+    ($_POST['option_page'] == '') ?  $setpage = $_GET['option_page'] : $setpage = $_POST['option_page'];
+    ($setpage == '') ? (($_COOKIE['option_page'] == '') ? $selected_page = '1' : $selected_page = $_COOKIE['option_page']) : $selected_page = $setpage;
 }
 
 function USER_LOGIN(&$con)

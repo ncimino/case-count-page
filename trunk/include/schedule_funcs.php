@@ -45,6 +45,12 @@ function UPDATE_DB_PHONE_SCHEDULE($selected_page,&$con)
   $data++;
   if ($_POST['phonesched_shift']!='')
   $data++;
+  
+  if ($_POST['phonesched_clear_week']=='1')
+  {  	
+    $sql="DELETE FROM PhoneSchedule WHERE Date>='".$_POST['phonesched_clear_start']."' AND Date<='".$_POST['phonesched_clear_end']."'";
+    RUN_QUERY($sql,"Week was not deleted.",$con);
+  }
 
   if ($data == 3)
   {
@@ -220,15 +226,15 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
     {
       if ($col==1)
       {
-        echo "  <td class='phoneshift'>";
+        echo "  <td class='phoneshift'><div class='phoneshift'>";
         echo gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
         if ($shift_index==2 or $shift_index==3) echo "<br />Cover";
-        echo "</td>\n";
+        echo "</div></td>\n";
       }
       else
       {
         $postvariable = "phonesched_".$current_week[$col-2]."_".$shift_index;
-        echo "  <td class='phoneshift'><div class='phoneshift'><span class='phoneshift'>\n";
+        echo "  <td class='phoneshift'>\n";
 
         echo "    <form method='post' name='form_".$postvariable."'>\n";
         echo "      <select name='phonesched_user' class='phoneshift' OnChange='form_".$postvariable.".submit();'>\n";
@@ -259,17 +265,25 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
           echo "      <input type='hidden' name='phonesched_del_date' value='".$current_week[$col-2]."' />\n";
           echo "      <input type='hidden' name='phonesched_del_shift' value='".$shift_index."' />\n";
           echo "      <input type='hidden' name='phonesched_del_user' value='".$current_user_on_shift['userID']."' />\n";
-          echo "      <input type='submit' id='form_del_".$postvariable."_".$current_user_on_shift['userID']."' value='X' onClick='return confirmSubmit(\"Are you sure you want to remove ".$current_user_on_shift['UserName']."\")' />\n";
+          echo "      <input type='submit' id='form_del_".$postvariable."_".$current_user_on_shift['userID']."' value='X' />\n";
+          //echo "      <input type='submit' id='form_del_".$postvariable."_".$current_user_on_shift['userID']."' value='X' onClick='return confirmSubmit(\"Are you sure you want to remove ".$current_user_on_shift['UserName']."\")' />\n";
           echo "    </form>\n";
         }
 
-        echo "  </span></div></td>\n";
+        echo "  </td>\n";
       }
     }
     echo "</tr>\n";
   }
 
   echo "</table>\n";
+  
+  echo "<form method='post'>\n";
+  echo "	<input type='submit' value='Clear all' onClick='return confirmSubmit(\"Are you sure you want to clear this weeks schedule?\")' />";
+  echo "	<input type='hidden' name='phonesched_clear_week' value='1' />";
+  echo "	<input type='hidden' name='phonesched_clear_start' value='".$current_week[0]."' />";
+  echo "	<input type='hidden' name='phonesched_clear_end' value='".$current_week[4]."' />";
+  echo "</form>";
 }
 
 function TABLE_SCHEDULE($selected_page,$current_week,&$con)
@@ -349,7 +363,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
         $currentqueue .= "</tr>\n";
 
         // Creates phone shift times
-        CREATE_PHONESHIFTS($phoneshifs,$current_week[0],$timezone);
+        CREATE_PHONESHIFTS($phoneshifs,$current_week[0],-8);
 
         for ($shift_index=0;$shift_index<=5;$shift_index++)
         {
@@ -435,7 +449,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
     }
 
     // Send an email to the CC list with the phone schedule
-    $phonecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc' AND siteID='".$selected_page."';",$con));
+    $phonecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='phonescc' AND siteID='".$selected_page."';",$con));
     if ($phonecc['OptionValue'] != "") // Prevent emails from being sent to people that don't have an email
     {
       $currentqueue = "<table style=\"border-collapse:collapse;width:50em;border: 1px solid black;\">";
@@ -447,7 +461,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
       $currentqueue .= "</tr>\n";
 
       // Creates phone shift times
-      CREATE_PHONESHIFTS($phoneshifs,$current_week[0],$timezone);
+      CREATE_PHONESHIFTS($phoneshifs,$current_week[0],-8);
 
       for ($shift_index=0;$shift_index<=5;$shift_index++)
       {
@@ -498,7 +512,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
 
       $to = $phonecc['OptionValue'];
 
-      $subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
+      $subject = "Phone Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
       if ($_POST['initial_email'] == 2)
       $subject = "Updated: ".$subject;
       $message = "<html>\n";
@@ -509,7 +523,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
       $message .= "<h3>";
       if ($_POST['initial_email'] == 2)
       $message .= "Updated: ";
-      $message .= "Queue Schedule</h3>\n";
+      $message .= "Phone Schedule</h3>\n";
       $message .= $currentqueue."\n";
       $message .= "<br />\n";
       $message .= "<hr width='50%' />\n";
@@ -555,9 +569,9 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,&$con)
 
         for ($i = 0; $i <= 4; $i++)
         {
-          $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i],$con));
+          $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i]." AND siteID='".$selected_page."'",$con));
           $shiftcount[$i] = $shift['COUNT(Shift)'];
-          $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+          $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1 AND siteID='".$selected_page."'",$con);
           $j = 0;
           while ($getarray = mysql_fetch_array($currentday)) { $namesAndShifts[$i][$j++] = $getarray; }
         }
@@ -619,7 +633,7 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,&$con)
     }
 
     // Send an email to the CC list with the schedule
-    $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc';",$con));
+    $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc' AND siteID='".$selected_page."';",$con));
     if ($queuecc['OptionValue'] != "") // Prevent emails from being sent to people that don't have an email
     {
       $currentqueue = "<table style=\"border-collapse:collapse;width:50em;\">";
@@ -631,9 +645,9 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,&$con)
 
       for ($i = 0; $i <= 4; $i++)
       {
-        $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i],$con));
+        $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i]." AND siteID='".$selected_page."'",$con));
         $shiftcount[$i] = $shift['COUNT(Shift)'];
-        $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1",$con);
+        $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1 AND siteID='".$selected_page."'",$con);
         $j = 0;
         while ($getarray = mysql_fetch_array($currentday)) { $namesAndShifts[$i][$j++] = $getarray; }
       }

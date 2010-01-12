@@ -53,6 +53,8 @@ SELECTUSER($timezone,$userID,$con);
 <? 
 INDEX($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,$con); 
 ?>
+<div id="bottommenu" class="bottommenu"><? BOTTOMMENU($con) ?></div>
+
 </div>
 </body>
 </html>

@@ -56,6 +56,8 @@ SELECTSITE($selected_page,$con);
     ?>
     <div id="schedule" class="schedule">
       <br />
+  		There isn't any schedule information available for the main site.<br />
+  		<br />
   		Select a site to show the schedule for.<br />
   	</div>
     <?

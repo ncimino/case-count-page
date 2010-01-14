@@ -292,6 +292,7 @@ function SEND_USER_MAX_EMAIL($selected_page,$send_email_to_userID,$userID_that_m
     }
     if ($currentuser['userID'] == $userID_that_maxed)
     {
+      $replyto = $currentuser['UserEmail'];
       $userName_that_maxed = $currentuser['UserName'];
     }
   }
@@ -315,6 +316,7 @@ function SEND_USER_MAX_EMAIL($selected_page,$send_email_to_userID,$userID_that_m
   $headers = "MIME-Version: 1.0" . "\r\n";
   $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
   $headers .= 'From: '.$from."\r\n";
+  $headers .= "Reply-To: ".$replyto."\r\n";
   if (mail($to,$subject,$message,$headers))
   {
     echo "Email <span class='success'>sent</span> to: ".$userName_of_target."<br />\n";

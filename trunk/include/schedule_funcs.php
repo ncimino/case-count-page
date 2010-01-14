@@ -266,7 +266,6 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
           echo "      <input type='hidden' name='phonesched_del_shift' value='".$shift_index."' />\n";
           echo "      <input type='hidden' name='phonesched_del_user' value='".$current_user_on_shift['userID']."' />\n";
           echo "      <input type='submit' id='form_del_".$postvariable."_".$current_user_on_shift['userID']."' value='X' />\n";
-          //echo "      <input type='submit' id='form_del_".$postvariable."_".$current_user_on_shift['userID']."' value='X' onClick='return confirmSubmit(\"Are you sure you want to remove ".$current_user_on_shift['UserName']."\")' />\n";
           echo "    </form>\n";
         }
 
@@ -349,6 +348,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
   {
     $activeusers = mysql_query("SELECT * FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
     $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='sitename' AND Options.siteID=Sites.siteID AND SiteName='main';",$con));
+    $replyto = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='replyto' AND siteID='".$selected_page."';",$con));
     while ( $currentuser = mysql_fetch_array($activeusers) )
     {
       if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
@@ -437,6 +437,8 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
         $headers .= 'From: '.$from."\r\n";
+        $headers .= "Reply-To: ".$replyto['OptionValue']."\r\n";
+        //$headers .= "Return-Path: ".$replyto['OptionValue']."\r\n";
         if (mail($to,$subject,$message,$headers))
         {
           echo "Email <span class='success'>sent</span> to:".$to."<br />\n";
@@ -535,6 +537,8 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
       $headers = "MIME-Version: 1.0" . "\r\n";
       $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
       $headers .= 'From: '.$from."\r\n";
+      $headers .= "Reply-To: ".$replyto['OptionValue']."\r\n";
+      //$headers .= "Return-Path: ".$replyto['OptionValue']."\r\n";
       if (mail($to,$subject,$message,$headers))
       echo "Email <span class='success'>sent</span> to CC list:".$to."<br />\n";
       else
@@ -556,6 +560,7 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,&$con)
   {
     $activeusers = mysql_query("SELECT * FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
     $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='sitename' AND Options.siteID=Sites.siteID AND SiteName='main';",$con));
+    $replyto = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='replyto' AND siteID='".$selected_page."';",$con));
     while ( $currentuser = mysql_fetch_array($activeusers) )
     {
       if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
@@ -621,6 +626,8 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,&$con)
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
         $headers .= 'From: '.$from."\r\n";
+        $headers .= "Reply-To: ".$replyto['OptionValue']."\r\n";
+        //$headers .= "Return-Path: ".$replyto['OptionValue']."\r\n";
         if (mail($to,$subject,$message,$headers))
         {
           echo "Email <span class='success'>sent</span> to:".$to."<br />\n";
@@ -694,7 +701,9 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,&$con)
       $from = MAIN_EMAILS_FROM;
       $headers = "MIME-Version: 1.0" . "\r\n";
       $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
-      $headers .= 'From: '.$from."\r\n";
+      $headers .= 'From: '.$from."\r\n";      
+      $headers .= "Reply-To: ".$replyto['OptionValue']."\r\n";
+      //$headers .= "Return-Path: ".$replyto['OptionValue']."\r\n";
       if (mail($to,$subject,$message,$headers))
       echo "Email <span class='success'>sent</span> to CC list:".$to."<br />\n";
       else

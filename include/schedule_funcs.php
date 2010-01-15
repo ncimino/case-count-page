@@ -99,6 +99,12 @@ function UPDATE_DB_PHONE_SCHEDULE($selected_page,&$con)
     $sql="DELETE FROM PhoneSchedule WHERE userID='".$_POST['phonesched_del_user']."' AND Date='".$_POST['phonesched_del_date']."' AND Shift='".$_POST['phonesched_del_shift']."'";
     RUN_QUERY($sql,"Entry was not deleted.",$con);
   }
+  
+  // Build the Phone Schedule ICS file
+  if (($_POST['phonesched_clear_week']=='1') or ($data == 3) or ($_POST['phonesched_del_user']!=''))
+  { 
+    BUILD_PHONES_ICS($con);
+  }
 }
 
 function UPDATE_DB_SCHEDULE($selected_page,$current_week,&$con)

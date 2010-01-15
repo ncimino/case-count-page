@@ -60,17 +60,17 @@ function SITE_NAME($selected_page,&$con)
     echo $site_name['OptionValue'];
 }
 
-function TOPMENU()
+function TOPMENU($path)
 { ?>
-<a href='index.php'>Home</a>
+<a href='<? echo $path?>index.php'>Home</a>
 -
-<a href='schedule.php'>Schedule</a>
+<a href='<? echo $path?>schedule.php'>Schedule</a>
 -
-<a href='users.php'>Users</a>
+<a href='<? echo $path?>users.php'>Users</a>
 -
-<a href='manage.php'>Manage</a>
+<a href='<? echo $path?>manage.php'>Manage</a>
 -
-<a href='index.php?logout=1'>Logout</a>
+<a href='<? echo $path?>index.php?logout=1'>Logout</a>
 <? }
 
 function BOTTOMMENU(&$con)

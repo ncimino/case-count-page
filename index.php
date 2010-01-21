@@ -49,7 +49,7 @@ SELECTUSER($timezone,$userID,$con);
 
 </div>
 
-<div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
+<div id="topmenu" class="topmenu"><? TOPMENU('') ?></div>
 <? 
 INDEX($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,$con); 
 ?>

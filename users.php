@@ -41,7 +41,7 @@ SELECTUSER($timezone,$userID,$con);
 
 </div>
 
-<div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
+<div id="topmenu" class="topmenu"><? TOPMENU('') ?></div>
 
 <div id="users" class="users"><? USERS($con) ?></div>
 

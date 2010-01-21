@@ -32,7 +32,7 @@ SELECTSITE($selected_page,$con);
 </div>
 
 <div id="title" class="title">
-<h1><? SITE_NAME($selected_page,$con); ?></h1>
+<h1>WebCal Links</h1>
 </div>
 
 <div id="selectuser" class="selectuser">
@@ -46,6 +46,7 @@ SELECTUSER($timezone,$userID,$con);
 <div id="topmenu" class="topmenu"><? TOPMENU('../') ?></div>
 
 <?
+UPDATE_ALL_ICS('..',$con);
 
 	if ($handle = opendir('./')) 
 	{

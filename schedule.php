@@ -47,7 +47,9 @@ SELECTSITE($selected_page,$con);
 
 </div>
 
-<div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
+<? SENDING_EMAIL_STATUS() ?>
+
+<div id="topmenu" class="topmenu"><? TOPMENU('') ?></div>
   <? 
   // If the selected page is the main page then print some notice
   $main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));

@@ -1,93 +1,97 @@
 <?php
 
-function BUILD_PHONES_ICS(&$con)
-{	
-$cal_file = 
-"BEGIN:VCALENDAR
-PRODID:-//Google Inc//Google Calendar 70.9054//EN
-VERSION:2.0
-CALSCALE:GREGORIAN
-METHOD:REQUEST
-BEGIN:VTIMEZONE
-TZID:America/Denver
-X-LIC-LOCATION:America/Denver
-BEGIN:DAYLIGHT
-TZOFFSETFROM:-0700
-TZOFFSETTO:-0600
-TZNAME:MDT
-DTSTART:19700308T020000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:-0600
-TZOFFSETTO:-0700
-TZNAME:MST
-DTSTART:19701101T020000
-RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
-END:STANDARD
-END:VTIMEZONE";
-
-$current_time = time(); // Time is PST, but doesn't matter as this is just used to determine the current week
-$last_week = DETERMINE_WEEK($current_time-7*24*60*60);
-$next_week = DETERMINE_WEEK($current_time+7*24*60*60);
-
-$sql = "SELECT *
-		FROM PhoneSchedule,Users
-		WHERE Date >= ".$last_week['Monday']."
-		  AND Date <= ".$next_week['Friday']."
-		  AND PhoneSchedule.userID=Users.userID";
-
-$phoneschedule = mysql_query($sql,$con);
-
-$current = preg_replace($pattern, '', gmdate("c",$current_time));
-
-while ($currentschedule = mysql_fetch_array($phoneschedule))
+function UPDATE_ALL_ICS($loc,&$con)
 {
-	// Creates phone shift times
-	CREATE_PHONESHIFTS($phoneshifs,$currentschedule['Date'],-7); // Create times for MST as calendar entry is MST
-	
-	$pattern[0] = '/-/';
-	$pattern[1] = '/:/';
-	$pattern[2] = '/\+.*$/';
-	
-	$start = preg_replace($pattern, '', gmdate("c",$phoneshifs[$currentschedule['Shift']]['start']));
-	$end = preg_replace($pattern, '', gmdate("c",$phoneshifs[$currentschedule['Shift']]['end']));
-	if (($currentschedule['Shift']==2) or ($currentschedule['Shift']==3))
-	{
-		$cover = ' (Cover)';
-		$category = 'Blue Category';
-	}
-	else
-	{
-		$cover = '';
-		$category = 'Red Category';
-	}
-	
-$cal_file .= "
+  if(!BUILD_PHONES_ICS($loc,$con))
+  return 0;
+  else
+  return 1;
+}
+
+function BUILD_PHONES_ICS($loc,&$con)
+{
+//  $cal_file =
+//"BEGIN:VCALENDAR
+//PRODID:-//Microsoft Corporation//Outlook 12.0 MIMEDIR//EN
+//VERSION:2.0
+//CALSCALE:GREGORIAN
+//METHOD:REQUEST
+//X-WR-CALDESC:Phone Shifts
+//X-PUBLISHED-TTL:PT2H
+//BEGIN:VTIMEZONE
+//TZID:America/Denver
+//X-LIC-LOCATION:America/Denver
+//BEGIN:DAYLIGHT
+//TZOFFSETFROM:-0700
+//TZOFFSETTO:-0600
+//TZNAME:MDT
+//DTSTART:19700308T020000
+//RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+//END:DAYLIGHT
+//BEGIN:STANDARD
+//TZOFFSETFROM:-0600
+//TZOFFSETTO:-0700
+//TZNAME:MST
+//DTSTART:19701101T020000
+//RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+//END:STANDARD
+//END:VTIMEZONE";
+  
+  $cal_file = "";
+  BUILD_VCALENDAR_HEADER($cal_file,-7,1,'Phone Shifts');
+
+  $current_time = time(); // Time is PST, but doesn't matter as this is just used to determine the current week
+  $last_week = DETERMINE_WEEK($current_time-7*24*60*60);
+  $next_week = DETERMINE_WEEK($current_time+7*24*60*60);
+  
+  BUILD_PHONE_SCHEDULE_ARRAY($schedule,$last_week['Monday'],$next_week['Friday'],$con);
+  
+  $current = gmdate('Ymd\THis',$current_time);
+
+  // Build all events for each of the different of the different events
+  foreach ($schedule as $date)
+  {
+    foreach ($date as $userID)
+    {
+      foreach ($userID as $shift)
+      {
+        $cal_file .= "
 BEGIN:VEVENT
-CATEGORIES:".$category."
-DTSTART;TZID=America/Denver:".$start."
-DTEND;TZID=America/Denver:".$end."
+CATEGORIES:".$shift['category']."
+DTSTART;TZID=America/Denver:".$shift['start']."
+DTEND;TZID=America/Denver:".$shift['end']."
 DTSTAMP:".$current."
 UID:phoneschedule-".$current."
 CREATED:".$current."
 DESCRIPTION:Phone Schedule
 LAST-MODIFIED:".$current."
-LOCATION:".$cover."
+LOCATION:".$shift['cover']."
 SEQUENCE:0
 STATUS:CONFIRMED
-SUMMARY:".$currentschedule['UserName']."
+SUMMARY:".$shift['username']."
 TRANSP:OPAQUE
 END:VEVENT";
-}
+      }
+    }
+  }
 
-
-$cal_file .= "
+  $cal_file .= "
 END:VCALENDAR";
-	
-	$file = fopen("./webcal/PhoneShifts.ics","w");
-	fwrite($file,$cal_file);
-	fclose($file);
+  
+  if (!($file = fopen($loc."/webcal/PhoneShifts.ics","w")))
+  return 0;
+  else
+  {
+    if(!(fwrite($file,$cal_file)))
+    return 0;
+    else
+    {
+      if(!fclose($file))
+      return 0;
+      else
+      return 1;
+    }
+  }
 }
 
 ?>

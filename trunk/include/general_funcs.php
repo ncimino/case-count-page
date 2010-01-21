@@ -116,11 +116,142 @@ function DETERMINE_WEEK($timestamp)
   return $current_week;
 }
 
+function BUILD_PHONE_SHIFT_TABLE_HTML(&$currentqueue,$current_week,$selected_userID,&$con)
+{
+  $currentqueue = "<table style=\"border-collapse:collapse;width:50em;border: 1px solid black;\">";
+
+  $currentqueue .= "<tr>\n";
+  $currentqueue .= "  <th>Shift</th>\n";
+  for ($i=0;$i<5;$i++)
+  $currentqueue .= "  <th>".gmdate("D n/j",$current_week[$i])."</th>\n";
+  $currentqueue .= "</tr>\n";
+
+  // Creates phone shift times
+  CREATE_PHONESHIFTS($phoneshifs,$current_week[0],-8);
+
+  for ($shift_index=0;$shift_index<=5;$shift_index++)
+  {
+    $currentqueue .= "<tr>\n";
+    for ($col=1; $col<=6; $col++)
+    {
+      if ($col==1)
+      {
+        $currentqueue .= "  <td style=\"border:1px solid;text-align:center;width:10em;\">";
+        $currentqueue .= "<div style=\"height: 3em;vertical-align: top;\">\n";
+        $currentqueue .= gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
+        if ($shift_index==2 or $shift_index==3)
+        $currentqueue .= "<br />Cover";
+        $currentqueue .= "</div>\n";
+        $currentqueue .= "</td>\n";
+      }
+      else
+      {
+        $users_on_shift_query = mysql_query("SELECT UserName,Users.userID FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
+
+        $onqueue = 0;
+        $user_log = '';
+        while ( $users_on_shift = mysql_fetch_array($users_on_shift_query) )
+        {
+          if ($users_on_shift['userID'] == $selected_userID)
+          {
+            $onqueue = 1;
+            $user_log .= "        <span style=\"font-weight: bold;\">".$users_on_shift['UserName']."</span><br />\n";
+          }
+          else
+          {
+            $user_log .= "        ".$users_on_shift['UserName']."<br />\n";
+          }
+        }
+
+        $currentqueue .= "  <td style=\"border:1px solid;text-align:center;width:10em;";
+        if ($onqueue == 1)
+        {
+          $currentqueue .= "background:lightblue;";
+        }
+        $currentqueue .= "\">";
+        $currentqueue .= $user_log;
+        $currentqueue .= "  </td>\n";
+      }
+    }
+    $currentqueue .= "</tr>\n";
+  }
+
+  $currentqueue .= "</table>\n";
+}
+
+function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,&$con)
+{
+  $create_date = gmdate('Ymd\THis',$begin_date);
+  
+  $sql = "SELECT *
+    FROM PhoneSchedule,Users
+    WHERE Date >= ".$begin_date."
+      AND Date <= ".$end_date."
+      AND PhoneSchedule.userID=Users.userID";
+
+  $phoneschedule = mysql_query($sql,$con);
+
+  while ($currentschedule = mysql_fetch_array($phoneschedule))
+  {
+    $uid = "phoneschedule_" . $currentschedule['Date'] . "_" . $currentschedule['userID'] . "_" . $currentschedule['Shift'];
+    $userID = $currentschedule['userID'];
+    $useremail = $currentschedule['UserEmail'];
+    $date = $currentschedule['Date'];
+    $shift = $currentschedule['Shift'];
+    $username = $currentschedule['UserName'];
+    // Creates phone shift times
+    CREATE_PHONESHIFTS($phoneshifs,$date,-7); // Create times for MST as calendar entry is MST
+    $start = gmdate('Ymd\THis',$phoneshifs[$shift]['start']);
+    $end = gmdate('Ymd\THis',$phoneshifs[$shift]['end']);
+
+    // Combine the first two or last two shifts into a single event
+    $match_found = 0;
+    if (is_array($schedule[$date][$userID]))
+    foreach ($schedule[$date][$userID] as $shift_index => $array)
+    {
+      if (($shift_index == 0 and $shift == 1)
+      or ($shift_index == 4 and $shift == 5))
+      {
+        $schedule[$date][$userID][$shift_index]['end'] = $end;
+        $match_found = 1;
+      }
+      if (($shift_index == 1 and $shift == 0)
+      or ($shift_index == 5 and $shift == 4))
+      {
+        $schedule[$date][$userID][$shift_index]['start'] = $start;
+        $match_found = 1;
+      }
+    }
+
+    // If this shift isn't part of shift pair, then add the new shift to $schedule
+    if (!$match_found)
+    {
+      $schedule[$date][$userID][$shift]['create_date'] = $create_date;
+      $schedule[$date][$userID][$shift]['uid'] = $uid;
+      $schedule[$date][$userID][$shift]['useremail'] = $useremail;
+      $schedule[$date][$userID][$shift]['username'] = $username;
+      $schedule[$date][$userID][$shift]['start'] = $start;
+      $schedule[$date][$userID][$shift]['end'] = $end;
+      if (($currentschedule['Shift']==2) or ($currentschedule['Shift']==3))
+      {
+        $schedule[$date][$userID][$shift]['cover'] = ' (Cover)';
+        $schedule[$date][$userID][$shift]['category'] = '';
+      }
+      else
+      {
+        $schedule[$date][$userID][$shift]['cover'] = '';
+        $schedule[$date][$userID][$shift]['category'] = '';
+      }
+    }
+
+  }
+}
+
 function SELECTSITE($selected_page,&$con)
 {
 	$pages_query = mysql_query("SELECT Options.siteID,OptionValue FROM Sites,Options WHERE Active='1' AND OptionName='sitename' AND Options.siteID=Sites.siteID;",$con);
 	
-	echo "    <form method='post' name='site_selection'>\n";
+	echo "    <form method='post' action='index.php' name='site_selection'>\n";
     echo "      <select name='option_page' OnChange='site_selection.submit();'>\n";
     while($pages = mysql_fetch_array($pages_query))
     {

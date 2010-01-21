@@ -49,7 +49,7 @@ SELECTSITE($selected_page,$con);
 
 </div>
 
-<div id="topmenu" class="topmenu"><? TOPMENU() ?></div>
+<div id="topmenu" class="topmenu"><? TOPMENU('') ?></div>
 
 <div id="checkcountdates" class="checkcountdates">
 <hr width='50%' />

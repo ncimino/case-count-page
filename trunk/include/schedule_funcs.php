@@ -1,5 +1,11 @@
 <?php
 
+function SENDING_EMAIL_STATUS()
+{
+  if ($_POST['initial_email'] != '')
+  echo "<div id='sending_email_status' style='z-index:100;text-align:center;position:fixed;top:0px;width:100%;background:wheat;'><h3>Sending emails, please wait...</h3></div>\n\n";
+}
+
 function SCHEDULE($timezone,$selected_page,$selecteddate,&$con)
 {
   // Get the dates for the selected week
@@ -45,9 +51,9 @@ function UPDATE_DB_PHONE_SCHEDULE($selected_page,&$con)
   $data++;
   if ($_POST['phonesched_shift']!='')
   $data++;
-  
+
   if ($_POST['phonesched_clear_week']=='1')
-  {  	
+  {
     $sql="DELETE FROM PhoneSchedule WHERE Date>='".$_POST['phonesched_clear_start']."' AND Date<='".$_POST['phonesched_clear_end']."'";
     RUN_QUERY($sql,"Week was not deleted.",$con);
   }
@@ -99,12 +105,12 @@ function UPDATE_DB_PHONE_SCHEDULE($selected_page,&$con)
     $sql="DELETE FROM PhoneSchedule WHERE userID='".$_POST['phonesched_del_user']."' AND Date='".$_POST['phonesched_del_date']."' AND Shift='".$_POST['phonesched_del_shift']."'";
     RUN_QUERY($sql,"Entry was not deleted.",$con);
   }
-  
+
   // Build the Phone Schedule ICS file
-  if (($_POST['phonesched_clear_week']=='1') or ($data == 3) or ($_POST['phonesched_del_user']!=''))
-  { 
-    BUILD_PHONES_ICS($con);
-  }
+  //  if (($_POST['phonesched_clear_week']=='1') or ($data == 3) or ($_POST['phonesched_del_user']!=''))
+  //  {
+  //    BUILD_PHONES_ICS($con);
+  //  }
 }
 
 function UPDATE_DB_SCHEDULE($selected_page,$current_week,&$con)
@@ -203,7 +209,7 @@ function MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
   echo "        <option selected='selected' value='NULL' disabled='disabled'>User</option>\n";
   echo "        <option value='NULL' disabled='disabled'></option>\n";
   while ( $currentuser = mysql_fetch_array($activeusers) )
-    echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
+  echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
   echo "      </select>\n";
 
   echo "      <input type='submit' id='form_".$postvariable."_submit' value='select' />\n";
@@ -245,7 +251,7 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
         echo "    <form method='post' name='form_".$postvariable."'>\n";
         echo "      <select name='phonesched_user' class='phoneshift' OnChange='form_".$postvariable.".submit();'>\n";
         echo "        <option selected='selected' value='NULL'></option>\n";
-        
+
         mysql_data_seek($activeusers,0);
         while ( $currentuser = mysql_fetch_array($activeusers) )
         echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
@@ -282,7 +288,7 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
   }
 
   echo "</table>\n";
-  
+
   echo "<form method='post'>\n";
   echo "	<input type='submit' value='Clear all' onClick='return confirmSubmit(\"Are you sure you want to clear this weeks schedule?\")' />";
   echo "	<input type='hidden' name='phonesched_clear_week' value='1' />";
@@ -339,383 +345,6 @@ function TABLE_SCHEDULE($selected_page,$current_week,&$con)
   echo "      <!--\n";
   echo "      document.getElementById('schedule_submit').style.display='none'; // hides button if JS is enabled-->\n";
   echo "    </script>\n";
-}
-
-function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
-{
-  echo "<form method='post'>\n";
-  echo "<input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
-  echo "Initial: <input type='radio' checked='checked' name='initial_email' value='1' />\n";
-  echo "Updated: <input type='radio' name='initial_email' value='2' />\n";
-  echo "</form>\n";
-
-  // If it was selected to send an email or an update then continue
-  if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
-  {
-    $activeusers = mysql_query("SELECT * FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
-    $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='sitename' AND Options.siteID=Sites.siteID AND SiteName='main';",$con));
-    $replyto = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='replyto' AND siteID='".$selected_page."';",$con));
-    while ( $currentuser = mysql_fetch_array($activeusers) )
-    {
-      if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
-      {
-
-        $currentqueue = "<table style=\"border-collapse:collapse;width:50em;border: 1px solid black;\">";
-
-        $currentqueue .= "<tr>\n";
-        $currentqueue .= "  <th>Shift</th>\n";
-        for ($i=0;$i<5;$i++)
-          $currentqueue .= "  <th>".gmdate("D n/j",$current_week[$i])."</th>\n";
-        $currentqueue .= "</tr>\n";
-
-        // Creates phone shift times
-        CREATE_PHONESHIFTS($phoneshifs,$current_week[0],-8);
-
-        for ($shift_index=0;$shift_index<=5;$shift_index++)
-        {
-          $currentqueue .= "<tr>\n";
-          for ($col=1; $col<=6; $col++)
-          {
-            if ($col==1)
-            {
-              $currentqueue .= "  <td style=\"border:1px solid;text-align:center;width:10em;\">";
-              $currentqueue .= gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
-              if ($shift_index==2 or $shift_index==3) $currentqueue .= "<br />Cover";
-                $currentqueue .= "</td>\n";
-            }
-            else
-            {
-              $users_on_shift_query = mysql_query("SELECT UserName,Users.userID FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
-
-              $onqueue = 0;
-              $user_log = '';
-              while ( $users_on_shift = mysql_fetch_array($users_on_shift_query) )
-              {
-                if ($users_on_shift['userID'] == $currentuser['userID'])
-                {
-                  $onqueue = 1;
-                  $user_log .= "        <span style=\"font-weight: bold;\">".$users_on_shift['UserName']."</span><br />\n";
-                }
-                else
-                {
-                  $user_log .= "        ".$users_on_shift['UserName']."<br />\n";
-                }
-              }
-
-              $currentqueue .= "  <td style=\"border:1px solid;text-align:center;width:10em;";
-              if ($onqueue == 1)
-              {
-                $currentqueue .= "background:lightblue;";
-              }
-              $currentqueue .= "\">";
-              $currentqueue .= "<div style=\"min-height: 3em;vertical-align: bottom;\">\n";
-              $currentqueue .= $user_log;
-              $currentqueue .= "  </div></td>\n";
-            }
-          }
-          $currentqueue .= "</tr>\n";
-        }
-
-        $currentqueue .= "</table>\n";
-
-        $to = $currentuser['UserEmail'];
-
-        $subject = "Phone Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
-        if ($_POST['initial_email'] == 2)
-        $subject = "Updated: ".$subject;
-        $message = "<html>\n";
-        $message .= "<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;\">\n";
-        $message .= "<style>\n";
-        $message .= "body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}\n";
-        $message .= "</style>\n";
-        $message .= "<h3>";
-        if ($_POST['initial_email'] == 2)
-        $message .= "Updated: ";
-        $message .= "Phone Schedule</h3>\n";
-        $message .= $currentqueue."\n";
-        $message .= "<br />\n";
-        $message .= "<hr width='50%' />\n";
-        $message .= "Sent via: ".$site_name['OptionValue']."<br />\n";
-        $message .= "<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>\n";
-        $message .= "</body>\n";
-        $message .= "</html>";
-        $from = MAIN_EMAILS_FROM;
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
-        $headers .= 'From: '.$from."\r\n";
-        $headers .= "Reply-To: ".$replyto['OptionValue']."\r\n";
-        //$headers .= "Return-Path: ".$replyto['OptionValue']."\r\n";
-        if (mail($to,$subject,$message,$headers))
-        {
-          echo "Email <span class='success'>sent</span> to:".$to."<br />\n";
-        }
-        else
-        {
-          echo "Email was <span class='error'>not sent</span> to:".$to."<br />\n";
-        }
-      }
-    }
-
-    // Send an email to the CC list with the phone schedule
-    $phonecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='phonescc' AND siteID='".$selected_page."';",$con));
-    if ($phonecc['OptionValue'] != "") // Prevent emails from being sent to people that don't have an email
-    {
-      $currentqueue = "<table style=\"border-collapse:collapse;width:50em;border: 1px solid black;\">";
-
-      $currentqueue .= "<tr>\n";
-      $currentqueue .= "  <th>Shift</th>\n";
-      for ($i=0;$i<5;$i++)
-        $currentqueue .= "  <th>".gmdate("D n/j",$current_week[$i])."</th>\n";
-      $currentqueue .= "</tr>\n";
-
-      // Creates phone shift times
-      CREATE_PHONESHIFTS($phoneshifs,$current_week[0],-8);
-
-      for ($shift_index=0;$shift_index<=5;$shift_index++)
-      {
-        $currentqueue .= "<tr>\n";
-        for ($col=1; $col<=6; $col++)
-        {
-          if ($col==1)
-          {
-            $currentqueue .= "  <td style=\"border:1px solid;text-align:center;width:10em;\">";
-            $currentqueue .= gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
-            if ($shift_index==2 or $shift_index==3) $currentqueue .= "<br />Cover";
-              $currentqueue .= "</td>\n";
-          }
-          else
-          {
-            $users_on_shift_query = mysql_query("SELECT UserName,Users.userID FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
-
-            $onqueue = 0;
-            $user_log = '';
-            while ( $users_on_shift = mysql_fetch_array($users_on_shift_query) )
-            {
-              if ($users_on_shift['userID'] == $phonecc['userID'])
-              {
-                $onqueue = 1;
-                $user_log .= "        <span style=\"font-weight: bold;\">".$users_on_shift['UserName']."</span><br />\n";
-              }
-              else
-              {
-                $user_log .= "        ".$users_on_shift['UserName']."<br />\n";
-              }
-            }
-
-            $currentqueue .= "  <td style=\"border:1px solid;text-align:center;width:10em;";
-            if ($onqueue == 1)
-            {
-              $currentqueue .= "background:lightblue;";
-            }
-            $currentqueue .= "\">";
-            $currentqueue .= "<div style=\"min-height: 3em;vertical-align: bottom;\">\n";
-            $currentqueue .= $user_log;
-            $currentqueue .= "  </div></td>\n";
-          }
-        }
-        $currentqueue .= "</tr>\n";
-      }
-
-      $currentqueue .= "</table>\n";
-
-      $to = $phonecc['OptionValue'];
-
-      $subject = "Phone Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
-      if ($_POST['initial_email'] == 2)
-      $subject = "Updated: ".$subject;
-      $message = "<html>\n";
-      $message .= "<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;\">\n";
-      $message .= "<style>\n";
-      $message .= "body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}\n";
-      $message .= "</style>\n";
-      $message .= "<h3>";
-      if ($_POST['initial_email'] == 2)
-      $message .= "Updated: ";
-      $message .= "Phone Schedule</h3>\n";
-      $message .= $currentqueue."\n";
-      $message .= "<br />\n";
-      $message .= "<hr width='50%' />\n";
-      $message .= "Sent via: ".$site_name['OptionValue']."<br />\n";
-      $message .= "<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>\n";
-      $message .= "</body>\n";
-      $message .= "</html>";
-      $from = MAIN_EMAILS_FROM;
-      $headers = "MIME-Version: 1.0" . "\r\n";
-      $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
-      $headers .= 'From: '.$from."\r\n";
-      $headers .= "Reply-To: ".$replyto['OptionValue']."\r\n";
-      //$headers .= "Return-Path: ".$replyto['OptionValue']."\r\n";
-      if (mail($to,$subject,$message,$headers))
-      echo "Email <span class='success'>sent</span> to CC list:".$to."<br />\n";
-      else
-      echo "Email was <span class='error'>not sent</span> to CC list:".$to."<br />\n";
-    }
-  }
-}
-
-function SEND_QUEUE_EMAIL($selected_page,$current_week,&$con)
-{
-  echo "<form method='post'>\n";
-  echo "<input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
-  echo "Initial: <input type='radio' checked='checked' name='initial_email' value='1' />\n";
-  echo "Updated: <input type='radio' name='initial_email' value='2' />\n";
-  echo "</form>\n";
-
-  // If it was selected to send an email or an update then continue
-  if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2))
-  {
-    $activeusers = mysql_query("SELECT * FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
-    $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='sitename' AND Options.siteID=Sites.siteID AND SiteName='main';",$con));
-    $replyto = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='replyto' AND siteID='".$selected_page."';",$con));
-    while ( $currentuser = mysql_fetch_array($activeusers) )
-    {
-      if ($currentuser['UserEmail'] != "") // Prevent emails from being sent to people that don't have an email
-      {
-        $currentqueue = "<table style=\"border-collapse:collapse;width:50em;\">";
-
-        $currentqueue .= "      <tr>\n";
-        for ($i=0;$i<5;$i++)
-        $currentqueue .= "        <th style=\"border:0px none;text-align:center;width:10em;\">".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
-        $currentqueue .= "      </tr>\n";
-
-        for ($i = 0; $i <= 4; $i++)
-        {
-          $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i]." AND siteID='".$selected_page."'",$con));
-          $shiftcount[$i] = $shift['COUNT(Shift)'];
-          $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1 AND siteID='".$selected_page."'",$con);
-          $j = 0;
-          while ($getarray = mysql_fetch_array($currentday)) { $namesAndShifts[$i][$j++] = $getarray; }
-        }
-
-        rsort($shiftcount,SORT_NUMERIC);
-
-        for ($row = 1; $row <= $shiftcount[0]; $row++)
-        {
-          $currentqueue .= "      <tr class='currentqueue'>\n";
-          for ($col = 1; $col <= 5; $col++)
-          {
-            $currentqueue .= "       <td style=\"border:1px solid;text-align:center;width:10em;";
-            if (($namesAndShifts[$col-1][$row-1]['userID'] == $currentuser['userID'] ) and ($currentuser['userID'] != ''))
-            $currentqueue .= " background: lightblue;";
-            $currentqueue .= "\">\n";
-            $currentqueue .= $namesAndShifts[$col-1][$row-1]['UserName'];
-            if ($namesAndShifts[$col-1][$row-1]['Shift'] == 1)
-            $currentqueue .= "&nbsp;(.5)";
-            $currentqueue .= "</td>\n";
-          }
-          $currentqueue .= "      </tr>\n";
-        }
-        $currentqueue .= "    </table>\n";
-
-        $to = $currentuser['UserEmail'];
-
-        $subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
-        if ($_POST['initial_email'] == 2)
-        $subject = "Updated: ".$subject;
-        $message = "<html>\n";
-        $message .= "<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;\">\n";
-        $message .= "<style>\n";
-        $message .= "body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}\n";
-        $message .= "</style>\n";
-        $message .= "<h3>";
-        if ($_POST['initial_email'] == 2)
-        $message .= "Updated: ";
-        $message .= "Queue Schedule</h3>\n";
-        $message .= $currentqueue."\n";
-        $message .= "<br />\n";
-        $message .= "<hr width='50%' />\n";
-        $message .= "Sent via: ".$site_name['OptionValue']."<br />\n";
-        $message .= "<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>\n";
-        $message .= "</body>\n";
-        $message .= "</html>";
-        $from = MAIN_EMAILS_FROM;
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
-        $headers .= 'From: '.$from."\r\n";
-        $headers .= "Reply-To: ".$replyto['OptionValue']."\r\n";
-        //$headers .= "Return-Path: ".$replyto['OptionValue']."\r\n";
-        if (mail($to,$subject,$message,$headers))
-        {
-          echo "Email <span class='success'>sent</span> to:".$to."<br />\n";
-        }
-        else
-        {
-          echo "Email was <span class='error'>not sent</span> to:".$to."<br />\n";
-        }
-      }
-    }
-
-    // Send an email to the CC list with the schedule
-    $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc' AND siteID='".$selected_page."';",$con));
-    if ($queuecc['OptionValue'] != "") // Prevent emails from being sent to people that don't have an email
-    {
-      $currentqueue = "<table style=\"border-collapse:collapse;width:50em;\">";
-
-      $currentqueue .= "      <tr>\n";
-      for ($i=0;$i<5;$i++)
-      $currentqueue .= "        <th style=\"border:0px none;text-align:center;width:10em;\">".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
-      $currentqueue .= "      </tr>\n";
-
-      for ($i = 0; $i <= 4; $i++)
-      {
-        $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i]." AND siteID='".$selected_page."'",$con));
-        $shiftcount[$i] = $shift['COUNT(Shift)'];
-        $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1 AND siteID='".$selected_page."'",$con);
-        $j = 0;
-        while ($getarray = mysql_fetch_array($currentday)) { $namesAndShifts[$i][$j++] = $getarray; }
-      }
-
-      rsort($shiftcount,SORT_NUMERIC);
-
-      for ($row = 1; $row <= $shiftcount[0]; $row++)
-      {
-        $currentqueue .= "      <tr class='currentqueue'>\n";
-        for ($col = 1; $col <= 5; $col++)
-        {
-          $currentqueue .= "       <td style=\"border:1px solid;text-align:center;width:10em;";
-          $currentqueue .= "\">\n";
-          $currentqueue .= $namesAndShifts[$col-1][$row-1]['UserName'];
-          if ($namesAndShifts[$col-1][$row-1]['Shift'] == 1)
-          $currentqueue .= "&nbsp;(.5)";
-          $currentqueue .= "</td>\n";
-        }
-        $currentqueue .= "      </tr>\n";
-      }
-      $currentqueue .= "    </table>\n";
-
-      $to = $queuecc['OptionValue'];
-
-      $subject = "Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
-      if ($_POST['initial_email'] == 2)
-      $subject = "Updated: ".$subject;
-      $message = "<html>\n";
-      $message .= "<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;\">\n";
-      $message .= "<style>\n";
-      $message .= "body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}\n";
-      $message .= "</style>\n";
-      $message .= "<h3>";
-      if ($_POST['initial_email'] == 2)
-      $message .= "Updated: ";
-      $message .= "Queue Schedule</h3>\n";
-      $message .= $currentqueue."\n";
-      $message .= "<br />\n";
-      $message .= "<hr width='50%' />\n";
-      $message .= "Sent via: ".$site_name['OptionValue']."<br />\n";
-      $message .= "<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>\n";
-      $message .= "</body>\n";
-      $message .= "</html>";
-      $from = MAIN_EMAILS_FROM;
-      $headers = "MIME-Version: 1.0" . "\r\n";
-      $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
-      $headers .= 'From: '.$from."\r\n";      
-      $headers .= "Reply-To: ".$replyto['OptionValue']."\r\n";
-      //$headers .= "Return-Path: ".$replyto['OptionValue']."\r\n";
-      if (mail($to,$subject,$message,$headers))
-      echo "Email <span class='success'>sent</span> to CC list:".$to."<br />\n";
-      else
-      echo "Email was <span class='error'>not sent</span> to CC list:".$to."<br />\n";
-    }
-  }
 }
 
 ?>

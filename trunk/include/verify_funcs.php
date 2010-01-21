@@ -82,7 +82,7 @@ function USER_LOGIN(&$con)
 <div id='header' class='header'>
 <h1><? SITE_NAME($mainsite['siteID'],$con) ?></h1>
 </div>
-<div id='topmenu' class='topmenu'><? TOPMENU() ?></div>
+<div id='topmenu' class='topmenu'><? TOPMENU('') ?></div>
 <div id='login' class='login'>
 <form method='post' action='?logout=0&timezone=-7'>Password: <input type='password'
     name='password' size='10' value='' /> <input type='submit' value='Go' /></form>

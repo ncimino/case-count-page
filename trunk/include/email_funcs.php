@@ -13,7 +13,8 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
   {
     // Build the ICS for all when the schedule is sent
     echo "Updating ICS file for WebCal...";
-    if (UPDATE_ALL_ICS('.',$con))
+    //if (UPDATE_ALL_ICS('.',$selected_page,$con))
+    if (1)
     echo " ICS file for WebCal <span class='success'>successfully</span> updated.<br />\n";
     else
     echo " ICS file for WebCal <span class='error'>failed</span> to update.<br />\n";
@@ -22,7 +23,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
     $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='sitename' AND Options.siteID=Sites.siteID AND SiteName='main';",$con));
     $replyto = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='replyto' AND siteID='".$selected_page."';",$con));
     
-    BUILD_PHONE_SCHEDULE_ARRAY($schedule,$current_week['Monday'],$current_week['Friday'],$con);
+    BUILD_PHONE_SCHEDULE_ARRAY($schedule,$current_week['Monday'],$current_week['Friday'],$selected_page,$con);
     
     // Send an event email to each on schedule
     foreach ($schedule as $date)
@@ -31,7 +32,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
       {
         foreach ($userID_array as $shift)
         {
-          EVENT_PHONE_EMAIL($replyto['OptionValue'],$site_name['OptionValue'],$userID,$shift,$current_week,$con);
+          EVENT_PHONE_EMAIL($replyto['OptionValue'],$site_name['OptionValue'],$userID,$shift,$current_week,$selected_page,$con);
           $email_sent[$userID] = 1;
         }
       }
@@ -41,14 +42,14 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
     while ( $currentuser = mysql_fetch_array($activeusers) )
     {
       if ($email_sent[$currentuser['userID']] != 1)
-        PHONE_EMAIL($replyto['OptionValue'],$site_name['OptionValue'],$currentuser['UserEmail'],$currentuser['userID'],$current_week,$con);
+        PHONE_EMAIL($replyto['OptionValue'],$site_name['OptionValue'],$currentuser['UserEmail'],$currentuser['userID'],$current_week,$selected_page,$con);
     }
 
     // Send an email to the CC list with the phone schedule
     $phonecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='phonescc' AND siteID='".$selected_page."';",$con));
     if ($phonecc['OptionValue'] != "") // Prevent emails from being sent to CC that doesn't have an email
     {
-      PHONE_EMAIL($replyto['OptionValue'],$site_name['OptionValue'],$phonecc['OptionValue'],'',$current_week,$con);
+      PHONE_EMAIL($replyto['OptionValue'],$site_name['OptionValue'],$phonecc['OptionValue'],'',$current_week,$selected_page,$con);
     }
     
     echo "    <script type='text/javascript'>\n";
@@ -60,86 +61,31 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,&$con)
   }
 }
 
-function EVENT_PHONE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,&$con)
+function EVENT_PHONE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$selected_page,&$con)
 {
-  BUILD_PHONE_SHIFT_TABLE_HTML($currentqueue,$current_week,$userID,$con);
+  $from = MAIN_EMAILS_FROM;
+  $to = $shift['useremail'];
   
-  $cal_file = "";
-  BUILD_VCALENDAR_HEADER($cal_file,-7,0,'');
-  $cal_file .="
-BEGIN:VEVENT
-CATEGORIES:".$shift['category']."
-DTSTART;TZID=America/Denver:".$shift['start']."
-DTEND;TZID=America/Denver:".$shift['end']."
-DTSTAMP:".$shift['create_date']."
-UID:".$shift['uid']."
-CREATED:".$shift['create_date']."
-DESCRIPTION:Phone Schedule
-LAST-MODIFIED:".$shift['create_date']."
-LOCATION:".$shift['cover']."
-SEQUENCE:0
-STATUS:CONFIRMED
-SUMMARY:".$currentqueue."
-TRANSP:OPAQUE
-END:VEVENT
-END:VCALENDAR";
-  
-  $mime_boundary = "----_=_NextPart_".$userID."_".$shift['start']; 
-  
-  $webcal_domain = preg_replace('/http/', '', MAIN_DOMAIN);
-
+  //Create Email subject
   $subject = "Phone Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
   if ($_POST['initial_email'] == 2)
   $subject = "Updated: ".$subject;
   
-  $message = "<html>\n";
-  $message .= "<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;text-align:center;\">\n";
-  $message .= "<style>\n";
-  $message .= "body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}\n";
-  $message .= "</style>\n";
-  $message .= "<h3>";
-  if ($_POST['initial_email'] == 2)
-  $message .= "Updated: ";
-  $message .= "Phone Schedule</h3>\n";
-  $message .= $currentqueue."\n";
-  $message .= "<br /><br />View schedule in Outlook:<br />\n";
-  $message .= "<a href='webcal".$webcal_domain."webcal/PhoneShifts.ics'>webcal".$webcal_domain."webcal/PhoneShifts.ics</a><br /><br />\n";
-  $message .= "Replies will go to: ".$replyto."<br />\n";
-  $message .= "<hr width='50%' />\n";
-  $message .= "Sent via: ".$site_name."<br />\n";
-  $message .= "<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>\n";
-  $message .= "</body>\n";
-  $message .= "</html>";
+  BUILD_PHONE_SHIFT_TABLE_HTML($currentqueue,$current_week,$userID,$selected_page,$con);
   
-  $text_message = "You need to enable HTML to view the schedule here.\n";
+  //Create Calendar Event
+  BUILD_VCALENDAR_HEADER($cal_file,-7,0,'');
+  BUILD_VEVENT($cal_file,$from,$shift);
+  BUILD_VCALENDAR_END($cal_file);
   
-  $to = $shift['useremail'];
+  CREATE_MIME_BOUNDARY($mime_boundary,$userID.$shift['start'].rand()); 
+
+  //Create Email Body (HTML)
+  CREATE_EVENT_EMAIL_BODY($message,$mime_boundary,$currentqueue,$site_name,$cal_file);
+  CREATE_EVENT_EMAIL_HEADER($header,$from,$replyto,$mime_boundary);
   
-  $from = MAIN_EMAILS_FROM;
-  
-  $headers = "MIME-Version: 1.0" . "\r\n";
-  $headers .= "Content-type:multipart/alternative;\n  boundary=\"{$mime_boundary}\"\r\n";
-  $headers .= "Content-Class: urn:content-classes:calendarmessage\r\n";
-  $headers .= "From: ".$from."\r\n";
-  $headers .= "Reply-To: ".$replyto."\r\n";
-  $headers .= "Return-Path: ".$replyto."\r\n";
-  
-  $body = "\n\n--{$mime_boundary}\n" .
-          "Content-Type: text/plain; charset=\"iso-8859-1\"\n" .
-          "Content-Transfer-Encoding: quoted-printable\n\n" .
-          $text_message . "\n\n" .
-          "\n\n--{$mime_boundary}\n" .
-          "Content-Type: text/html; charset=\"iso-8859-1\"\n" .
-          "Content-Transfer-Encoding: quoted-printable\n\n" .
-          $message . "\n\n" .
-          "\n\n--{$mime_boundary}\n" .
-          "Content-Class: urn:content-classes:calendarmessage\n" .
-          "Content-Type: text/calendar; method=REQUEST; name=\"meeting.ics\"\n" .
-          "Content-Transfer-Encoding: quoted-printable\n\n" .
-          $cal_file . "\n\n" .
-          "\n\n--{$mime_boundary}--";
-  
-  if (mail($to,$subject,$body,$headers))
+  $sent_mail = @mail($to,$subject,$message,$header);
+  if ($sent_mail)
   {
     echo "Email event for ".$shift['start']." to ".$shift['end']." (MST) <span class='success'>sent</span> to:".$to."<br />\n";
   }
@@ -149,9 +95,9 @@ END:VCALENDAR";
   }
 }
 
-function PHONE_EMAIL($replyto,$site_name,$to,$userID,$current_week,&$con)
+function PHONE_EMAIL($replyto,$site_name,$to,$userID,$current_week,$selected_page,&$con)
 {
-  BUILD_PHONE_SHIFT_TABLE_HTML($currentqueue,$current_week,$userID,$con);
+  BUILD_PHONE_SHIFT_TABLE_HTML($currentqueue,$current_week,$userID,$selected_page,$con);
     
   $webcal_domain = preg_replace('/http/', '', MAIN_DOMAIN);
 
@@ -205,7 +151,7 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,&$con)
   {
     // Build the ICS for all when the schedule is sent
     echo "Updating ICS file for WebCal...<br />\n";
-    if (UPDATE_ALL_ICS('.',$con))
+    if (UPDATE_ALL_ICS('.',$selected_page,$con))
     echo "ICS file for WebCal <span style='success'>successfully</span> updated.<br />\n";
     else
     echo "ICS file for WebCal <span style='error'>failed</span> to update.<br />\n";
@@ -361,6 +307,12 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,&$con)
       else
       echo "Email was <span class='error'>not sent</span> to CC list:".$to."<br />\n";
     }
+    
+    echo "    <script type='text/javascript'>\n";
+    echo "      <!--\n";
+    echo "      document.getElementById('sending_email_status').style.display='none'; // hides sending email status if JS is enabled-->\n";
+    echo "    </script>\n";
+    echo "    Finished sending emails.<br />\n";
   }
 }
 
@@ -368,25 +320,23 @@ function BUILD_VCALENDAR_HEADER(&$cal_file,$timezone,$ics,$name)
 {
   if ($ics == 1)
   {
-    $refresh_timer = "X-PUBLISHED-TTL:PT2H";
-    $calendar_name = "X-WR-CALDESC:".$name;
+    $refresh_timer = '
+X-PUBLISHED-TTL:PT2H';
+    $calendar_name = '
+X-WR-CALDESC:'.$name;
   }
   else
   {
-    $refresh_timer = "";
-    $calendar_name = "";
+    $refresh_timer = '';
+    $calendar_name = '';
   }
   
   if ($timezone == -7) // MST/MDT
   {
-    $cal_file .=
-"BEGIN:VCALENDAR
-PRODID:-//Microsoft Corporation//Outlook 12.0 MIMEDIR//EN
+    $cal_file = 'BEGIN:VCALENDAR
+PRODID:-//Microsoft Corporation//Outlook 11.0 MIMEDIR//EN
 VERSION:2.0
-CALSCALE:GREGORIAN
-METHOD:REQUEST
-".$refresh_timer."
-".$calendar_name."
+METHOD:PUBLISH'.$refresh_timer.$calendar_name.'
 BEGIN:VTIMEZONE
 TZID:America/Denver
 X-LIC-LOCATION:America/Denver
@@ -404,8 +354,105 @@ TZNAME:MST
 DTSTART:19701101T020000
 RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
 END:STANDARD
-END:VTIMEZONE";
+END:VTIMEZONE';
+
+    /* Old stuff
+    $cal_file .=
+"BEGIN:VCALENDAR
+PRODID:-//Microsoft Corporation//Outlook 12.0 MIMEDIR//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST".$refresh_timer.$calendar_name."
+BEGIN:VTIMEZONE
+TZID:America/Denver
+X-LIC-LOCATION:America/Denver
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0700
+TZOFFSETTO:-0600
+TZNAME:MDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0600
+TZOFFSETTO:-0700
+TZNAME:MST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE";*/
   }
 }
 
+function BUILD_VEVENT(&$cal_file,$from,$shift)
+{
+  $cal_file .='
+BEGIN:VEVENT
+ORGANIZER:MAILTO:'.$from.'
+DTSTART:'.$shift['start'].'
+DTEND:'.$shift['end'].'
+LOCATION:'.$shift['cover'].'
+TRANSP:OPAQUE
+SEQUENCE:0
+UID:'.$shift['uid'].'
+DTSTAMP:'.$shift['create_date'].'
+DESCRIPTION:Phone Schedule'."\n\n".'
+SUMMARY:Phone Schedule
+PRIORITY:5
+CLASS:PUBLIC
+END:VEVENT';
+}
+
+function BUILD_VCALENDAR_END(&$cal_file)
+{
+  $cal_file .= "
+END:VCALENDAR";
+}
+
+function CREATE_MIME_BOUNDARY(&$mime_boundary,$uid)
+{
+  $mime_boundary = "----Meeting Booking----".$uid;
+}
+
+function CREATE_EVENT_EMAIL_BODY(&$message,$mime_boundary,$currentqueue,$site_name,$cal_file)
+{
+  $webcal_domain = preg_replace('/http/', '/webcal/', MAIN_DOMAIN);
+  
+  $message .= "--$mime_boundary\n";
+  $message .= "Content-Type: text/html; charset=UTF-8\n";
+  $message .= "Content-Transfer-Encoding: 8bit\n\n";
+  
+  $message .= "<html>\n";
+  $message .= "<body style=\"margin: 5px;min-width: 800px;font-family: 'Times New Roman', Times, serif;text-align:center;\">\n";
+  $message .= "<style>\n";
+  $message .= "body {margin: 5px;min-width: 800px;font-family:'Times New Roman', Times, serif;text-align:center;}\n";
+  $message .= "</style>\n";
+  $message .= "<h3>";
+  if ($_POST['initial_email'] == 2)
+  $message .= "Updated: ";
+  $message .= "Phone Schedule</h3>\n";
+  $message .= $currentqueue."\n";
+  $message .= "<br /><br />View schedule in Outlook:<br />\n";
+  $message .= "<a href='".$webcal_domain."webcal/PhoneShifts.ics'>".$webcal_domain."webcal/PhoneShifts.ics</a><br /><br />\n";
+  $message .= "Replies will go to: ".$replyto."<br />\n";
+  $message .= "<hr width='50%' />\n";
+  $message .= "Sent via: ".$site_name."<br />\n";
+  $message .= "<a href='".MAIN_DOMAIN."'>".MAIN_DOMAIN."</a>\n";
+  $message .= "</body>\n";
+  $message .= "</html>\n";
+  $message .= "--$mime_boundary\n";
+  $message .= 'Content-Type: text/calendar;name="meeting.ics";method=REQUEST\n';
+  $message .= "Content-Transfer-Encoding: 8bit\n\n";
+  $message .= $cal_file;  
+}
+
+function CREATE_EVENT_EMAIL_HEADER(&$header,$from,$replyto,$mime_boundary)
+{
+  $header .= "From: <".$from.">\n";
+  $header .= "Reply-To: <".$replyto.">\n";  
+  $header .= "MIME-Version: 1.0\n";
+  $header .= "Content-Type: multipart/alternative; boundary=\"$mime_boundary\"\n";
+  $header .= "Content-class: urn:content-classes:calendarmessage\n";
+} 
+  
 ?>

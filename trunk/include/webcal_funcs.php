@@ -1,14 +1,14 @@
 <?php
 
-function UPDATE_ALL_ICS($loc,&$con)
+function UPDATE_ALL_ICS($loc,$selected_page,&$con)
 {
-  if(!BUILD_PHONES_ICS($loc,$con))
+  if(!BUILD_PHONES_ICS($loc,$selected_page,$con))
   return 0;
   else
   return 1;
 }
 
-function BUILD_PHONES_ICS($loc,&$con)
+function BUILD_PHONES_ICS($loc,$selected_page,&$con)
 {
 //  $cal_file =
 //"BEGIN:VCALENDAR
@@ -37,16 +37,17 @@ function BUILD_PHONES_ICS($loc,&$con)
 //END:STANDARD
 //END:VTIMEZONE";
   
-  $cal_file = "";
   BUILD_VCALENDAR_HEADER($cal_file,-7,1,'Phone Shifts');
 
   $current_time = time(); // Time is PST, but doesn't matter as this is just used to determine the current week
   $last_week = DETERMINE_WEEK($current_time-7*24*60*60);
   $next_week = DETERMINE_WEEK($current_time+7*24*60*60);
   
-  BUILD_PHONE_SCHEDULE_ARRAY($schedule,$last_week['Monday'],$next_week['Friday'],$con);
+  BUILD_PHONE_SCHEDULE_ARRAY($schedule,$last_week['Monday'],$next_week['Friday'],$selected_page,$con);
   
   $current = gmdate('Ymd\THis',$current_time);
+  
+  $from = MAIN_EMAILS_FROM;
 
   // Build all events for each of the different of the different events
   foreach ($schedule as $date)
@@ -55,7 +56,8 @@ function BUILD_PHONES_ICS($loc,&$con)
     {
       foreach ($userID as $shift)
       {
-        $cal_file .= "
+        BUILD_VEVENT($cal_file,$from,$shift);
+/*        $cal_file .= "
 BEGIN:VEVENT
 CATEGORIES:".$shift['category']."
 DTSTART;TZID=America/Denver:".$shift['start']."
@@ -70,7 +72,7 @@ SEQUENCE:0
 STATUS:CONFIRMED
 SUMMARY:".$shift['username']."
 TRANSP:OPAQUE
-END:VEVENT";
+END:VEVENT";*/
       }
     }
   }

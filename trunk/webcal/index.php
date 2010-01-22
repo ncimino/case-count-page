@@ -46,7 +46,7 @@ SELECTUSER($timezone,$userID,$con);
 <div id="topmenu" class="topmenu"><? TOPMENU('../') ?></div>
 
 <?
-UPDATE_ALL_ICS('..',$con);
+UPDATE_ALL_ICS('..',$selected_page,$con);
 
 	if ($handle = opendir('./')) 
 	{

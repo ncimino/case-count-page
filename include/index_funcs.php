@@ -109,10 +109,12 @@ function CURRENTPHONES($timezone,$selected_page,$userID,$selecteddate,&$con)
 
   // If no active schedule exists then we can't do anything here
   $sql = "SELECT Date
-  FROM PhoneSchedule,Users 
+  FROM PhoneSchedule,Users,UserSites 
   WHERE Date >= '".$current_week['Monday']."' 
     AND Date <= '".$current_week['Friday']."' 
-    AND Users.userID = PhoneSchedule.userID 
+    AND Users.userID = PhoneSchedule.userID
+    AND Users.userID = UserSites.userID
+    AND UserSites.siteID = ".$selected_page." 
     AND Users.Active = 1";
   $selectedschedule = mysql_query($sql,$con);
   if ( mysql_num_rows($selectedschedule) == 0 )
@@ -604,7 +606,14 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$cur
 
 function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$con)
 {
-  $activeusers = mysql_query("SELECT UserName,Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
+  $sql = "SELECT UserName,Users.userID 
+  FROM Users,UserSites 
+  WHERE Active=1 
+    AND Users.userID=UserSites.userID 
+    AND siteID='".$selected_page."' 
+  ORDER BY UserName;";
+  
+  $activeusers = mysql_query($sql,$con);
 
   echo "<table class='phoneshift'>\n";
 
@@ -631,7 +640,16 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
       }
       else
       {
-        $users_on_shift_query = mysql_query("SELECT UserName,Users.userID FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
+        $sql = "SELECT UserName,Users.userID 
+        FROM Users,PhoneSchedule,UserSites
+        WHERE Active=1 
+          AND Users.userID=PhoneSchedule.userID 
+          AND Users.userID=UserSites.userID
+          AND UserSites.siteID=".$selected_page."
+          AND Shift='".$shift_index."' 
+          AND Date='".$current_week[$col-2]."' 
+        ORDER BY UserName;";
+        $users_on_shift_query = mysql_query($sql,$con);
 
         $onqueue = 0;
         $user_log = '';

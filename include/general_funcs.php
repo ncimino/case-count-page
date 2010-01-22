@@ -116,7 +116,7 @@ function DETERMINE_WEEK($timestamp)
   return $current_week;
 }
 
-function BUILD_PHONE_SHIFT_TABLE_HTML(&$currentqueue,$current_week,$selected_userID,&$con)
+function BUILD_PHONE_SHIFT_TABLE_HTML(&$currentqueue,$current_week,$selected_userID,$selected_page,&$con)
 {
   $currentqueue = "<table style=\"border-collapse:collapse;width:50em;border: 1px solid black;\">";
 
@@ -146,7 +146,16 @@ function BUILD_PHONE_SHIFT_TABLE_HTML(&$currentqueue,$current_week,$selected_use
       }
       else
       {
-        $users_on_shift_query = mysql_query("SELECT UserName,Users.userID FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
+        $sql = "SELECT UserName,Users.userID 
+                FROM Users,PhoneSchedule,UserSites 
+                WHERE Active=1 
+                  AND Users.userID=PhoneSchedule.userID
+                  AND Users.userID=UserSites.userID
+                  AND UserSites.siteID=".$selected_page." 
+                  AND Shift='".$shift_index."' 
+                  AND Date='".$current_week[$col-2]."' 
+                ORDER BY UserName;";
+        $users_on_shift_query = mysql_query($sql,$con);
 
         $onqueue = 0;
         $user_log = '';
@@ -179,15 +188,17 @@ function BUILD_PHONE_SHIFT_TABLE_HTML(&$currentqueue,$current_week,$selected_use
   $currentqueue .= "</table>\n";
 }
 
-function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,&$con)
+function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$con)
 {
   $create_date = gmdate('Ymd\THis',$begin_date);
   
   $sql = "SELECT *
-    FROM PhoneSchedule,Users
+    FROM PhoneSchedule,Users,UserSites
     WHERE Date >= ".$begin_date."
       AND Date <= ".$end_date."
-      AND PhoneSchedule.userID=Users.userID";
+      AND PhoneSchedule.userID=Users.userID
+      AND UserSites.userID=Users.userID
+      AND UserSites.siteID=".$siteID;
 
   $phoneschedule = mysql_query($sql,$con);
 

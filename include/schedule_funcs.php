@@ -217,8 +217,15 @@ function MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
 }
 
 function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
-{
-  $activeusers = mysql_query("SELECT UserName,Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
+{    
+  $sql = "SELECT UserName,Users.userID 
+          FROM Users,UserSites 
+          WHERE Active=1 
+            AND Users.userID=UserSites.userID 
+            AND siteID='".$selected_page."' 
+          ORDER BY UserName;";
+    
+  $activeusers = mysql_query($sql,$con);
 
   echo "<table class='phoneshift'>\n";
 
@@ -268,8 +275,18 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
         echo "      <!--\n";
         echo "      document.getElementById('form_".$postvariable."_submit').style.display='none'; // hides button if JS is enabled-->\n";
         echo "    </script>\n";
+        
+        $sql = "SELECT UserName,PhoneSchedule.userID 
+                FROM Users,PhoneSchedule,UserSites 
+                WHERE Active=1 
+                  AND Users.userID=PhoneSchedule.userID
+                  AND Users.userID=UserSites.userID
+                  AND UserSites.siteID=".$selected_page." 
+                  AND Shift='".$shift_index."' 
+                  AND Date='".$current_week[$col-2]."' 
+                ORDER BY UserName;"; 
 
-        $users_on_shift = mysql_query("SELECT UserName,PhoneSchedule.userID FROM Users,PhoneSchedule WHERE Active=1 AND Users.userID=PhoneSchedule.userID AND Shift='".$shift_index."' AND Date='".$current_week[$col-2]."' ORDER BY UserName;",$con);
+        $users_on_shift = mysql_query($sql,$con);
         while ( $current_user_on_shift = mysql_fetch_array($users_on_shift) )
         {
           echo "    <form method='post' name='form_del_".$postvariable."_".$current_user_on_shift['userID']."'>\n";

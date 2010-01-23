@@ -1,5 +1,6 @@
 <?php
 include_once("./include/includes.php");
+include_once("./include/schedule_funcs.php");
 DB_CONNECT($con);
 SET_COOKIES($selected_page,$showdetails,$timezone,$userID,$con);
 
@@ -20,7 +21,7 @@ if ( VERIFY_USER($con) )
 <meta name="author" content="<? echo AUTHOR ?>" />
 <meta name="description" content="<? echo DESCRIPTION ?>" />
 <meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($selected_page,$con) ?></title>
+<title><? echo SITE_NAME($selected_page,$con) ?></title>
 <link rel="icon" href="images/bomb.png" sizes="64x64" />
 <link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
 <script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script>
@@ -32,7 +33,6 @@ if ( VERIFY_USER($con) )
 
 <div id="selectsite" class="selectsite">
 <?
-UPDATE_DB_OPTIONS($selected_page,$con); 
 SELECTSITE($selected_page,$con);
 ?>
 </div>

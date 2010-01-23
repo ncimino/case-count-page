@@ -35,7 +35,7 @@ div.page {
 
 div.header {
     text-align: center;
-	width: 100%;
+	 width: 100%;
 }
 
 div.selectsite {
@@ -120,6 +120,21 @@ td.selectuser {
     text-align: right;
 }
 
+td.showdetails {
+    text-align: right;
+    width: 50%;
+}
+
+td.exportexcel {
+    text-align: left;
+    width: 50%;
+}
+
+
+table.currenthistory_buttons {
+	 width: 100%;
+}
+
 .selecteduser {
     font-weight: bold;
 }
@@ -138,11 +153,6 @@ td.selectuser {
 
 .selecteduseronshiftcell {
     background: wheat;
-}
-
-div.showdetails {
-    text-align: right;
-    width: 100%;
 }
 
 div.currentqueue {

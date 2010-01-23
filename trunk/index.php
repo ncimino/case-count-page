@@ -1,5 +1,6 @@
 <?php
 include_once("./include/includes.php");
+include_once("./include/index_funcs.php");
 DB_CONNECT($con);
 SET_COOKIES($selected_page,$showdetails,$timezone,$userID,$con);
 
@@ -21,7 +22,7 @@ if ( VERIFY_USER($con) )
 <meta name="author" content="<? echo AUTHOR; ?>" />
 <meta name="description" content="<? echo DESCRIPTION; ?>" />
 <meta name="keywords" content="<? echo KEYWORDS; ?>" />
-<title><? SITE_NAME($selected_page,$con); ?></title>
+<title><? echo SITE_NAME($selected_page,$con); ?></title>
 <link rel="icon" href="images/bomb.png" sizes="64x64" />
 <link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE; ?>" />
 <script type="text/javascript" src="<? echo MAIN_JS_FILE; ?>"></script>
@@ -38,7 +39,7 @@ SELECTSITE($selected_page,$con);
 </div>
 
 <div id="title" class="title">
-<h1><? SITE_NAME($selected_page,$con); ?></h1>
+<h1><? echo SITE_NAME($selected_page,$con); ?></h1>
 </div>
 
 <div id="selectuser" class="selectuser">

@@ -1,5 +1,6 @@
 <?php
 include_once("../include/includes.php");
+include_once("../include/webcal_funcs.php");
 DB_CONNECT($con);
 SET_COOKIES($selected_page,$showdetails,$timezone,$userID,$con);
 
@@ -46,7 +47,7 @@ SELECTUSER($timezone,$userID,$con);
 <div id="topmenu" class="topmenu"><? TOPMENU('../') ?></div>
 
 <?
-UPDATE_ALL_ICS('..',$selected_page,$con);
+//UPDATE_ALL_ICS('..',$selected_page,$con);
 
 	if ($handle = opendir('./')) 
 	{
@@ -63,7 +64,10 @@ UPDATE_ALL_ICS('..',$selected_page,$con);
 	}
 
     closedir($handle);
-
+    
+    echo "<a href='webcal".$domain."webcal/shared_calendar.php?calendar_page=2'>Phone Shared Calendar</a><br />\n";
+    echo "<a href='webcal".$domain."webcal/shared_calendar.php?calendar_page=3'>Skillset Shared Calendar</a><br />\n";
+    
 ?>
 
 </div>

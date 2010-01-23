@@ -57,7 +57,7 @@ function SELECTUSER($timezone,$userID,&$con)
 function SITE_NAME($selected_page,&$con)
 {
     $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='sitename' AND siteID='".$selected_page."';",$con));
-    echo $site_name['OptionValue'];
+    return $site_name['OptionValue'];
 }
 
 function TOPMENU($path)
@@ -246,12 +246,12 @@ function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
       if (($currentschedule['Shift']==2) or ($currentschedule['Shift']==3))
       {
         $schedule[$date][$userID][$shift]['cover'] = ' (Cover)';
-        $schedule[$date][$userID][$shift]['category'] = '';
+        $schedule[$date][$userID][$shift]['category'] = 'Red Category';
       }
       else
       {
         $schedule[$date][$userID][$shift]['cover'] = '';
-        $schedule[$date][$userID][$shift]['category'] = '';
+        $schedule[$date][$userID][$shift]['category'] = 'Red Category';
       }
     }
 
@@ -262,7 +262,7 @@ function SELECTSITE($selected_page,&$con)
 {
 	$pages_query = mysql_query("SELECT Options.siteID,OptionValue FROM Sites,Options WHERE Active='1' AND OptionName='sitename' AND Options.siteID=Sites.siteID;",$con);
 	
-	echo "    <form method='post' action='index.php' name='site_selection'>\n";
+	echo "    <form method='post' action='?' name='site_selection'>\n";
     echo "      <select name='option_page' OnChange='site_selection.submit();'>\n";
     while($pages = mysql_fetch_array($pages_query))
     {
@@ -363,6 +363,27 @@ function SELECTDATE($timezone,$shownextweek,$selecteddate,&$con)
         echo "      document.getElementById('dateselection_submit').style.display='none'; // hides button if JS is enabled-->\n";
         echo "    </script>\n";
     }
+}
+
+function CREATE_PHONESHIFTS(&$phoneshifs,$date,$timezone)
+{
+  $phoneshifs[0]['start'] = $date+60*60*$timezone+60*60*(8+7);    // 7:00am PST -
+  $phoneshifs[0]['end']   = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST
+
+  $phoneshifs[1]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST -
+  $phoneshifs[1]['end']   = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST
+
+  $phoneshifs[2]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // Cover 9:30am PST -
+  $phoneshifs[2]['end']   = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST
+
+  $phoneshifs[3]['start'] = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST -
+  $phoneshifs[3]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // Cover 2:30pm PST
+
+  $phoneshifs[4]['start'] = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST -
+  $phoneshifs[4]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST
+
+  $phoneshifs[5]['start'] = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST -
+  $phoneshifs[5]['end']   = $date+60*60*$timezone+60*60*(8+17);   // 5:00pm PST
 }
 
 ?>

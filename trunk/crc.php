@@ -22,7 +22,7 @@ if (1) // Must be enabled to modify password info
 <meta name="author" content="<? echo AUTHOR ?>" />
 <meta name="description" content="<? echo DESCRIPTION ?>" />
 <meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($selected_page,$con) ?></title>
+<title><? echo SITE_NAME($selected_page,$con) ?></title>
 <link rel="icon" href="images/bomb.png" sizes="64x64" />
 <link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
 <script type="text/javascript" src="<? echo MAIN_JS_FILE ?>"></script>
@@ -34,7 +34,6 @@ if (1) // Must be enabled to modify password info
 
 <div id="selectsite" class="selectsite">
 <?
-UPDATE_DB_OPTIONS($selected_page,$con); 
 SELECTSITE($selected_page,$con);
 ?>
 </div>

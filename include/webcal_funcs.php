@@ -37,7 +37,7 @@ function BUILD_PHONES_ICS($loc,$selected_page,&$con)
 //END:STANDARD
 //END:VTIMEZONE";
   
-  BUILD_VCALENDAR_HEADER($cal_file,-7,1,'Phone Shifts');
+  BUILD_VCALENDAR_HEADER($cal_file,-7,'ical','Phone Shifts');
 
   $current_time = time(); // Time is PST, but doesn't matter as this is just used to determine the current week
   $last_week = DETERMINE_WEEK($current_time-7*24*60*60);
@@ -56,7 +56,7 @@ function BUILD_PHONES_ICS($loc,$selected_page,&$con)
     {
       foreach ($userID as $shift)
       {
-        BUILD_VEVENT($cal_file,$from,$shift);
+        BUILD_VEVENT($cal_file,$from,$shift,'','ical');
 /*        $cal_file .= "
 BEGIN:VEVENT
 CATEGORIES:".$shift['category']."
@@ -76,9 +76,7 @@ END:VEVENT";*/
       }
     }
   }
-
-  $cal_file .= "
-END:VCALENDAR";
+  BUILD_VCALENDAR_END($cal_file);
   
   if (!($file = fopen($loc."/webcal/PhoneShifts.ics","w")))
   return 0;

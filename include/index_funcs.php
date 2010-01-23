@@ -32,7 +32,7 @@ function PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,
   echo "</div>\n";
 
   PHONENOTES($selected_page,$con);
-  
+
 }
 
 function SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)
@@ -168,9 +168,9 @@ function NOTES($selected_page,&$con)
     echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
     echo "</div>\n";
   }
-  else 
+  else
   {
-  	echo "<br />\n";
+    echo "<br />\n";
   }
 }
 
@@ -333,7 +333,7 @@ function SEND_USER_MAX_EMAIL($selected_page,$send_email_to_userID,$userID_that_m
 function SEND_ALL_MAX_EMAIL($selected_page,$max_date,&$con)
 {
   $site_name = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options,Sites WHERE OptionName='sitename' AND Options.siteID=Sites.siteID AND SiteName='main';",$con));
-  
+
   $activeusers = mysql_query("SELECT * FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."';",$con);
   while ( $currentuser = mysql_fetch_array($activeusers) )
   {
@@ -587,32 +587,40 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$cur
     echo "      </tr>\n";
   }
   echo "    </table>\n";
-  echo "    <form method='post' name='showdetailsform'>\n";
-  echo "      <div class='showdetails'>\n";
-  echo "      Details:\n";
-  echo "      <input type='hidden' name='showdetailssent' value='1' />\n";
-  echo "      <input type='checkbox' name='showdetails'";
+  echo "    <table class='currenthistory_buttons'>\n";
+  echo "      <tr><td class='exportexcel'>\n";
+  echo "        <div class='exportexcel'>\n";
+  echo "        <a href='export.php?export_page={$selected_page}&export_date={$current_week[0]}' target='_blank'><img src='./images/excel_file.png' width='16' height='16' /></a>\n";
+  echo "        </div>\n";
+  echo "      </td>\n";
+  echo "      <td class='showdetails'>\n";
+  echo "      <form method='post' name='showdetailsform'>\n";
+  echo "        <div class='showdetails'>\n";
+  echo "        Details:\n";
+  echo "        <input type='hidden' name='showdetailssent' value='1' />\n";
+  echo "        <input type='checkbox' name='showdetails'";
   if ( $showdetails == 'on' )
   echo " checked='checked'";
   echo " OnClick='showdetailsform.submit();' />\n";
-  echo "      <input type='submit' id='showdetails_submit' value='update' />\n";
-  echo "     </div>\n";
+  echo "        <input type='submit' id='showdetails_submit' value='update' />\n";
+  echo "      </div>\n";
   echo "    </form>\n";
-  echo "    <script type='text/javascript'>\n";
-  echo "      <!--\n";
-  echo "      document.getElementById('showdetails_submit').style.display='none'; // hides button if JS is enabled-->\n";
-  echo "    </script>\n";
+  echo "      <script type='text/javascript'>\n";
+  echo "        <!--\n";
+  echo "        document.getElementById('showdetails_submit').style.display='none'; // hides button if JS is enabled-->\n";
+  echo "      </script>\n";
+  echo "    </td></tr></table>\n";
 }
 
 function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$con)
 {
-  $sql = "SELECT UserName,Users.userID 
+  $sql = "SELECT UserName,Users.userID
   FROM Users,UserSites 
   WHERE Active=1 
     AND Users.userID=UserSites.userID 
     AND siteID='".$selected_page."' 
   ORDER BY UserName;";
-  
+
   $activeusers = mysql_query($sql,$con);
 
   echo "<table class='phoneshift'>\n";
@@ -640,7 +648,7 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
       }
       else
       {
-        $sql = "SELECT UserName,Users.userID 
+        $sql = "SELECT UserName,Users.userID
         FROM Users,PhoneSchedule,UserSites
         WHERE Active=1 
           AND Users.userID=PhoneSchedule.userID 

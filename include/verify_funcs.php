@@ -73,14 +73,14 @@ function USER_LOGIN(&$con)
 <meta name="author" content="<? echo AUTHOR ?>" />
 <meta name="description" content="<? echo DESCRIPTION ?>" />
 <meta name="keywords" content="<? echo KEYWORDS ?>" />
-<title><? SITE_NAME($mainsite['siteID'],$con) ?></title>
+<title><? echo SITE_NAME($mainsite['siteID'],$con) ?></title>
 <link rel="stylesheet" href="<? echo MAIN_CSS_FILE ?>" />
 <script src="<? echo MAIN_JS_FILE ?>"></script>
 </head>
 <body>
 <div id='page' class='page'>
 <div id='header' class='header'>
-<h1><? SITE_NAME($mainsite['siteID'],$con) ?></h1>
+<h1><? echo SITE_NAME($mainsite['siteID'],$con) ?></h1>
 </div>
 <div id='topmenu' class='topmenu'><? TOPMENU('') ?></div>
 <div id='login' class='login'>

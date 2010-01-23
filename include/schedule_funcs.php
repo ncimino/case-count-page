@@ -12,7 +12,7 @@ function SCHEDULE($timezone,$selected_page,$selecteddate,&$con)
   $current_week = DETERMINE_WEEK($selecteddate);
 
   echo "<h2>Schedule for ";
-  SITE_NAME($selected_page,$con);
+  echo SITE_NAME($selected_page,$con);
   echo "</h2>\n";
 
   // Determine if any active users exist
@@ -147,27 +147,6 @@ function UPDATE_DB_SCHEDULE($selected_page,$current_week,&$con)
       }
     }
   }
-}
-
-function CREATE_PHONESHIFTS(&$phoneshifs,$date,$timezone)
-{
-  $phoneshifs[0]['start'] = $date+60*60*$timezone+60*60*(8+7);    // 7:00am PST -
-  $phoneshifs[0]['end']   = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST
-
-  $phoneshifs[1]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST -
-  $phoneshifs[1]['end']   = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST
-
-  $phoneshifs[2]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // Cover 9:30am PST -
-  $phoneshifs[2]['end']   = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST
-
-  $phoneshifs[3]['start'] = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST -
-  $phoneshifs[3]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // Cover 2:30pm PST
-
-  $phoneshifs[4]['start'] = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST -
-  $phoneshifs[4]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST
-
-  $phoneshifs[5]['start'] = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST -
-  $phoneshifs[5]['end']   = $date+60*60*$timezone+60*60*(8+17);   // 5:00pm PST
 }
 
 function MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
@@ -307,11 +286,17 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
   echo "</table>\n";
 
   echo "<form method='post'>\n";
-  echo "	<input type='submit' value='Clear all' onClick='return confirmSubmit(\"Are you sure you want to clear this weeks schedule?\")' />";
-  echo "	<input type='hidden' name='phonesched_clear_week' value='1' />";
-  echo "	<input type='hidden' name='phonesched_clear_start' value='".$current_week[0]."' />";
-  echo "	<input type='hidden' name='phonesched_clear_end' value='".$current_week[4]."' />";
-  echo "</form>";
+  echo "	<input type='submit' value='Clear all' onClick='return confirmSubmit(\"Are you sure you want to clear this weeks schedule?\")' />\n";
+  echo "	<input type='hidden' name='phonesched_clear_week' value='1' />\n";
+  echo "	<input type='hidden' name='phonesched_clear_start' value='".$current_week[0]."' />\n";
+  echo "	<input type='hidden' name='phonesched_clear_end' value='".$current_week[4]."' />\n";
+  echo "</form>\n";
+  
+  echo "<form method='post' action='email_preview.php' target='_blank'>\n";
+  echo "  <input type='hidden' name='preview_date' value='' />\n";
+  echo "  <input type='submit' value='Preview' />\n";
+  echo "</form>\n";
+  
 }
 
 function TABLE_SCHEDULE($selected_page,$current_week,&$con)

@@ -177,7 +177,7 @@ function UPDATE_DB_OPTIONS($selected_page,&$con)
 function TABLE_OPTIONS($selected_page,&$con)
 {
   echo "    <h2>";
-  SITE_NAME($selected_page,$con);
+  echo SITE_NAME($selected_page,$con);
   echo " Options:</h2>\n";
   $main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));
   $phone_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='phoneshift';",$con));

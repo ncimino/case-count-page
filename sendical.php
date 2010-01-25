@@ -10,7 +10,7 @@
 
 $meeting_duration = 2.5 * 3600;
 
-if (sendIcalEmail("Nik C.","nikc@xilinx.com","2010-01-11 13:30:00pm MST","Phone Shift",$meeting_duration))
+if (sendIcalEmail("Nik C.","nik.cimino@yahoo.com","2010-01-11 13:30:00pm MST","Phone Shift",$meeting_duration))
 echo "mail sent";
 else
 echo "mail not sent";

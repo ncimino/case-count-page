@@ -292,11 +292,6 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
   echo "	<input type='hidden' name='phonesched_clear_end' value='".$current_week[4]."' />\n";
   echo "</form>\n";
   
-  echo "<form method='post' action='email_preview.php' target='_blank'>\n";
-  echo "  <input type='hidden' name='preview_date' value='' />\n";
-  echo "  <input type='submit' value='Preview' />\n";
-  echo "</form>\n";
-  
 }
 
 function TABLE_SCHEDULE($selected_page,$current_week,&$con)

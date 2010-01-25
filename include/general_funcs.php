@@ -188,6 +188,45 @@ function BUILD_PHONE_SHIFT_TABLE_HTML(&$currentqueue,$current_week,$selected_use
   $currentqueue .= "</table>\n";
 }
 
+function BUILD_QUEUE_SHIFT_TABLE_HTML(&$currentqueue,$current_week,$userID,$selected_page,&$con)
+{
+  $currentqueue = "<table style=\"border-collapse:collapse;width:50em;\">";
+
+  $currentqueue .= "      <tr>\n";
+  for ($i=0;$i<5;$i++)
+  $currentqueue .= "        <th style=\"border:0px none;text-align:center;width:10em;\">".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+  $currentqueue .= "      </tr>\n";
+
+  for ($i = 0; $i <= 4; $i++)
+  {
+    $shift = mysql_fetch_array(mysql_query("SELECT COUNT(Shift) FROM Users,Schedule WHERE Users.userID = Schedule.userID AND Users.Active = 1 AND Date = ".$current_week[$i]." AND siteID='".$selected_page."'",$con));
+    $shiftcount[$i] = $shift['COUNT(Shift)'];
+    $currentday = mysql_query("SELECT UserName,Shift,Users.userID FROM Users,Schedule WHERE Schedule.Date = ".$current_week[$i]." AND Users.userID = Schedule.userID AND Users.Active = 1 AND siteID='".$selected_page."'",$con);
+    $j = 0;
+    while ($getarray = mysql_fetch_array($currentday)) { $namesAndShifts[$i][$j++] = $getarray; }
+  }
+
+  rsort($shiftcount,SORT_NUMERIC);
+
+  for ($row = 1; $row <= $shiftcount[0]; $row++)
+  {
+    $currentqueue .= "      <tr class='currentqueue'>\n";
+    for ($col = 1; $col <= 5; $col++)
+    {
+      $currentqueue .= "       <td style=\"border:1px solid;text-align:center;width:10em;";
+      if (($namesAndShifts[$col-1][$row-1]['userID'] == $userID ) and ($userID != ''))
+      $currentqueue .= " background: lightblue;";
+      $currentqueue .= "\">\n";
+      $currentqueue .= $namesAndShifts[$col-1][$row-1]['UserName'];
+      if ($namesAndShifts[$col-1][$row-1]['Shift'] == 1)
+      $currentqueue .= "&nbsp;(.5)";
+      $currentqueue .= "</td>\n";
+    }
+    $currentqueue .= "      </tr>\n";
+  }
+  $currentqueue .= "    </table>\n";
+}
+
 function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$con)
 {
   $create_date = gmdate('Ymd\THis',$begin_date);
@@ -255,6 +294,47 @@ function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
       }
     }
 
+  }
+}
+
+function BUILD_QUEUE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$con)
+{
+  $create_date = gmdate('Ymd\THis',$begin_date);
+  $start = gmdate('Ymd',$begin_date);
+  $end = gmdate('Ymd',$begin_date+1*24*3600); // duration of each event is one day
+  
+  $sql = "SELECT *
+    FROM Schedule,Users,UserSites
+    WHERE Date >= ".$begin_date."
+      AND Date <= ".$end_date."
+      AND Schedule.userID=Users.userID
+      AND UserSites.userID=Users.userID
+      AND UserSites.siteID=".$siteID."
+      AND UserSites.siteID=Schedule.siteID
+      AND Users.Active=1
+    ORDER BY Date;";
+
+  $queueschedule = mysql_query($sql,$con);
+
+  while ($currentschedule = mysql_fetch_array($queueschedule))
+  {
+    $date = $currentschedule['Date'];
+    $userID = $currentschedule['userID'];
+    $shift = $currentschedule['Shift'];
+    
+    if ($shift/2 == 1)
+      $schedule[$userID][$shift]['type'] = 'FULL';
+    else
+      $schedule[$userID][$shift]['type'] = 'HALF';
+    
+    $schedule[$userID][$shift]['create_date'] = $create_date;
+    $schedule[$userID][$shift]['uid'] = "queueschedule_" . $begin_date . "_" . $currentschedule['userID'] . "_" . $currentschedule['Shift'];
+    $schedule[$userID][$shift]['useremail'] = $currentschedule['UserEmail'];
+    $schedule[$userID][$shift]['username'] = $currentschedule['UserName'];
+    $schedule[$userID][$shift]['start'] = $start;
+    $schedule[$userID][$shift]['end'] = $end;
+    $schedule[$userID][$shift]['days'] .= strtoupper(substr(gmdate('D',$date),0,2)).",";
+    $schedule[$userID][$shift]['category'] = 'Red Category';
   }
 }
 

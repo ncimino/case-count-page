@@ -366,11 +366,14 @@ DTEND:'.$shift['end'];
   
   if ($type == 'queue_event')
   $cal_file .='
-RRULE:FREQ=WEEKLY;COUNT=5;BYDAY='.substr($shift['days'], 0, strlen($shift['days'])-1);
+RRULE:FREQ=WEEKLY;COUNT=5;BYDAY='.substr($shift['days'], 0, strlen($shift['days'])-1).'
+TRANSP:TRANSPARENT';
+  else
+  $cal_file .='
+TRANSP:OPAQUE';
   
   $cal_file .='
 LOCATION:'.$shift['type'].'
-TRANSP:OPAQUE
 SEQUENCE:0
 UID:'.$shift['uid'].'
 DTSTAMP:'.$shift['create_date'].'

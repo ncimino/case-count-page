@@ -43,7 +43,7 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
       $total = 0;
       else
       $total = $usercounts['Regular+CatOnes+Special'];
-      
+
       $week_total += $total;
 
       $csv_file .= $total.",";
@@ -52,9 +52,21 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
   $csv_file .= $week_total.",\n";
 }
 
+$csv_file .= "Totals,";
+for ($i=0;$i<5;$i++)
+{
+  $sql = "SELECT SUM(Regular+CatOnes+Special)
+          FROM Count 
+          WHERE Date='".$current_week[$i]."' 
+            AND siteID=".$_GET['export_page'].";";
+  $totalcounts = mysql_fetch_array(mysql_query($sql,$con));
+  $csv_file .= $totalcounts['SUM(Regular+CatOnes+Special)'].",";
+}
 $csv_file .= "\n";
 
-$csv_file .= "Detail Totals,";
+$csv_file .= "\n";
+
+$csv_file .= "Detail Totals,,";
 $csv_file .= gmdate("n/j",$current_week[0])."-".gmdate("n/j",$current_week[4]).",\n";
 $csv_file .= "Name,Regular,Cat 1,Special,Transfer Out\n";
 mysql_data_seek($activeusers,0);
@@ -90,7 +102,7 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
   $csv_file .= "0,";
   else
   $csv_file .= $usercounts['SUM(Transfer)'].",";
-  
+
   $csv_file .= "\n";
 }
 

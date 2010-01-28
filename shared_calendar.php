@@ -10,7 +10,12 @@ header("Content-Disposition: inline; filename=".$file_name.".ics");
 
 $phone_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites Where SiteName = 'phoneshift'",$con));
 
-BUILD_VCALENDAR_HEADER($cal_file,-7,'ical',$site_name);
+if($_GET['calendar_page'] == $phone_page['siteID'])
+$type = 'phone_ical';
+else
+$type = 'queue_ical';
+
+BUILD_VCALENDAR_HEADER($cal_file,-7,$type,$site_name);
 
 $current_time = time(); // Time is PST, but doesn't matter as this is just used to determine the current week
 $last_week = DETERMINE_WEEK($current_time-7*24*60*60);
@@ -26,29 +31,18 @@ $current = gmdate('Ymd\THis',$current_time);
 $from = MAIN_EMAILS_FROM;
 
 // Build all events for each of the different of the different events
-if($_GET['calendar_page'] == $phone_page['siteID'])
+
+foreach ($schedule as $date)
 {
-  foreach ($schedule as $date)
+  foreach ($date as $userID)
   {
-    foreach ($date as $userID)
+    foreach ($userID as $shift)
     {
-      foreach ($userID as $shift)
-      {
-        BUILD_VEVENT($cal_file,$from,$shift,'','ical');
-      }
+        BUILD_VEVENT($cal_file,$from,$shift,'',$type);
     }
   }
 }
-else
-{
-  foreach ($schedule as $userID => $userID_array)
-  {
-    foreach ($userID_array as $shift)
-    {
-      BUILD_VEVENT($cal_file,$from,$shift,'','ical');;
-    }
-  }
-}
+
 BUILD_VCALENDAR_END($cal_file);
 
 echo $cal_file;

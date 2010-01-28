@@ -284,12 +284,12 @@ function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
       $schedule[$date][$userID][$shift]['end'] = $end;
       if (($currentschedule['Shift']==2) or ($currentschedule['Shift']==3))
       {
-        $schedule[$date][$userID][$shift]['cover'] = ' (Cover)';
+        $schedule[$date][$userID][$shift]['type'] = 'Cover';
         $schedule[$date][$userID][$shift]['category'] = 'Red Category';
       }
       else
       {
-        $schedule[$date][$userID][$shift]['cover'] = '';
+        $schedule[$date][$userID][$shift]['type'] = '';
         $schedule[$date][$userID][$shift]['category'] = 'Red Category';
       }
     }
@@ -323,18 +323,20 @@ function BUILD_QUEUE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
     $shift = $currentschedule['Shift'];
     
     if ($shift/2 == 1)
-      $schedule[$userID][$shift]['type'] = 'FULL';
+      $schedule[$date][$userID][$shift]['type'] = 'FULL';
     else
-      $schedule[$userID][$shift]['type'] = 'HALF';
+      $schedule[$date][$userID][$shift]['type'] = 'HALF';
     
-    $schedule[$userID][$shift]['create_date'] = $create_date;
-    $schedule[$userID][$shift]['uid'] = "queueschedule_" . $begin_date . "_" . $currentschedule['userID'] . "_" . $currentschedule['Shift'];
-    $schedule[$userID][$shift]['useremail'] = $currentschedule['UserEmail'];
-    $schedule[$userID][$shift]['username'] = $currentschedule['UserName'];
-    $schedule[$userID][$shift]['start'] = $start;
-    $schedule[$userID][$shift]['end'] = $end;
-    $schedule[$userID][$shift]['days'] .= strtoupper(substr(gmdate('D',$date),0,2)).",";
-    $schedule[$userID][$shift]['category'] = 'Red Category';
+    $schedule[$date][$userID][$shift]['create_date'] = $create_date;
+    $schedule[$date][$userID][$shift]['uid'] = "queueschedule_" . $date . "_" . $currentschedule['userID'] . "_" . $currentschedule['Shift'];
+    $schedule[$date][$userID][$shift]['useremail'] = $currentschedule['UserEmail'];
+    $schedule[$date][$userID][$shift]['username'] = $currentschedule['UserName'];
+    $schedule[$date][$userID][$shift]['start'] = gmdate('Ymd',$date);
+    $schedule[$date][$userID][$shift]['end'] = gmdate('Ymd',$date+1*24*3600);
+   //$schedule[$date][$userID][$shift]['start'] = $start;
+   //$schedule[$date][$userID][$shift]['end'] = $end;
+   // $schedule[$userID][$shift]['days'] .= strtoupper(substr(gmdate('D',$date),0,2)).",";
+    $schedule[$date][$userID][$shift]['category'] = 'Red Category';
   }
 }
 

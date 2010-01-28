@@ -10,6 +10,7 @@ function SCHEDULE($timezone,$selected_page,$selecteddate,&$con)
 {
   // Get the dates for the selected week
   $current_week = DETERMINE_WEEK($selecteddate);
+  $preview = 0; // Actually send emails, don't preview them
 
   echo "<h2>Schedule for ";
   echo SITE_NAME($selected_page,$con);
@@ -31,13 +32,13 @@ function SCHEDULE($timezone,$selected_page,$selecteddate,&$con)
       echo "      <br />\n";
       MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,$con);
       echo "      <br />\n";
-      SEND_PHONE_EMAIL($selected_page,$current_week,$con);
+      SEND_PHONE_EMAIL($selected_page,$current_week,$preview,$con);
     }
     else
     {
       UPDATE_DB_SCHEDULE($selected_page,$current_week,$con);
       TABLE_SCHEDULE($selected_page,$current_week,$con);
-      SEND_QUEUE_EMAIL($selected_page,$current_week,$con);
+      SEND_QUEUE_EMAIL($selected_page,$current_week,$preview,$con);
     }
   }
 }

@@ -29,6 +29,11 @@ function PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,
   echo "<div id='currentqueue' class='currentqueue'>\n";
   echo "    <br />\n";
   CURRENTPHONES($timezone,$selected_page,$userID,$selecteddate,$con);
+  echo "<form method='get' action='schedule.php'>\n";
+  echo "  <input type='hidden' name='selecteddate' value='{$selecteddate}' />\n";
+  echo "  <input type='hidden' name='option_page' value='{$selected_page}' />\n";
+  echo "  <input type='submit' value='Edit' title='Added for Luis Bielich N.A. PAE in Technical Support' />\n";
+  echo "</form>\n";
   echo "</div>\n";
 
   PHONENOTES($selected_page,$con);
@@ -359,7 +364,7 @@ function SEND_ALL_MAX_EMAIL($selected_page,$max_date,&$con)
 	</body>
 	</html>";
 
-  $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc';",$con));
+  $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc' AND siteID=".$selected_page.";",$con));
 
   $from = MAIN_EMAILS_FROM;
   $headers = "MIME-Version: 1.0" . "\r\n";

@@ -53,6 +53,7 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
 }
 
 $csv_file .= "Totals,";
+$total = 0;
 for ($i=0;$i<5;$i++)
 {
   $sql = "SELECT SUM(Regular+CatOnes+Special)
@@ -60,9 +61,15 @@ for ($i=0;$i<5;$i++)
           WHERE Date='".$current_week[$i]."' 
             AND siteID=".$_GET['export_page'].";";
   $totalcounts = mysql_fetch_array(mysql_query($sql,$con));
+  
+  if ($totalcounts['SUM(Regular+CatOnes+Special)'] == '')
+  $csv_file .= "0,";
+  else
   $csv_file .= $totalcounts['SUM(Regular+CatOnes+Special)'].",";
+
+  $total += $totalcounts['SUM(Regular+CatOnes+Special)'];
 }
-$csv_file .= "\n";
+$csv_file .= "Total:,{$total},\n";
 
 $csv_file .= "\n";
 
@@ -105,6 +112,38 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
 
   $csv_file .= "\n";
 }
+
+$csv_file .= "Totals,";
+$sql = "SELECT SUM(Regular),SUM(CatOnes),SUM(Special),SUM(Transfer),Date
+      FROM Count 
+      WHERE Date>='".$current_week[0]."' 
+        AND Date<='".$current_week[4]."' 
+        AND siteID=".$_GET['export_page']."
+      GROUP BY siteID;";
+$usercounts = mysql_fetch_array(mysql_query($sql,$con));
+mysql_error($con);
+
+if ($usercounts['SUM(Regular)'] == '')
+$csv_file .= "0,";
+else
+$csv_file .= $usercounts['SUM(Regular)'].",";
+
+if ($usercounts['SUM(CatOnes)'] == '')
+$csv_file .= "0,";
+else
+$csv_file .= $usercounts['SUM(CatOnes)'].",";
+
+if ($usercounts['SUM(Special)'] == '')
+$csv_file .= "0,";
+else
+$csv_file .= $usercounts['SUM(Special)'].",";
+
+if ($usercounts['SUM(Transfer)'] == '')
+$csv_file .= "0,";
+else
+$csv_file .= $usercounts['SUM(Transfer)'].",";
+
+$csv_file .= "\n";
 
 echo $csv_file;
 

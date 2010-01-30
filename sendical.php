@@ -43,29 +43,29 @@ function sendIcalEmail($firstname,$email,$meeting_date,$meeting_name,$meeting_du
 	$headers .= "Reply-To: ".$from_name." <".$from_address.">\n";
 	
 	$headers .= "MIME-Version: 1.0\n";
-	$headers .= 'Content-Type: text/calendar;name="meeting.ics";method=REQUEST\n';
-//	$headers .= "Content-Type: multipart/alternative; boundary=\"$mime_boundary\"\n";
-	//$headers .= "Content-class: urn:content-classes:calendarmessage\n";
+//	$headers .= 'Content-Type: text/calendar;name="meeting.vcs";method=REQUEST\n';
+	$headers .= "Content-Type: multipart/alternative; boundary=\"$mime_boundary\"\n";
+	$headers .= "Content-class: urn:content-classes:calendarmessage\n";
 	
 	//Create Email Body (HTML)
-	$message .= "--$mime_boundary\n";
-	$message .= "Content-Type: text/html; charset=UTF-8\n";
-	$message .= "Content-Transfer-Encoding: 8bit\n\n";
-	
-	$message .= "<html>\n";
-	$message .= "<body>\n";
-	$message .= '<p>Dear '.$firstname.',</p>';
-	$message .= '<p>Here is my HTML Email / Used for Meeting Description</p>';
-	$message .= '<p><table><tr><td>table cell1</td><td></td><td>cell2</td></tr>';
-	$message .= '<tr><td></td><td>this should be cell 3</td><td></td></tr></table></p>';    
-	$message .= "</body>\n";
-	$message .= "</html>\n";
+//	$message .= "--$mime_boundary\n";
+//	$message .= "Content-Type: text/html; charset=UTF-8\n";
+//	$message .= "Content-Transfer-Encoding: 8bit\n\n";
+//	
+//	$message .= "<html>\n";
+//	$message .= "<body>\n";
+//	$message .= '<p>Dear '.$firstname.',</p>';
+//	$message .= '<p>Here is my HTML Email / Used for Meeting Description</p>';
+//	$message .= '<p><table><tr><td>table cell1</td><td></td><td>cell2</td></tr>';
+//	$message .= '<tr><td></td><td>this should be cell 3</td><td></td></tr></table></p>';    
+//	$message .= "</body>\n";
+//	$message .= "</html>\n";
 	$message .= "--$mime_boundary\n";
 	
 	//Create ICAL Content (Google rfc 2445 for details and examples of usage) 
 	$ical =    'BEGIN:VCALENDAR
 PRODID:-//Microsoft Corporation//Outlook 11.0 MIMEDIR//EN
-VERSION:2.0
+VERSION:1.0
 METHOD:REQUEST
 BEGIN:VEVENT
 ORGANIZER:MAILTO:'.$from_address.'
@@ -82,6 +82,56 @@ PRIORITY:5
 CLASS:PUBLIC
 END:VEVENT
 END:VCALENDAR';   
+	
+	$ical = 'BEGIN:VCALENDAR
+PRODID:-//Microsoft Corporation//Outlook 11.0 MIMEDIR//EN
+VERSION:2.0
+METHOD:REQUEST
+BEGIN:VEVENT
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=Nik C.:mailto:nikc@xilinx.com
+DTSTART:20100129
+DTEND:20100130
+LOCATION:
+SEQUENCE:0
+UID:phoneschedule_1264377600_5_0_'.rand().'
+DTSTAMP:20100125T000000
+TRANSP:TRANSPARENT
+DESCRIPTION;FMTTYPE=text/html:<html><head></head><body><table><tr><td>123</td><td></td><td>789</td></tr><tr><td></td><td>456</td><td></td></tr></table></body></html>
+SUMMARY:Phone Shift
+X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
+X-MICROSOFT-CDO-BUSYSTATUS:FREE
+X-MICROSOFT-CDO-IMPORTANCE:1
+PRIORITY:5
+CLASS:PUBLIC
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR';
+
+	 $ical = 'BEGIN:VCALENDAR
+PRODID:-//Microsoft Corporation//Outlook 11.0 MIMEDIR//EN
+VERSION:2.0
+METHOD:CANCEL
+BEGIN:VEVENT
+DTSTART:20100204
+UID:queueschedule_1265241600_5_2
+DTSTAMP:20100125T000000
+STATUS:CANCELLED
+END:VEVENT
+END:VCALENDAR';
+	 
+	    $ical2 = 'BEGIN:VCALENDAR
+PRODID:-//Microsoft Corporation//Outlook 11.0 MIMEDIR//EN
+VERSION:2.0
+METHOD:REQUEST
+BEGIN:VEVENT
+DTSTART:20100204
+DTEND:20100205
+UID:queueschedule_1265241600_5_2
+DTSTAMP:20100125T000000
+STATUS:CANCELLED
+END:VEVENT
+END:VCALENDAR';
+
 	
 //	$ical = '
 //BEGIN:VCALENDAR
@@ -197,9 +247,13 @@ END:VCALENDAR';
 //END:VEVENT
 //END:VCALENDAR';
 	
-	$message .= 'Content-Type: text/calendar;name="meeting.ics";method=REQUEST\n';
+	$message .= 'Content-Type: text/calendar;name="meeting.ics";method=CANCEL\n';
 	$message .= "Content-Transfer-Encoding: 8bit\n\n";
-	$message = $ical;            
+	$message .= $ical;
+//  $message .= 'Content-Type: text/calendar;name="meeting.ics";method=REQUEST\n';
+//  $message .= "Content-Transfer-Encoding: 8bit\n\n";
+//  $message .= $ical2;
+	//$message = $ical;            
 	
 	//SEND MAIL
 	$mail_sent = @mail( $email, $subject, $message, $headers );

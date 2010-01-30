@@ -95,7 +95,7 @@ function EVENT_PHONE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$sel
   //Create Email Body (HTML)
   CREATE_EVENT_EMAIL_BODY($message,$replyto,$mime_boundary,$currentqueue,$site_name,$cal_file,$selected_page,$page_name,$con);
   CREATE_EMAIL_HEADER($header,$from,$replyto,$type,$mime_boundary);
-  CREATE_EMAIL_SUBJECT($subject,$current_week,$type,$page_name);
+  CREATE_EMAIL_SUBJECT($subject,$current_week,$shift['type'],$type,$page_name);
 
   if ( $preview != 1)
   {
@@ -128,13 +128,14 @@ function PHONE_EMAIL($replyto,$site_name,$to,$userID,$user_name,$current_week,$s
 {
   $from = MAIN_EMAILS_FROM;
   $type = 'phone_email'; //Type is used in several functions to determine type of email
+  $shift_type = ''; //This is used to identify FULL/HALF/Cover shifts in the subject, but not used for reg emaiils
 
   BUILD_PHONE_SHIFT_TABLE_HTML($currentqueue,$current_week,$userID,$selected_page,$con);
 
   //Create Email Body (HTML)
   CREATE_EMAIL_BODY($message,$replyto,$currentqueue,$site_name,$selected_page,$page_name,$con);
   CREATE_EMAIL_HEADER($header,$from,$replyto,$type,$mime_boundary);
-  CREATE_EMAIL_SUBJECT($subject,$current_week,$type,'');
+  CREATE_EMAIL_SUBJECT($subject,$current_week,$shift_type,$type,$page_name);
 
   if ( $preview != 1)
   {
@@ -208,11 +209,19 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,$preview,&$con)
       {
         foreach ($userID_array as $shift)
         {
+        // Check if event already exists, if not, then do the event email
         EVENT_QUEUE_EMAIL($replyto['OptionValue'],$site_name,$userID,$shift,$current_week,$selected_page,$preview,$page_name,$con);
         $email_sent[$userID] = 1;
+        // Add email to DB, userID,, siteID, Date, Shift, Start, UID, DSTAMP??
+        // Store the ???
         }
       }
     }
+    
+    // If schedule does not have a value, and there is a value in the DB, then a cancelation needs to be sent and the
+    // value needs to be removed from the database
+
+    // If the userID for this site doesn't have an event email in the DB, then send the Reg Email
     
     // Send regular schedule email to those not on shift
     if ($preview == 1)
@@ -263,7 +272,7 @@ function EVENT_QUEUE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$sel
   //Create Email Body (HTML)
   CREATE_EVENT_EMAIL_BODY($message,$replyto,$mime_boundary,$currentqueue,$site_name,$cal_file,$selected_page,$page_name,$con);
   CREATE_EMAIL_HEADER($header,$from,$replyto,$type,$mime_boundary);
-  CREATE_EMAIL_SUBJECT($subject,$current_week,$type,$page_name);
+  CREATE_EMAIL_SUBJECT($subject,$current_week,$shift['type'],$type,$page_name);
 
   if ( $preview != 1)
   {
@@ -301,13 +310,14 @@ function QUEUE_EMAIL($replyto,$site_name,$to,$userID,$user_name,$current_week,$s
 {
   $from = MAIN_EMAILS_FROM;
   $type = 'queue_email'; //Type is used in several functions to determine type of email
+  $shift_type = ''; //This is used to identify FULL/HALF/Cover shifts in the subject, but not used for reg emaiils
   
   BUILD_QUEUE_SHIFT_TABLE_HTML($currentqueue,$current_week,$userID,$selected_page,$con);
 
   //Create Email Body (HTML)
   CREATE_EMAIL_BODY($message,$replyto,$currentqueue,$site_name,$selected_page,$page_name,$con);
   CREATE_EMAIL_HEADER($header,$from,$replyto,$type,$mime_boundary);
-  CREATE_EMAIL_SUBJECT($subject,$current_week,$type,$page_name);
+  CREATE_EMAIL_SUBJECT($subject,$current_week,$shift_type,$type,$page_name);
 
   if ( $preview != 1)
   {
@@ -365,7 +375,7 @@ X-WR-CALDESC:'.$cal_name;
     $cal_file = 'BEGIN:VCALENDAR
 PRODID:-//Microsoft Corporation//Outlook 11.0 MIMEDIR//EN
 VERSION:2.0
-METHOD:PUBLISH'.$refresh_timer.$calendar_name;
+METHOD:REQUEST'.$refresh_timer.$calendar_name;
     if ($type != 'queue_event') //if ($type == 'phone_event/[phone/queue_ical]')
     $cal_file .= '
 BEGIN:VTIMEZONE
@@ -435,6 +445,7 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
 TRANSP:TRANSPARENT
 DESCRIPTION:Queue Shift
 SUMMARY:Queue Shift
+X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
 X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1';
   }
@@ -504,6 +515,7 @@ function CREATE_EMAIL_BODY(&$message,$replyto,$currentqueue,$site_name,$siteID,$
 function CREATE_EVENT_EMAIL_BODY(&$message,$replyto,$mime_boundary,$currentqueue,$site_name,$cal_file,$selected_page,$page_name,&$con)
 {
   $webcal_domain = preg_replace('/http/', 'webcal', MAIN_DOMAIN);
+  $phone_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites Where SiteName = 'phoneshift'",$con));
 
   $message .= "--$mime_boundary\n";
   $message .= "Content-Type: text/html; charset=UTF-8\n";
@@ -523,7 +535,7 @@ function CREATE_EVENT_EMAIL_BODY(&$message,$replyto,$mime_boundary,$currentqueue
   if ($_POST['initial_email'] == 2)
     $message .= "Updated: ";
   
-  if ($siteID == $phone_page['siteID'])
+  if ($selected_page == $phone_page['siteID'])
   {
     $message .= "Phone Schedule</h3>\n";
   }
@@ -534,7 +546,7 @@ function CREATE_EVENT_EMAIL_BODY(&$message,$replyto,$mime_boundary,$currentqueue
   
   $message .= "Use the link below to view the schedule. \n";
   $message .= "<br /><br />View schedule in Outlook: \n";
-  $message .= "<a href='".$webcal_domain."shared_calendar.php?calendar_page=".$siteID."'>Shared ".$page_name." Calendar</a><br />\n";
+  $message .= "<a href='".$webcal_domain."shared_calendar.php?calendar_page=".$selected_page."'>Shared ".$page_name." Calendar</a><br />\n";
   $message .= "Replies will go to: ".$replyto."<br />\n";
   $message .= "<hr width='50%' />\n";
   $message .= "Sent via: ".$site_name."<br />\n";
@@ -565,17 +577,31 @@ function CREATE_EMAIL_HEADER(&$header,$from,$replyto,$type,$mime_boundary)
   }
 }
 
-function CREATE_EMAIL_SUBJECT(&$subject,$current_week,$type,$page_name)
+function CREATE_EMAIL_SUBJECT(&$subject,$current_week,$shift_type,$type,$page_name)
 {
-  if (($type == 'phone_email') or ($type == 'phone_event'))
+  if ($type == 'phone_email')
   {
     $subject = "Phone Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
     if ($_POST['initial_email'] == 2)
     $subject = "Updated: ".$subject;
   }
-  else if (($type == 'queue_email') or ($type == 'queue_event'))
+  else if ($type == 'phone_event')
+  {
+    $subject = "Phone Shift";
+    if ($shift_type != '')
+    $subject .= " - ".$shift_type;
+    if ($_POST['initial_email'] == 2)
+    $subject = "Updated: ".$subject;
+  }
+  else if ($type == 'queue_email')
   {
     $subject = "Queue Schedule - ".$page_name." - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
+    if ($_POST['initial_email'] == 2)
+    $subject = "Updated: ".$subject;
+  }
+  else if ($type == 'queue_event')
+  {
+    $subject = "Queue Shift - ".$shift_type;
     if ($_POST['initial_email'] == 2)
     $subject = "Updated: ".$subject;
   }

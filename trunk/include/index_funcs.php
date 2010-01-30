@@ -123,7 +123,9 @@ function CURRENTPHONES($timezone,$selected_page,$userID,$selecteddate,&$con)
     AND Users.Active = 1";
   $selectedschedule = mysql_query($sql,$con);
   if ( mysql_num_rows($selectedschedule) == 0 )
-  echo "    No active phone schedule found.<br />\n";
+  {
+    echo "    No active phone schedule found.<br />\n";
+  }
   else
   {
     TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,$con);

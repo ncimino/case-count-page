@@ -323,12 +323,12 @@ function BUILD_QUEUE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
     $shift = $currentschedule['Shift'];
     
     if ($shift/2 == 1)
-      $schedule[$date][$userID][$shift]['type'] = 'FULL';
+      $schedule[$date][$userID][$shift]['type'] = 'Full';
     else
-      $schedule[$date][$userID][$shift]['type'] = 'HALF';
+      $schedule[$date][$userID][$shift]['type'] = 'Half';
     
     $schedule[$date][$userID][$shift]['create_date'] = $create_date;
-    $schedule[$date][$userID][$shift]['uid'] = "queueschedule_" . $date . "_" . $currentschedule['userID'] . "_" . $currentschedule['Shift'];
+    $schedule[$date][$userID][$shift]['uid'] = "queueschedule_" . $siteID . "_" . $date . "_" . $currentschedule['userID'] . "_" . $currentschedule['Shift'];
     $schedule[$date][$userID][$shift]['useremail'] = $currentschedule['UserEmail'];
     $schedule[$date][$userID][$shift]['username'] = $currentschedule['UserName'];
     $schedule[$date][$userID][$shift]['start'] = gmdate('Ymd',$date);

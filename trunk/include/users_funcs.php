@@ -98,7 +98,7 @@ function UPDATE_DB_USERS(&$con)
 
 function TABLE_USERS(&$con)
 {
-	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1;",$con);
+	$activeusers = mysql_query("SELECT * FROM Users WHERE Active=1 ORDER BY UserName ASC;",$con);
 	$nonactiveusers = mysql_query("SELECT * FROM Users WHERE Active=0;",$con);
 
 	if ( $_POST['edituser'] != "" and $_POST['newusername'] == "" and $_POST['newuseremail'] == "") // If we went to edit user but nothing was entered then display change form

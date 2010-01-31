@@ -243,7 +243,7 @@ function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
 
   while ($currentschedule = mysql_fetch_array($phoneschedule))
   {
-    $uid = "phoneschedule_" . $currentschedule['Date'] . "_" . $currentschedule['userID'] . "_" . $currentschedule['Shift'];
+    $uid = "schedule_" . $siteID . "_" . $currentschedule['Date'] . "_" . $currentschedule['userID'] . "_" . $currentschedule['Shift'];
     $userID = $currentschedule['userID'];
     $useremail = $currentschedule['UserEmail'];
     $date = $currentschedule['Date'];
@@ -328,15 +328,13 @@ function BUILD_QUEUE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
       $schedule[$date][$userID][$shift]['type'] = 'Half';
     
     $schedule[$date][$userID][$shift]['create_date'] = $create_date;
-    $schedule[$date][$userID][$shift]['uid'] = "queueschedule_" . $siteID . "_" . $date . "_" . $currentschedule['userID'] . "_" . $currentschedule['Shift'];
+    $schedule[$date][$userID][$shift]['uid'] = "schedule_" . $siteID . "_" . $date . "_" . $userID . "_" . $shift;
     $schedule[$date][$userID][$shift]['useremail'] = $currentschedule['UserEmail'];
     $schedule[$date][$userID][$shift]['username'] = $currentschedule['UserName'];
     $schedule[$date][$userID][$shift]['start'] = gmdate('Ymd',$date);
     $schedule[$date][$userID][$shift]['end'] = gmdate('Ymd',$date+1*24*3600);
-   //$schedule[$date][$userID][$shift]['start'] = $start;
-   //$schedule[$date][$userID][$shift]['end'] = $end;
-   // $schedule[$userID][$shift]['days'] .= strtoupper(substr(gmdate('D',$date),0,2)).",";
     $schedule[$date][$userID][$shift]['category'] = 'Red Category';
+    $schedule[$date][$userID][$shift]['scheduleID'] = $currentschedule['scheduleID'];
   }
 }
 

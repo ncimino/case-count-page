@@ -4,17 +4,17 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,$preview,&$con)
 {
   if ($preview == 0)
   {
-  echo "<form method='post'>\n";
-  echo "<input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
-  echo "Initial: <input type='radio' checked='checked' name='initial_email' value='1' />\n";
-  echo "Updated: <input type='radio' name='initial_email' value='2' />\n";
-  echo "</form>\n";
+    echo "<form method='post'>\n";
+    echo "<input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
+    echo "Initial: <input type='radio' checked='checked' name='initial_email' value='1' />\n";
+    echo "Updated: <input type='radio' name='initial_email' value='2' />\n";
+    echo "</form>\n";
 
-  echo "<form method='get' action='email_preview.php' target='_blank'>\n";
-  echo "  <input type='hidden' name='preview_date' value=".$current_week[0]." />\n";
-  echo "  <input type='hidden' name='preview_page' value=".$selected_page." />\n";
-  echo "  <input type='submit' value='Preview' />\n";
-  echo "</form>\n";
+    echo "<form method='get' action='email_preview.php' target='_blank'>\n";
+    echo "  <input type='hidden' name='preview_date' value=".$current_week[0]." />\n";
+    echo "  <input type='hidden' name='preview_page' value=".$selected_page." />\n";
+    echo "  <input type='submit' value='Preview' />\n";
+    echo "</form>\n";
   }
 
   // If it was selected to send an email or an update then continue
@@ -30,7 +30,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,$preview,&$con)
 
     // Send an event email to each on schedule
     if ($preview == 1)
-      echo "<h2>Event Emails</h2>\n";
+    echo "<h2>Event Emails</h2>\n";
     if (is_array($schedule))
     {
       foreach ($schedule as $date)
@@ -48,7 +48,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,$preview,&$con)
 
     // Send regular schedule email to those not on shift
     if ($preview == 1)
-      echo "<hr />\n<h2>Regular Emails</h2>\n";
+    echo "<hr />\n<h2>Regular Emails</h2>\n";
     while ( $currentuser = mysql_fetch_array($activeusers) )
     {
       if ($email_sent[$currentuser['userID']] != 1)
@@ -57,7 +57,7 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,$preview,&$con)
 
     // Send an email to the CC list with the phone schedule
     if ($preview == 1)
-      echo "<hr />\n<h2>CC Email</h2>\n";
+    echo "<hr />\n<h2>CC Email</h2>\n";
     $phonecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='phonescc' AND siteID='".$selected_page."';",$con));
     if ($phonecc['OptionValue'] != "") // Prevent emails from being sent to CC that doesn't have an email
     {
@@ -66,11 +66,11 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,$preview,&$con)
 
     if ($preview == 0)
     {
-    echo "    <script type='text/javascript'>\n";
-    echo "      <!--\n";
-    echo "      document.getElementById('sending_email_status').style.display='none'; // hides sending email status if JS is enabled-->\n";
-    echo "    </script>\n";
-    echo "    **Finished sending emails.**<br />\n";
+      echo "    <script type='text/javascript'>\n";
+      echo "      <!--\n";
+      echo "      document.getElementById('sending_email_status').style.display='none'; // hides sending email status if JS is enabled-->\n";
+      echo "    </script>\n";
+      echo "    **Finished sending emails.**<br />\n";
     }
 
   }
@@ -176,59 +176,98 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,$preview,&$con)
 {
   if ($preview == 0)
   {
-  echo "<form method='post'>\n";
-  echo "<input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
-  echo "Initial: <input type='radio' checked='checked' name='initial_email' value='1' />\n";
-  echo "Updated: <input type='radio' name='initial_email' value='2' />\n";
-  echo "</form>\n";
+    echo "<form method='post'>\n";
+    echo "<input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
+    echo "Initial: <input type='radio' checked='checked' name='initial_email' value='1' />\n";
+    echo "Updated: <input type='radio' name='initial_email' value='2' />\n";
+    echo "</form>\n";
 
-  echo "<form method='get' action='email_preview.php' target='_blank'>\n";
-  echo "  <input type='hidden' name='preview_date' value=".$current_week[0]." />\n";
-  echo "  <input type='hidden' name='preview_page' value=".$selected_page." />\n";
-  echo "  <input type='submit' value='Preview' />\n";
-  echo "</form>\n";
+    echo "<form method='get' action='email_preview.php' target='_blank'>\n";
+    echo "  <input type='hidden' name='preview_date' value=".$current_week[0]." />\n";
+    echo "  <input type='hidden' name='preview_page' value=".$selected_page." />\n";
+    echo "  <input type='submit' value='Preview' />\n";
+    echo "</form>\n";
   }
 
   // If it was selected to send an email or an update then continue
   if (($_POST['initial_email'] == 1) or ($_POST['initial_email'] == 2) or ($preview == 1))
   {
-    $activeusers = mysql_query("SELECT * FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
+    $sql = "SELECT *
+            FROM Users,UserSites 
+            WHERE Active=1 
+              AND Users.userID=UserSites.userID 
+              AND siteID='".$selected_page."' 
+            ORDER BY UserName;";
+    $activeusers = mysql_query($sql,$con);
     $main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites Where SiteName = 'main'",$con));
     $site_name = SITE_NAME($main_page['siteID'],$con);
     $page_name = SITE_NAME($selected_page,$con);
     $replyto = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='replyto' AND siteID='".$selected_page."';",$con));
 
+    BUILD_QUEUE_SENT_EMAIL_ARRAY($emails,$current_week['Monday'],$current_week['Friday'],$selected_page,$con);
     BUILD_QUEUE_SCHEDULE_ARRAY($schedule,$current_week['Monday'],$current_week['Friday'],$selected_page,$con);
 
     // Send an event email to each on schedule
     if ($preview == 1)
-      echo "<h2>Event Emails</h2>\n";
-    foreach ($schedule as $date)
+    echo "<h2>Event Emails</h2>\n";
+    foreach ($schedule as $date => $date_array)
     {
-      foreach ($date as $userID => $userID_array)
+      foreach ($date_array as $userID => $userID_array)
       {
-        foreach ($userID_array as $shift)
+        foreach ($userID_array as $shift_index => $shift)
         {
-        // Check if event already exists, if not, then do the event email
-        EVENT_QUEUE_EMAIL($replyto['OptionValue'],$site_name,$userID,$shift,$current_week,$selected_page,$preview,$page_name,$con);
-        $email_sent[$userID] = 1;
-        // Add email to DB, userID,, siteID, Date, Shift, Start, UID, DSTAMP??
-        // Store the ???
+          // Check if event already exists, if not, then send the event email
+          if ($emails[$date][$userID][$shift_index]['cancel'] == '')
+          {
+            EVENT_QUEUE_EMAIL($replyto['OptionValue'],$site_name,$userID,$shift,$current_week,$selected_page,$preview,$page_name,$con);
+            $email_sent[$userID] = 1;
+            $sql="INSERT INTO SentEmails (Date, Shift, userID, siteID, scheduleID)
+                  VALUES ('{$date}','{$shift_index}','{$userID}','{$selected_page}','{$shift['scheduleID']}');";
+            if ($preview == 0) // Don't update the DB on previews
+              RUN_QUERY($sql,"SentEmails was not updated with the email for UID:{$shift['UID']}",$con);
+          }
+          // If email was previously sent, and still exists, then don't send email and don't send cancelation
+          else if ($emails[$date][$userID][$shift_index]['cancel'] == 1)
+          {
+            $emails[$date][$userID][$shift_index]['cancel'] = 0;
+          }
         }
       }
     }
-    
-    // If schedule does not have a value, and there is a value in the DB, then a cancelation needs to be sent and the
+
+    // If schedule does not have a value, and there is an event that was sent, then a cancelation needs to be sent and the
     // value needs to be removed from the database
+    if ($preview == 1)
+    echo "<hr /><h2>Event Cancelation Emails</h2>\n";
+    foreach ($emails as $date => $date_array)
+    {
+      foreach ($date_array as $userID => $userID_array)
+      {
+        foreach ($userID_array as $shift_index => $shift)
+        {
+          // Check if event should be canceled
+          if ($shift['cancel'] == 1)
+          {
+            CANCEL_EVENT_QUEUE_EMAIL($replyto['OptionValue'],$site_name,$userID,$shift,$current_week,$selected_page,$preview,$page_name,$con);
+            $email_sent[$userID] = 1;
+            $sql="DELETE FROM SentEmails WHERE userID={$userID} AND siteID={$selected_page} AND Date={$date} AND Shift={$shift_index}";
+            if ($preview == 0) // Don't update the DB on previews
+              RUN_QUERY($sql,"SentEmails entry was not deleted with the email for UID:{$shift['UID']}",$con);
+          }
+        }
+      }
+    }
 
     // If the userID for this site doesn't have an event email in the DB, then send the Reg Email
-    
+
     // Send regular schedule email to those not on shift
     if ($preview == 1)
-      echo "<hr />\n<h2>Regular Emails</h2>\n";    
+    echo "<hr />\n<h2>Regular Emails</h2>\n";
     while ( $currentuser = mysql_fetch_array($activeusers) )
     {
-      if (($currentuser['UserEmail'] != "") and ($email_sent[$currentuser['userID']] != 1)) // Prevent emails from being sent to people that don't have an email
+      // Prevent emails from being sent to people that don't have an email
+      // and an email wasn't already sent
+      if (($currentuser['UserEmail'] != "") and ($email_sent[$currentuser['userID']] != 1))
       {
         QUEUE_EMAIL($replyto['OptionValue'],$site_name,$currentuser['UserEmail'],$currentuser['userID'],$currentuser['UserName'],$current_week,$selected_page,$preview,$page_name,&$con);
       }
@@ -236,7 +275,7 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,$preview,&$con)
 
     // Send an email to the CC list with the schedule
     if ($preview == 1)
-      echo "<hr />\n<h2>CC Email</h2>\n";
+    echo "<hr />\n<h2>CC Email</h2>\n";
     $queuecc = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='queuecc' AND siteID='".$selected_page."';",$con));
     if ($queuecc['OptionValue'] != "") // Prevent emails from being sent if the CC field is blank
     {
@@ -245,12 +284,64 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,$preview,&$con)
 
     if ($preview == 0)
     {
-    echo "    <script type='text/javascript'>\n";
-    echo "      <!--\n";
-    echo "      document.getElementById('sending_email_status').style.display='none'; // hides sending email status if JS is enabled-->\n";
-    echo "    </script>\n";
-    echo "    Finished sending emails.<br />\n";
+      echo "    <script type='text/javascript'>\n";
+      echo "      <!--\n";
+      echo "      document.getElementById('sending_email_status').style.display='none'; // hides sending email status if JS is enabled-->\n";
+      echo "    </script>\n";
+      echo "    Finished sending emails.<br />\n";
     }
+  }
+}
+
+function CANCEL_EVENT_QUEUE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$selected_page,$preview,$page_name,&$con)
+{  
+  $from = MAIN_EMAILS_FROM;
+  $to = $shift['useremail'];
+  $type = 'event_cancelation'; //Type is used in several functions to determine type of email
+
+  BUILD_QUEUE_SHIFT_TABLE_HTML($currentqueue,$current_week,$userID,$selected_page,$con);
+
+  //Create Calendar Event
+  BUILD_VCALENDAR_HEADER($cal_file,-7,$type,'');
+  BUILD_VEVENT($cal_file,$from,$shift,$currentqueue,$type);
+  BUILD_VCALENDAR_END($cal_file);
+
+  CREATE_MIME_BOUNDARY($mime_boundary,$shift['uid']);
+
+  //Create Email Body (HTML)
+  CREATE_EVENT_EMAIL_BODY($message,$replyto,$mime_boundary,$currentqueue,$site_name,$cal_file,$selected_page,$page_name,$con);
+  CREATE_EMAIL_HEADER($header,$from,$replyto,$type,$mime_boundary);
+  CREATE_EMAIL_SUBJECT($subject,$current_week,$shift['type'],$type,$page_name);
+
+  if ( $preview != 1)
+  {
+    $sent_mail = @mail($to,$subject,$message,$header);
+    if ($sent_mail)
+    {
+      echo "Email event cancelation for ".$shift['type']." shift was <span class='success'>sent</span> to: ";
+    }
+    else
+    {
+      echo "Email event cancelation for ".$shift['type']." shift was <span class='error'>not sent</span> to: ";
+    }
+
+    if ($shift['username'] != '')
+    echo $shift['username'] ." &lt;".$to."&gt;<br />\n";
+    else
+    echo " CC list &lt;".$to."&gt;<br />\n";
+  }
+  else
+  {
+    echo "<table style='border: 1px solid black;width: 1800 px;'>";
+    echo "<tr><td style='border: 1px solid black;'>To:</td>";
+    echo "<td style='border: 1px solid black;'>".$to."</td></tr>\n";
+    echo "<tr><td style='border: 1px solid black;'>Subject:</td>";
+    echo "<td style='border: 1px solid black;'>".$subject."</td></tr>\n";
+    echo "<tr><td style='border: 1px solid black;'>Header:</td>";
+    echo "<td style='border: 1px solid black;'><pre>".htmlentities($header)."</pre></td></tr>\n";
+    echo "<tr><td style='border: 1px solid black;'>Body:</td>";
+    echo "<td  style='border: 1px solid black;'><pre>".$message."</pre></td></tr></table>\n";
+    //echo "<td  style='border: 1px solid black;'><pre>".htmlentities($message)."</pre></td></tr></table>\n";
   }
 }
 
@@ -259,9 +350,9 @@ function EVENT_QUEUE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$sel
   $from = MAIN_EMAILS_FROM;
   $to = $shift['useremail'];
   $type = 'queue_event'; //Type is used in several functions to determine type of email
-  
+
   BUILD_QUEUE_SHIFT_TABLE_HTML($currentqueue,$current_week,$userID,$selected_page,$con);
-  
+
   //Create Calendar Event
   BUILD_VCALENDAR_HEADER($cal_file,-7,$type,'');
   BUILD_VEVENT($cal_file,$from,$shift,$currentqueue,$type);
@@ -311,7 +402,7 @@ function QUEUE_EMAIL($replyto,$site_name,$to,$userID,$user_name,$current_week,$s
   $from = MAIN_EMAILS_FROM;
   $type = 'queue_email'; //Type is used in several functions to determine type of email
   $shift_type = ''; //This is used to identify FULL/HALF/Cover shifts in the subject, but not used for reg emaiils
-  
+
   BUILD_QUEUE_SHIFT_TABLE_HTML($currentqueue,$current_week,$userID,$selected_page,$con);
 
   //Create Email Body (HTML)
@@ -356,7 +447,7 @@ function QUEUE_EMAIL($replyto,$site_name,$to,$userID,$user_name,$current_week,$s
 
 function BUILD_VCALENDAR_HEADER(&$cal_file,$timezone,$type,$cal_name)
 {
-  if ($type == 'ical')
+  if (($type == 'phone_ical') or ($type == 'queue_ical'))
   {
     $refresh_timer = '
 X-PUBLISHED-TTL:PT2H';
@@ -364,7 +455,7 @@ X-PUBLISHED-TTL:PT2H';
 X-WR-CALDESC:'.$cal_name;
 
   }
-  else //if (($type == 'phone_event') or ($type == 'queue_event'))
+  else //phone_event,queue_event,event_cancelation
   {
     $refresh_timer = '';
     $calendar_name = '';
@@ -374,9 +465,16 @@ X-WR-CALDESC:'.$cal_name;
   {
     $cal_file = 'BEGIN:VCALENDAR
 PRODID:-//Microsoft Corporation//Outlook 11.0 MIMEDIR//EN
-VERSION:2.0
+VERSION:2.0';
+    
+    if ($type == 'event_cancelation')
+      $cal_file = '
+METHOD:CANCEL'.$refresh_timer.$calendar_name;
+    else
+      $cal_file = '
 METHOD:REQUEST'.$refresh_timer.$calendar_name;
-    if ($type != 'queue_event') //if ($type == 'phone_event/[phone/queue_ical]')
+    
+    if (($type == 'phone_event') or ($type == 'queue_ical') or ($type == 'phone_ical'))
     $cal_file .= '
 BEGIN:VTIMEZONE
 TZID:America/Denver
@@ -400,7 +498,7 @@ END:VTIMEZONE';
 }
 
 function BUILD_VEVENT(&$cal_file,$from,$shift,$html_message,$type)
-{      
+{
   $cal_file .='
 BEGIN:VEVENT
 CATEGORIES:'.$shift['category'].'
@@ -410,11 +508,11 @@ LOCATION:'.$shift['type'].'
 SEQUENCE:0
 UID:'.$shift['uid'].'
 DTSTAMP:'.$shift['create_date'];/*.'
-X-ALT-DESC;FMTTYPE=text/html:'.$html_message;*/
-  
+  X-ALT-DESC;FMTTYPE=text/html:'.$html_message;*/
+
   if ($type == 'queue_ical')
   {
-  $cal_file .= '
+    $cal_file .= '
 TRANSP:TRANSPARENT
 DESCRIPTION:'.$shift['username'].'
 SUMMARY:'.$shift['username'].'
@@ -423,7 +521,7 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
   }
   else if ($type == 'phone_ical')
   {
-  $cal_file .= '
+    $cal_file .= '
 TRANSP:OPAQUE
 DESCRIPTION:'.$shift['username'].'
 SUMMARY:'.$shift['username'].'
@@ -432,7 +530,7 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
   }
   else if ($type == 'phone_event')
   {
-  $cal_file .= '
+    $cal_file .= '
 TRANSP:OPAQUE
 DESCRIPTION:Phone Shift
 SUMMARY:Phone Shift
@@ -441,7 +539,7 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
   }
   else if ($type == 'queue_event')
   {
-  $cal_file .= '
+    $cal_file .= '
 TRANSP:TRANSPARENT
 DESCRIPTION:Queue Shift
 SUMMARY:Queue Shift
@@ -451,10 +549,10 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
   }
   else
   {
-  $cal_file .= '
+    $cal_file .= '
 TRANSP:TRANSPARENT
-DESCRIPTION:Unidentified \$type:$type
-SUMMARY:Unidentified \$type:$type';
+DESCRIPTION:Canceled
+SUMMARY:Canceled';
   }
 
   $cal_file .='
@@ -478,8 +576,8 @@ function CREATE_EMAIL_BODY(&$message,$replyto,$currentqueue,$site_name,$siteID,$
 {
   $webcal_domain = preg_replace('/http/', 'webcal', MAIN_DOMAIN);
   $phone_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites Where SiteName = 'phoneshift'",$con));
-  
-  
+
+
   $message .= "<html>\n";
   $message .= "<head>\n";
   $message .= "</head>\n";
@@ -489,8 +587,8 @@ function CREATE_EMAIL_BODY(&$message,$replyto,$currentqueue,$site_name,$siteID,$
   $message .= "</style>\n";
   $message .= "<h3>";
   if ($_POST['initial_email'] == 2)
-    $message .= "Updated: ";
-  
+  $message .= "Updated: ";
+
   if ($siteID == $phone_page['siteID'])
   {
     $message .= "Phone Schedule</h3>\n";
@@ -501,7 +599,7 @@ function CREATE_EMAIL_BODY(&$message,$replyto,$currentqueue,$site_name,$siteID,$
     $message .= "Queue Schedule for ".$page_name."</h3>\n";
     $message .= $currentqueue."<br />\n";
   }
-  
+
   $message .= "<br /><br />View schedule in Outlook: \n";
   $message .= "<a href='".$webcal_domain."shared_calendar.php?calendar_page=".$siteID."'>Shared ".$page_name." Calendar</a><br />\n";
   $message .= "Replies will go to: ".$replyto."<br />\n";
@@ -533,8 +631,8 @@ function CREATE_EVENT_EMAIL_BODY(&$message,$replyto,$mime_boundary,$currentqueue
   $message .= "</style>\n";
   $message .= "<h3>";
   if ($_POST['initial_email'] == 2)
-    $message .= "Updated: ";
-  
+  $message .= "Updated: ";
+
   if ($selected_page == $phone_page['siteID'])
   {
     $message .= "Phone Schedule</h3>\n";
@@ -543,7 +641,7 @@ function CREATE_EVENT_EMAIL_BODY(&$message,$replyto,$mime_boundary,$currentqueue
   {
     $message .= "Queue Schedule for ".$page_name."</h3>\n";
   }
-  
+
   $message .= "Use the link below to view the schedule. \n";
   $message .= "<br /><br />View schedule in Outlook: \n";
   $message .= "<a href='".$webcal_domain."shared_calendar.php?calendar_page=".$selected_page."'>Shared ".$page_name." Calendar</a><br />\n";
@@ -604,6 +702,38 @@ function CREATE_EMAIL_SUBJECT(&$subject,$current_week,$shift_type,$type,$page_na
     $subject = "Queue Shift - ".$shift_type;
     if ($_POST['initial_email'] == 2)
     $subject = "Updated: ".$subject;
+  }
+}
+
+function BUILD_QUEUE_SENT_EMAIL_ARRAY(&$emails,$begin_date,$end_date,$siteID,&$con)
+{
+  $create_date = gmdate('Ymd\THis',$begin_date);
+  $start = gmdate('Ymd',$begin_date);
+
+  $sql = "SELECT *
+          FROM SentEmails,Users 
+          WHERE Date >= ".$begin_date."
+            AND Date <= ".$end_date."
+            AND SentEmails.userID=Users.userID
+            AND siteID=".$siteID."
+            AND Users.Active=1
+          ORDER BY Date;";
+
+  $queueschedule = mysql_query($sql,$con);
+
+  while ($currentschedule = mysql_fetch_array($queueschedule))
+  {
+    $date = $currentschedule['Date'];
+    $userID = $currentschedule['userID'];
+    $shift = $currentschedule['Shift'];
+
+    $emails[$date][$userID][$shift]['create_date'] = $create_date;
+    $emails[$date][$userID][$shift]['uid'] = "schedule_" . $siteID . "_" . $date . "_" . $userID . "_" . $shift;
+    $emails[$date][$userID][$shift]['useremail'] = $currentschedule['UserEmail'];
+    $emails[$date][$userID][$shift]['username'] = $currentschedule['UserName'];
+    $emails[$date][$userID][$shift]['start'] = gmdate('Ymd',$date);
+    $emails[$date][$userID][$shift]['cancel'] = 1; // Set all emails to be canceled, there will be a check if an email should be sent
+    $emails[$date][$userID][$shift]['scheduleID'] = $currentschedule['scheduleID'];
   }
 }
 

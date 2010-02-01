@@ -1,0 +1,271 @@
+a:link {
+    color: black;
+}
+
+a:visited {
+    color: black;
+}
+
+a:hover {
+    color: blue;
+}
+
+a:active {
+    color: darkblue;
+}
+
+body {
+    width: 920px;
+}
+
+pre {
+    font-family: "Times New Roman", Times, serif;
+}
+
+form 
+{ 
+   margin:0; 
+}    
+
+div.page {
+    font-family: "Times New Roman", Times, serif;
+    position: relative;
+    margin: 5px;
+}
+
+div.header {
+    text-align: center;
+	 width: 100%;
+}
+
+div.selectsite {
+	vertical-align: top;
+    text-align: left;
+	position:absolute;		
+	top:1px;
+	left:1px;	
+}
+
+div.title {
+    text-align: center;
+	width: 100%;
+}
+
+div.selectuser {
+	vertical-align: top;
+    text-align: right;
+	position:absolute;		
+	top:1px;
+	right:1px;	
+}
+
+table.header {
+    width: 100%;
+}
+
+div.topmenu {
+    text-align: center;
+}
+
+div.notes {
+    text-align: center;
+}
+
+div.rules {
+    
+}
+
+div.bottommenu {
+    text-align: center;
+}
+
+table.phoneshift {
+	border-collapse:collapse;
+}
+
+table.phoneshift, td.phoneshift
+{
+	border: 1px solid black;
+}
+
+td.activeusers_cell {
+	border-top: 1px solid black;
+}
+
+td.phoneshift {
+	width: 10em;
+	text-align: center;
+	vertical-align: top;
+}
+
+div.phoneshift {
+	height: 3em;
+}
+
+select.phoneshift {
+	width: 10em;
+}
+
+td.selectsite {
+	vertical-align: top;
+    text-align: left;
+}
+
+td.site_name {
+	text-align: center;
+}
+
+td.selectuser {
+	vertical-align: top;
+    text-align: right;
+}
+
+td.showdetails {
+    text-align: right;
+    width: 50%;
+}
+
+td.exportexcel {
+    text-align: left;
+    width: 50%;
+}
+
+
+table.currenthistory_buttons {
+	 width: 100%;
+}
+
+.selecteduser {
+    font-weight: bold;
+}
+
+.onshiftcell {
+    background: wheat;
+}
+
+.selectedusercell_queue {
+    background: lightblue;
+}
+
+.selectedusercell {
+    background: white;
+}
+
+.selecteduseronshiftcell {
+    background: wheat;
+}
+
+div.currentqueue {
+    text-align: center;
+}
+
+table.currentqueue {
+    border-collapse: collapse;
+}
+
+th.currentqueue {
+    border: 0px none;
+    text-align: center;
+    width: 10em;
+}
+
+td.currentqueue {
+    border: 1px solid;
+    text-align: center;
+    width: 10em;
+}
+
+div.currenthistory {
+    text-align: center;
+}
+
+table.currenthistory {
+    border-collapse: collapse;
+}
+
+th.currenthistory {
+    text-align: center;
+    width: 10em;
+}
+
+tr.currenthistory {
+    border: 1px solid;
+}
+
+td.currenthistory {
+    padding-left: 2px;
+    border: 1px solid;
+    text-align: left;
+    width: 10em;
+}
+
+div.mycasecount {
+    text-align: center;
+}
+
+table.mycasecount {
+    border-collapse: collapse;
+}
+
+th.mycasecount {
+    text-align: center;
+    width: 10em;
+}
+
+td.mycasecount {
+    border: 1px solid;
+    text-align: center;
+    width: 10em;
+}
+
+input.mycasecount {
+    border: 0px none;
+    width: 5em;
+    text-align: center;
+}
+
+.mycasecount_regular {
+    width: 10em;
+    color: darkblue;
+    font-weight: bold;
+    text-align: right;
+}
+
+.mycasecount_catones {
+    color: darkred;
+    font-weight: bold;
+    text-align: right;
+}
+
+.mycasecount_special {
+    color: darkgreen;
+    font-weight: bold;
+    text-align: right;
+}
+
+.mycasecount_transfer {
+    color: black;
+    font-weight: bold;
+    text-align: right;
+}
+
+.mycasecount_total {
+    color: black;
+    font-weight: bold;
+    text-align: right;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}
+
+.warning {
+    color: darkyellow;
+    font-weight: bold;
+}
+
+.success {
+    color: green;
+    font-weight: bold;
+}

@@ -254,28 +254,29 @@ function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
     $start = gmdate('Ymd\THis',$phoneshifs[$shift]['start']);
     $end = gmdate('Ymd\THis',$phoneshifs[$shift]['end']);
 
+    //**This functionality was removed because it requires a lot of extra code to handle cancelation emails
     // Combine the first two or last two shifts into a single event
-    $match_found = 0;
-    if (is_array($schedule[$date][$userID]))
-    foreach ($schedule[$date][$userID] as $shift_index => $array)
-    {
-      if (($shift_index == 0 and $shift == 1)
-      or ($shift_index == 4 and $shift == 5))
-      {
-        $schedule[$date][$userID][$shift_index]['end'] = $end;
-        $match_found = 1;
-      }
-      if (($shift_index == 1 and $shift == 0)
-      or ($shift_index == 5 and $shift == 4))
-      {
-        $schedule[$date][$userID][$shift_index]['start'] = $start;
-        $match_found = 1;
-      }
-    }
+//    $match_found = 0;
+//    if (is_array($schedule[$date][$userID]))
+//    foreach ($schedule[$date][$userID] as $shift_index => $array)
+//    {
+//      if (($shift_index == 0 and $shift == 1)
+//      or ($shift_index == 4 and $shift == 5))
+//      {
+//        $schedule[$date][$userID][$shift_index]['end'] = $end;
+//        $match_found = 1;
+//      }
+//      if (($shift_index == 1 and $shift == 0)
+//      or ($shift_index == 5 and $shift == 4))
+//      {
+//        $schedule[$date][$userID][$shift_index]['start'] = $start;
+//        $match_found = 1;
+//      }
+//    }
 
     // If this shift isn't part of shift pair, then add the new shift to $schedule
-    if (!$match_found)
-    {
+//    if (!$match_found)
+//    {
       $schedule[$date][$userID][$shift]['create_date'] = $create_date;
       $schedule[$date][$userID][$shift]['uid'] = $uid;
       $schedule[$date][$userID][$shift]['useremail'] = $useremail;
@@ -292,7 +293,7 @@ function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
         $schedule[$date][$userID][$shift]['type'] = '';
         $schedule[$date][$userID][$shift]['category'] = 'Red Category';
       }
-    }
+//    }
 
   }
 }
@@ -300,8 +301,6 @@ function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
 function BUILD_QUEUE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$con)
 {
   $create_date = gmdate('Ymd\THis',$begin_date);
-  $start = gmdate('Ymd',$begin_date);
-  $end = gmdate('Ymd',$begin_date+1*24*3600); // duration of each event is one day
   
   $sql = "SELECT *
     FROM Schedule,Users,UserSites
@@ -334,7 +333,6 @@ function BUILD_QUEUE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
     $schedule[$date][$userID][$shift]['start'] = gmdate('Ymd',$date);
     $schedule[$date][$userID][$shift]['end'] = gmdate('Ymd',$date+1*24*3600);
     $schedule[$date][$userID][$shift]['category'] = 'Red Category';
-    $schedule[$date][$userID][$shift]['scheduleID'] = $currentschedule['scheduleID'];
   }
 }
 

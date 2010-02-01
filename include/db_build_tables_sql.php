@@ -118,8 +118,7 @@ Shift smallint,
 userID int,
 CONSTRAINT sentemails_userID FOREIGN KEY (userID) REFERENCES Users(userID),
 siteID int,
-CONSTRAINT sentemails_siteID FOREIGN KEY (siteID) REFERENCES Sites(siteID),
-scheduleID int
+CONSTRAINT sentemails_siteID FOREIGN KEY (siteID) REFERENCES Sites(siteID)
 )";
   return DB_TABLE_CREATE($sql,$con);
 }

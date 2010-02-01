@@ -565,7 +565,7 @@ DTSTAMP:'.$shift['create_date'];/*.'
     $cal_file .= '
 TRANSP:TRANSPARENT
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
-SUMMARY:'.$shift['username'].' schedule for '.$page_name.'
+SUMMARY:'.$shift['username'].'
 X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1';
   }
@@ -574,7 +574,7 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
     $cal_file .= '
 TRANSP:OPAQUE
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
-SUMMARY:'.$shift['username'].' schedule for '.$page_name.'
+SUMMARY:'.$shift['username'].'
 X-MICROSOFT-CDO-BUSYSTATUS:BUSY
 X-MICROSOFT-CDO-IMPORTANCE:1';
   }

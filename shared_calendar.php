@@ -38,7 +38,7 @@ foreach ($schedule as $date)
   {
     foreach ($userID as $shift)
     {
-        BUILD_VEVENT($cal_file,$from,$shift,'',$type,$page_name);
+        BUILD_VEVENT($cal_file,$from,$shift,'',$type,$site_name);
     }
   }
 }

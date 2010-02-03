@@ -32,7 +32,7 @@ function PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,
   echo "<form method='get' action='schedule.php'>\n";
   echo "  <input type='hidden' name='selecteddate' value='{$selecteddate}' />\n";
   echo "  <input type='hidden' name='option_page' value='{$selected_page}' />\n";
-  echo "  <input type='submit' value='Edit' title='Added for Luis Bielich N.A. PAE in Technical Support' />\n";
+  echo "  <input type='submit' value='Edit' />\n";
   echo "</form>\n";
   echo "</div>\n";
 

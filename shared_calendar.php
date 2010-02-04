@@ -15,7 +15,7 @@ $type = 'phone_ical';
 else
 $type = 'queue_ical';
 
-BUILD_VCALENDAR_HEADER($cal_file,-7,$type,$site_name);
+BUILD_VCALENDAR_HEADER($cal_file,$type,$site_name);
 
 $current_time = time(); // Time is PST, but doesn't matter as this is just used to determine the current week
 $last_week = DETERMINE_WEEK($current_time-7*24*60*60);

@@ -250,9 +250,9 @@ function BUILD_PHONE_SCHEDULE_ARRAY(&$schedule,$begin_date,$end_date,$siteID,&$c
     $shift = $currentschedule['Shift'];
     $username = $currentschedule['UserName'];
     // Creates phone shift times
-    CREATE_PHONESHIFTS($phoneshifs,$date,-7); // Create times for MST as calendar entry is MST
-    $start = gmdate('Ymd\THis',$phoneshifs[$shift]['start']);
-    $end = gmdate('Ymd\THis',$phoneshifs[$shift]['end']);
+    CREATE_PHONESHIFTS($phoneshifs,$date,0); // Create times for GMT
+    $start = gmdate('Ymd\THis\Z',$phoneshifs[$shift]['start']);
+    $end = gmdate('Ymd\THis\Z',$phoneshifs[$shift]['end']);
 
     //**This functionality was removed because it requires a lot of extra code to handle cancelation emails
     // Combine the first two or last two shifts into a single event

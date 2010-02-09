@@ -236,7 +236,7 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
         echo "  <td class='phoneshift'>\n";
 
         echo "    <form method='post' name='form_".$postvariable."'>\n";
-        echo "      <select name='phonesched_user' class='phoneshift' OnChange='form_".$postvariable.".submit();'>\n";
+        echo "      <select name='phonesched_user' class='phoneshift' onchange='form_".$postvariable.".submit();'>\n";
         echo "        <option selected='selected' value='NULL'></option>\n";
 
         mysql_data_seek($activeusers,0);
@@ -287,7 +287,7 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
   echo "</table>\n";
 
   echo "<form method='post'>\n";
-  echo "	<input type='submit' value='Clear all' onClick='return confirmSubmit(\"Are you sure you want to clear this weeks schedule?\")' />\n";
+  echo "	<input type='submit' value='Clear all' onclick='return confirmSubmit(\"Are you sure you want to clear this weeks schedule?\")' />\n";
   echo "	<input type='hidden' name='phonesched_clear_week' value='1' />\n";
   echo "	<input type='hidden' name='phonesched_clear_start' value='".$current_week[0]."' />\n";
   echo "	<input type='hidden' name='phonesched_clear_end' value='".$current_week[4]."' />\n";
@@ -320,7 +320,7 @@ function TABLE_SCHEDULE($selected_page,$current_week,&$con)
         $postvariable = "sched_".$current_week[$col-2]."_".$currentuser['userID'];
         $currentshift = mysql_fetch_array(mysql_query("SELECT Shift FROM Schedule WHERE userID = '".$currentuser['userID']."' AND Date = '".$current_week[$col-2]."' AND siteID='".$selected_page."'",$con));
         echo "  <td>
-    <select name='".$postvariable."' OnChange='schedule.submit();'>
+    <select name='".$postvariable."' onchange='schedule.submit();'>
     <option value='2' "; 
         if ( $currentshift['Shift'] == 2 ) echo "selected='selected'";
         echo ">FULL</option>

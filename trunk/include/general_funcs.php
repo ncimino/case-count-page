@@ -17,8 +17,8 @@ function SELECTUSER($timezone,$userID,&$con)
     }
     else
     {
-        echo "    <form method='post' name='selectuser'> User:\n";
-        echo "      <select name='userID' OnChange='selectuser.submit();'>\n";
+        echo "    <form method='post' name='selectuser' action=''> User:\n";
+        echo "      <select name='userID' onchange='selectuser.submit();'>\n";
 
         while ( $currentuser = mysql_fetch_array($activeusers) )
         {
@@ -37,11 +37,11 @@ function SELECTUSER($timezone,$userID,&$con)
         echo " value='NULL'>-----</option>\n";
         echo "      </select>\n";
 
-        echo "      <select name='timezone' OnChange='selectuser.submit();'>\n";
+        echo "      <select name='timezone' onchange='selectuser.submit();'>\n";
         foreach ( $alltimezones as $key => $value )
         {
             echo "        <option ";
-            if ( $timezone == $value ) echo "selected='selected'";
+            if ( $timezone == $value ) echo "selected='selected' ";
             echo "value='".$value."'>".$key."</option>\n";
         }
         echo "      </select>\n";
@@ -341,7 +341,7 @@ function SELECTSITE($selected_page,&$con)
 	$pages_query = mysql_query("SELECT Options.siteID,OptionValue FROM Sites,Options WHERE Active='1' AND OptionName='sitename' AND Options.siteID=Sites.siteID;",$con);
 	
 	echo "    <form method='post' action='?' name='site_selection'>\n";
-    echo "      <select name='option_page' OnChange='site_selection.submit();'>\n";
+    echo "      <select name='option_page' onchange='site_selection.submit();'>\n";
     while($pages = mysql_fetch_array($pages_query))
     {
         echo "        <option value='".$pages['siteID']."'";
@@ -424,8 +424,8 @@ function SELECTDATE($timezone,$shownextweek,$selecteddate,&$con)
         while ($mondays[$i++] < $most_recent_date);
         
         rsort($mondays,SORT_NUMERIC);
-        echo "    <form name='dateselection'> Show:\n";
-        echo "      <select name='selecteddate' OnChange='dateselection.submit();'>\n";
+        echo "    <form name='dateselection' action=''> Show:\n";
+        echo "      <select name='selecteddate' onchange='dateselection.submit();'>\n";
         foreach ( $mondays as $key => $value )
         {
             echo "        <option value='" . $value . "'";
@@ -434,7 +434,7 @@ function SELECTDATE($timezone,$shownextweek,$selecteddate,&$con)
             echo ">" . gmdate("D m/d",$value) . " - " . gmdate("D m/d",$value+60*60*24*4) . "</option>\n";
         }
         echo "      </select>\n";
-        echo "      <input type='submit' id='dateselection_submit' value='go'>\n";
+        echo "      <input type='submit' id='dateselection_submit' value='go' />\n";
         echo "    </form>\n";
         echo "    <script type='text/javascript'>\n";
         echo "      <!--\n";

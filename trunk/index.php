@@ -23,7 +23,7 @@ if ( VERIFY_USER($con) )
 <meta name="description" content="<? echo DESCRIPTION; ?>" />
 <meta name="keywords" content="<? echo KEYWORDS; ?>" />
 <title><? echo SITE_NAME($selected_page,$con); ?></title>
-<link rel="icon" href="images/bomb.png" sizes="64x64" />
+<link rel="icon" href="images/bomb.png" />
 <link type="text/css" rel="stylesheet" href="<? echo MAIN_CSS_FILE; ?>" />
 <script type="text/javascript" src="<? echo MAIN_JS_FILE; ?>"></script>
 </head>
@@ -65,5 +65,6 @@ else
 {
 	VERIFY_FAILED($selected_page,$con);
 }
+
 mysql_close($con);
 ?>

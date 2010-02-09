@@ -123,7 +123,7 @@ if (($_POST["password1"] == $_POST["password2"]) and ($_POST["password1"] != "")
 }
 else
 { ?>
-<form method='post'>It appears that a password has not been set for this
+<form method='post' action=''>It appears that a password has not been set for this
 site.<br />
 <br />
 You need to create a password: <br />

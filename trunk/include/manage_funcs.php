@@ -130,7 +130,7 @@ function CREATE_SITES_TABLE(&$con)
       echo "    <tr>\n";
       echo " 	   <td>&nbsp;&nbsp;&nbsp;".$pages['OptionValue']."</td>\n";
       echo "      <td>\n";
-      echo "        <form method='post'>\n";
+      echo "        <form method='post' action=''>\n";
       echo "          <input type='hidden' name='makesiteinactive' value='".$pages['siteID']."' />\n";
       echo "          <input type='submit' value='Move to Inactive' />\n";
       echo "        </form>\n";
@@ -154,7 +154,7 @@ function CREATE_SITES_TABLE(&$con)
       echo "    <tr>\n";
       echo " 	   <td>&nbsp;&nbsp;&nbsp;".$pages['OptionValue']."</td>\n";
       echo "      <td>\n";
-      echo "        <form method='post'>\n";
+      echo "        <form method='post' action=''>\n";
       echo "          <input type='hidden' name='makesiteactive' value='".$pages['siteID']."' />\n";
       echo "          <input type='submit' value='Move to Active' />\n";
       echo "        </form>\n";
@@ -169,10 +169,10 @@ function CREATE_SITES_TABLE(&$con)
   }
   
   echo "    <h5>Create A New Skillset:</h5>\n";
-  echo "        <form method='post'>\n";
+  echo "        <form method='post' action=''>\n";
   echo "          &nbsp;&nbsp;&nbsp;\n";
   echo "          <input type='hidden' name='createsite' value='1' />\n";
-  echo "          <input type='submit' value='Create a New Skillset' onClick='return confirmSubmit(\"Are you sure you want to create a new site? NOTE: Once a site is created it cannot be deleted, but it can be made inactive.\")' />\n";
+  echo "          <input type='submit' value='Create a New Skillset' onclick='return confirmSubmit(\"Are you sure you want to create a new site? NOTE: Once a site is created it cannot be deleted, but it can be made inactive.\")' />\n";
   echo "        </form>\n";
   
 }

@@ -4,8 +4,8 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,$preview,&$con)
 {
   if ($preview == 0)
   {
-    echo "<form method='post'>\n";
-    echo "  <input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
+    echo "<form method='post' action=''>\n";
+    echo "  <input type='submit' id='send_queue_email' value='Send email' onclick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
     echo "  <input type='radio' checked='checked' name='initial_email' value='1' />Initial\n";
     echo "  <input type='radio' name='initial_email' value='2' />Updated\n";
     echo "</form>\n";
@@ -228,8 +228,8 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,$preview,&$con)
 {
   if ($preview == 0)
   {
-    echo "<form method='post'>\n";
-    echo "  <input type='submit' id='send_queue_email' value='Send email' onClick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
+    echo "<form method='post' action=''>\n";
+    echo "  <input type='submit' id='send_queue_email' value='Send email' onclick='return confirmSubmit(\"Are you sure you want to send out the schedule?\")' />\n";
     echo "  <input type='radio' checked='checked' name='initial_email' value='1' />Initial\n";
     echo "  <input type='radio' name='initial_email' value='2' />Updated\n";
     echo "</form>\n";
@@ -561,6 +561,7 @@ DTSTAMP:'.$shift['create_date'];/*.'
 TRANSP:TRANSPARENT
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
 SUMMARY:'.$shift['username'].'
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
 X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1';
   }
@@ -589,6 +590,7 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
 TRANSP:TRANSPARENT
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
 SUMMARY:'.$shift['username'].' schedule for '.$page_name.'
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
 X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
 X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1';

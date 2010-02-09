@@ -393,7 +393,7 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
   AND Users.userID='".$userID."';";
   $username = mysql_fetch_array(mysql_query($sql,$con));
 
-  echo "    <form name='mycasecount' method='post'>\n";
+  echo "    <form name='mycasecount' method='post' action=''>\n";
   echo "      <input type='hidden' name='selecteddate' value='".$_GET['selecteddate']."' />\n";
   echo "      <table class='mycasecount'>\n";
   echo "        <tr class='mycasecount'>\n";
@@ -409,7 +409,7 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
   for ($i=0;$i<=4;$i++)
   {
     echo "          <td class='mycasecount'>\n";
-    echo "          <input type='text' class='mycasecount' name='reg_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
+    echo "          <input type='text' class='mycasecount' name='reg_".$current_week[$i]."' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
     $getcount= mysql_query("SELECT Regular FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 )
     echo " value='0' ";
@@ -429,7 +429,7 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
   for ($i=0;$i<=4;$i++)
   {
     echo "          <td class='mycasecount'>\n";
-    echo "          <input type='text' class='mycasecount' name='cat1_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
+    echo "          <input type='text' class='mycasecount' name='cat1_".$current_week[$i]."' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
     $getcount= mysql_query("SELECT CatOnes FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 )
     echo " value='0' ";
@@ -449,7 +449,7 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
   for ($i=0;$i<=4;$i++)
   {
     echo "          <td class='mycasecount'>\n";
-    echo "          <input type='text' class='mycasecount' name='spec_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
+    echo "          <input type='text' class='mycasecount' name='spec_".$current_week[$i]."' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
     $getcount= mysql_query("SELECT Special FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
     else {
@@ -467,7 +467,7 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
   for ($i=0;$i<=4;$i++)
   {
     echo "          <td class='mycasecount'>\n";
-    echo "          <input type='text' class='mycasecount' name='tran_".$current_week[$i]."' OnChange='mycasecount.submit();' OnKeyPress='return enterSubmit(this,event);'";
+    echo "          <input type='text' class='mycasecount' name='tran_".$current_week[$i]."' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
     $getcount= mysql_query("SELECT Transfer FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
     else {
@@ -597,18 +597,18 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$cur
   echo "    <table class='currenthistory_buttons'>\n";
   echo "      <tr><td class='exportexcel'>\n";
   echo "        <div class='exportexcel'>\n";
-  echo "        <a href='export.php?export_page={$selected_page}&export_date={$current_week[0]}' target='_blank'><img src='./images/excel_file.png' width='16' height='16' /></a>\n";
+  echo "        <a href='export.php?export_page={$selected_page}&amp;export_date={$current_week[0]}' target='_blank'><img src='./images/excel_file.png' width='16' height='16' alt='Export' /></a>\n";
   echo "        </div>\n";
   echo "      </td>\n";
   echo "      <td class='showdetails'>\n";
-  echo "      <form method='post' name='showdetailsform'>\n";
+  echo "      <form method='post' name='showdetailsform' action=''>\n";
   echo "        <div class='showdetails'>\n";
   echo "        Details:\n";
   echo "        <input type='hidden' name='showdetailssent' value='1' />\n";
   echo "        <input type='checkbox' name='showdetails'";
   if ( $showdetails == 'on' )
   echo " checked='checked'";
-  echo " OnClick='showdetailsform.submit();' />\n";
+  echo " onclick='showdetailsform.submit();' />\n";
   echo "        <input type='submit' id='showdetails_submit' value='update' />\n";
   echo "      </div>\n";
   echo "    </form>\n";

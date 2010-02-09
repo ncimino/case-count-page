@@ -238,7 +238,7 @@ function TABLE_USERS(&$con)
 			echo "        <td class='inactiveusers_cell'>\n";
 			echo "          <form method='post' id='permdeleteform' name='permdeleteform'>\n";
 			echo "            <input type='hidden' name='permdeleteuser' value='".$currentuser['userID']."' />\n";
-			echo "            <input type='submit' value='Permanently Delete' onClick='return confirmSubmit(\"Are you sure you want to permanently delete this user?\")' />\n";
+			echo "            <input type='submit' value='Permanently Delete' onclick='return confirmSubmit(\"Are you sure you want to permanently delete this user?\")' />\n";
 			echo "          </form>\n";
 			echo "        </td>\n";
 			echo "      </tr>\n";

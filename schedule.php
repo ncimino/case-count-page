@@ -68,7 +68,6 @@ SELECTSITE($selected_page,$con);
   {
     ?>
 <div id="selectdate" class="selectdate">
-    <br />
     <? SELECTDATE($timezone,$shownextweek,$selecteddate,$con) ?>
 </div>
 

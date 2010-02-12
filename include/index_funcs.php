@@ -22,7 +22,6 @@ function INDEX($selected_page,$showdetails,$userID,$timezone,$shownextweek,$sele
 function PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)
 {
   echo "<div id='selectdate' class='selectdate'>\n";
-  echo "    <br />\n";
   SELECTDATE($timezone,$shownextweek,$selecteddate,$con);
   echo "</div>\n";
 
@@ -43,7 +42,6 @@ function PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,
 function SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)
 {
   echo "<div id='selectdate' class='selectdate'>\n";
-  echo "    <br />\n";
   SELECTDATE($timezone,$shownextweek,$selecteddate,$con);
   echo "</div>\n";
 
@@ -62,7 +60,7 @@ function SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextwe
   echo "<div id='currenthistory' class='currenthistory'>\n";
   CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$selecteddate,$con);
   $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
-  echo "    Last updated: ".gmdate("n/j h:i A",time()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes\n";
+  echo "    <span style='font-size:75%'> Last updated: ".gmdate("n/j h:i A",time()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes</span>\n";
   echo "    <hr width='50%' />\n";
   echo "</div>\n";
 
@@ -398,9 +396,18 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
   echo "      <table class='mycasecount'>\n";
   echo "        <tr class='mycasecount'>\n";
   echo "          <th class='mycasecount'><span class='selecteduser'>".$username['UserName']."</span></th>\n";
-
+  
   for ($i=0;$i<5;$i++)
-  echo "          <th class='mycasecount'>".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+  {
+    $sql = "SELECT *
+            FROM PhoneSchedule 
+            WHERE Date = '".$current_week[$i]."' 
+              AND userID = '".$userID."'";
+    echo "          <th class='mycasecount";
+    if (mysql_num_rows(mysql_query($sql,$con))>0)
+    echo " onphones";
+    echo "'>".gmdate("D n/j",$current_week[$i])."</th>\n";
+  }
 
   echo "        </tr>\n";
   echo "        <tr class='mycasecount'>\n";
@@ -497,7 +504,13 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$cur
   echo "      <tr class='currenthistory'>\n";
   echo "        <th class='currenthistory'>Name</th>\n";
   for ($i=0;$i<5;$i++)
-  echo "        <th class='currenthistory'>".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+  {
+    echo "        <th class='currenthistory";
+    $current_local_time = time() + 60*60*($timezone) + $dst_value_from_current_time_sec;
+    if (($current_local_time >= $current_week[$i]) and ($current_local_time < $current_week[$i+1]))
+    echo " currentdate";
+    echo "'>".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+  }
   echo "      </tr>\n";
   while ( $currentuser = mysql_fetch_array($activeusers) )
   {
@@ -594,15 +607,26 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$cur
     echo "      </tr>\n";
   }
   echo "    </table>\n";
+  /*
   echo "    <table class='currenthistory_buttons'>\n";
   echo "      <tr><td class='exportexcel'>\n";
   echo "        <div class='exportexcel'>\n";
-  echo "        <a href='export.php?export_page={$selected_page}&amp;export_date={$current_week[0]}' target='_blank'><img src='./images/excel_file.png' width='16' height='16' alt='Export' /></a>\n";
+  echo "        <a href='export.php?export_page={$selected_page}&amp;export_date={$current_week[0]}' target='_blank'><img src='./images/icxls.gif' width='16' height='16' alt='Export' /></a>\n";
+  //*/
+  //*
+  echo "    <table><tr><td>\n";
+  echo "        <a href='export.php?export_page={$selected_page}&amp;export_date={$current_week[0]}' target='_blank'><img src='./images/icxls.gif' width='16' height='16' alt='Export' /></a>\n";
+  echo "    </td><td>\n";
+  //*/
+  /*
   echo "        </div>\n";
   echo "      </td>\n";
   echo "      <td class='showdetails'>\n";
+  //*/
   echo "      <form method='post' name='showdetailsform' action=''>\n";
+  /*
   echo "        <div class='showdetails'>\n";
+  //*/
   echo "        Details:\n";
   echo "        <input type='hidden' name='showdetailssent' value='1' />\n";
   echo "        <input type='checkbox' name='showdetails'";
@@ -610,7 +634,9 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$cur
   echo " checked='checked'";
   echo " onclick='showdetailsform.submit();' />\n";
   echo "        <input type='submit' id='showdetails_submit' value='update' />\n";
+  /*
   echo "      </div>\n";
+  //*/
   echo "    </form>\n";
   echo "      <script type='text/javascript'>\n";
   echo "        <!--\n";
@@ -629,13 +655,19 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
   ORDER BY UserName;";
 
   $activeusers = mysql_query($sql,$con);
+  $current_local_time = time() + 60*60*($timezone) + $dst_value_from_current_time_sec;
 
   echo "<table class='phoneshift'>\n";
 
   echo "<tr class='phoneshift'>\n";
   echo "  <th class='phoneshift'>Shift</th>\n";
   for ($i=0;$i<5;$i++)
-  echo "  <th class='phoneshift'>".gmdate("D n/j",$current_week[$i])."</th>\n";
+  {
+    echo "        <th class='phoneshift";
+    if (($current_local_time >= $current_week[$i]) and ($current_local_time < $current_week[$i+1]))
+    echo " currentdate";
+    echo "'>".gmdate("D n/j",$current_week[$i])."</th>\n";
+  }
   echo "</tr>\n";
 
   // Creates phone shift times
@@ -648,7 +680,13 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
     {
       if ($col==1)
       {
-        echo "  <td class='phoneshift'><div class='phoneshift'>";
+        echo "  <td class='phoneshift";
+        $normalized_now = strtotime(gmdate("g:ia",$current_local_time));
+        $normalized_start = strtotime(gmdate("g:ia",$phoneshifs[$shift_index]['start']));
+        $normalized_end = strtotime(gmdate("g:ia",$phoneshifs[$shift_index]['end']));
+        if (($normalized_now >= $normalized_start) and ($normalized_now < $normalized_end))
+        echo " currentdate";
+        echo "'><div class='phoneshift'>";
         echo gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
         if ($shift_index==2 or $shift_index==3) echo "<br />Cover";
         echo "</div></td>\n";

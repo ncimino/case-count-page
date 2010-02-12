@@ -11,7 +11,8 @@ a:hover {
 }
 
 a:active {
-    color: darkblue;
+    color: #00008B;
+	/*color: darkblue;*/
 }
 
 body {
@@ -30,10 +31,13 @@ pre {
     font-family: "Times New Roman", Times, serif;
 }
 
-form 
-{ 
-   margin:0; 
-}    
+form { 
+   margin: 0px;
+}
+
+h1, h2, h3, h4, h5 { 
+   margin: 2px;
+}
 
 div.page {
     font-family: "Times New Roman", Times, serif;
@@ -143,16 +147,28 @@ table.currenthistory_buttons {
 	 width: 100%;
 }
 
+.currentdate {
+	background: #FFFFB2;
+	border: 1px solid;
+}
+
+th.onphones {
+	background: #CCFFCC;
+	border: 1px solid;
+}
+
 .selecteduser {
     font-weight: bold;
 }
 
 .onshiftcell {
-    background: wheat;
+    background: #F5DEB3;
+	/*background: wheat;*/
 }
 
 .selectedusercell_queue {
-    background: lightblue;
+    background: #ADD8E6;
+	/*background: lightblue;*/
 }
 
 .selectedusercell {
@@ -160,7 +176,8 @@ table.currenthistory_buttons {
 }
 
 .selecteduseronshiftcell {
-    background: wheat;
+    background: #F5DEB3;
+	/*background: wheat;*/
 }
 
 div.currentqueue {
@@ -234,19 +251,22 @@ input.mycasecount {
 
 .mycasecount_regular {
     width: 10em;
-    color: darkblue;
+    color: #00008B;
+	/*color: darkblue;*/
     font-weight: bold;
     text-align: right;
 }
 
 .mycasecount_catones {
-    color: darkred;
+    color: #8B0000;
+    /*color: darkred;*/
     font-weight: bold;
     text-align: right;
 }
 
 .mycasecount_special {
-    color: darkgreen;
+    color: #006400;
+    /*color: darkgreen;*/
     font-weight: bold;
     text-align: right;
 }
@@ -269,7 +289,8 @@ input.mycasecount {
 }
 
 .warning {
-    color: darkyellow;
+    color: #DAA520;
+    /*color: darkyellow;*/
     font-weight: bold;
 }
 

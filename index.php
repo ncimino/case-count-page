@@ -2,7 +2,7 @@
 include_once("./include/includes.php");
 include_once("./include/index_funcs.php");
 DB_CONNECT($con);
-SET_COOKIES($selected_page,$showdetails,$timezone,$userID,$con);
+SET_COOKIES($selected_page,$showdetails,$showdetails_cat1,$timezone,$userID,$con);
 
 // Tell SELECTDATE to show next week in the dropdown
 $shownextweek = 1;
@@ -18,7 +18,7 @@ if ( VERIFY_USER($con) )
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<meta http-equiv='refresh' content='300; URL=./index.php' />
+<meta http-equiv='refresh' content='300; URL=./index.php?option_page=<?php echo $selected_page;?>' />
 <meta name="author" content="<? echo AUTHOR; ?>" />
 <meta name="description" content="<? echo DESCRIPTION; ?>" />
 <meta name="keywords" content="<? echo KEYWORDS; ?>" />
@@ -52,7 +52,7 @@ SELECTUSER($timezone,$userID,$con);
 
 <div id="topmenu" class="topmenu"><? TOPMENU('') ?></div>
 <? 
-INDEX($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,$con); 
+INDEX($selected_page,$showdetails,$showdetails_cat1,$userID,$timezone,$shownextweek,$selecteddate,$con); 
 ?>
 <div id="bottommenu" class="bottommenu"><? BOTTOMMENU($con) ?></div>
 

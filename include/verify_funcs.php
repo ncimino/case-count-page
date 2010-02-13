@@ -1,6 +1,6 @@
 <?php
 
-function SET_COOKIES(&$selected_page,&$showdetails,&$timezone,&$userID,&$con)
+function SET_COOKIES(&$selected_page,&$showdetails,&$showdetails_cat1,&$timezone,&$userID,&$con)
 {
   // If a userID is passed, then set the cookie for 365 days
   if ($_POST["userID"] != "") setcookie("userID", $_POST["userID"], time()+60*60*24*365);
@@ -13,6 +13,7 @@ function SET_COOKIES(&$selected_page,&$showdetails,&$timezone,&$userID,&$con)
   // $_POST["showdetailssent"] is a hidden type submitted with showdetails to differentiate between a submit and a random page load
   // If a showdetails is passed, then set the cookie for 365 days
   if ($_POST["showdetailssent"] != "") setcookie("showdetails", $_POST["showdetails"], time()+60*60*24*365);
+  if ($_POST["showdetailssent"] != "") setcookie("showdetails_cat1", $_POST["showdetails_cat1"], time()+60*60*24*365);
 
   // If option_page is passed, then set the cookie for 365 days
   if ($_POST["option_page"] != "") setcookie("option_page", $_POST["option_page"], time()+60*60*24*365);
@@ -55,6 +56,7 @@ function SET_COOKIES(&$selected_page,&$showdetails,&$timezone,&$userID,&$con)
 
   // If showdetails was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
   ($_POST["showdetailssent"] == '') ? (($_COOKIE['showdetails'] == '') ? $showdetails = '' : $showdetails = $_COOKIE['showdetails']) : $showdetails = $_POST['showdetails'];
+  ($_POST["showdetailssent"] == '') ? (($_COOKIE['showdetails_cat1'] == '') ? $showdetails_cat1 = '' : $showdetails_cat1 = $_COOKIE['showdetails_cat1']) : $showdetails_cat1 = $_POST['showdetails_cat1'];
 
   // If option_page was passed then we need to use that, else check for a cookie - the order of these statements is important - cookies take a refresh to update
   //($_POST["option_page"] == '') ? (($_COOKIE['option_page'] == '') ? $selected_page = '1' : $selected_page = $_COOKIE['option_page']) : $selected_page = $_POST['option_page'];

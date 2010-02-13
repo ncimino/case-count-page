@@ -1,7 +1,7 @@
 <?php
 include_once("./include/includes.php");
 DB_CONNECT($con);
-SET_COOKIES($selected_page,$showdetails,$timezone,$userID,$con);
+SET_COOKIES($selected_page,$showdetails,$showdetails_cat1,$timezone,$userID,$con);
 
 
 if ( VERIFY_USER($con) )

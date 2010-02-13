@@ -12,11 +12,10 @@ a:hover {
 
 a:active {
     color: #00008B;
-	/*color: darkblue;*/
 }
 
 body {
-    width: 920px;
+    /*width: 920px;*/
 }
 
 a {
@@ -43,9 +42,13 @@ div.page {
     font-family: "Times New Roman", Times, serif;
     position: relative;
     margin: 5px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 902px;
 }
 
 div.header {
+	position: relative;
     text-align: center;
 	 width: 100%;
 }
@@ -163,12 +166,10 @@ th.onphones {
 
 .onshiftcell {
     background: #F5DEB3;
-	/*background: wheat;*/
 }
 
 .selectedusercell_queue {
     background: #ADD8E6;
-	/*background: lightblue;*/
 }
 
 .selectedusercell {
@@ -177,7 +178,6 @@ th.onphones {
 
 .selecteduseronshiftcell {
     background: #F5DEB3;
-	/*background: wheat;*/
 }
 
 div.currentqueue {
@@ -252,21 +252,18 @@ input.mycasecount {
 .mycasecount_regular {
     width: 10em;
     color: #00008B;
-	/*color: darkblue;*/
     font-weight: bold;
     text-align: right;
 }
 
 .mycasecount_catones {
     color: #8B0000;
-    /*color: darkred;*/
     font-weight: bold;
     text-align: right;
 }
 
 .mycasecount_special {
     color: #006400;
-    /*color: darkgreen;*/
     font-weight: bold;
     text-align: right;
 }
@@ -290,7 +287,6 @@ input.mycasecount {
 
 .warning {
     color: #DAA520;
-    /*color: darkyellow;*/
     font-weight: bold;
 }
 

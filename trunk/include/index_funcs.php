@@ -1,6 +1,6 @@
 <?php
 
-function INDEX($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)
+function INDEX($selected_page,$showdetails,$showdetails_cat1,$userID,$timezone,$shownextweek,$selecteddate,&$con)
 {
   $main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));
   $phone_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='phoneshift';",$con));
@@ -11,15 +11,15 @@ function INDEX($selected_page,$showdetails,$userID,$timezone,$shownextweek,$sele
   }
   else if ($selected_page == $phone_page['siteID'])
   {
-    PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,$con);
+    PHONE_PAGE($selected_page,$userID,$timezone,$shownextweek,$selecteddate,$con);
   }
   else
   {
-    SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,$con);
+    SKILLSET_PAGE($selected_page,$showdetails,$showdetails_cat1,$userID,$timezone,$shownextweek,$selecteddate,$con);
   }
 }
 
-function PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)
+function PHONE_PAGE($selected_page,$userID,$timezone,$shownextweek,$selecteddate,&$con)
 {
   echo "<div id='selectdate' class='selectdate'>\n";
   SELECTDATE($timezone,$shownextweek,$selecteddate,$con);
@@ -39,7 +39,7 @@ function PHONE_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,
 
 }
 
-function SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextweek,$selecteddate,&$con)
+function SKILLSET_PAGE($selected_page,$showdetails,$showdetails_cat1,$userID,$timezone,$shownextweek,$selecteddate,&$con)
 {
   echo "<div id='selectdate' class='selectdate'>\n";
   SELECTDATE($timezone,$shownextweek,$selecteddate,$con);
@@ -58,7 +58,7 @@ function SKILLSET_PAGE($selected_page,$showdetails,$userID,$timezone,$shownextwe
   NOTES($selected_page,$con);
 
   echo "<div id='currenthistory' class='currenthistory'>\n";
-  CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$selecteddate,$con);
+  CURRENTHISTORY($selected_page,$showdetails,$showdetails_cat1,$timezone,$userID,$selecteddate,$con);
   $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
   echo "    <span style='font-size:75%'> Last updated: ".gmdate("n/j h:i A",time()+60*60*$timezone+$dst_value_from_current_time_sec)." - This page will refresh every 5 minutes</span>\n";
   echo "    <hr width='50%' />\n";
@@ -90,7 +90,7 @@ function MYCASECOUNT($selected_page,$userID,$selecteddate,&$con)
   }
 }
 
-function CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$selecteddate,&$con)
+function CURRENTHISTORY($selected_page,$showdetails,$showdetails_cat1,$timezone,$userID,$selecteddate,&$con)
 {
   // Get the dates for the selected week
   $current_week = DETERMINE_WEEK($selecteddate);
@@ -101,7 +101,7 @@ function CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$selectedd
   echo "    Cannot display case counts until active users are added to this skillset.<br />\n";
   else
   {
-    TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$current_week,$con);
+    TABLE_CURRENTHISTORY($selected_page,$showdetails,$showdetails_cat1,$timezone,$userID,$current_week,$con);
   }
 }
 
@@ -496,7 +496,7 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
 }
 
 
-function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$current_week,&$con)
+function TABLE_CURRENTHISTORY($selected_page,$showdetails,$showdetails_cat1,$timezone,$userID,$current_week,&$con)
 {
   $activeusers = mysql_query("SELECT UserName,Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName ASC",$con);
 
@@ -507,7 +507,7 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$cur
   {
     echo "        <th class='currenthistory";
     $current_local_time = time() + 60*60*($timezone) + $dst_value_from_current_time_sec;
-    if (($current_local_time >= $current_week[$i]) and ($current_local_time < $current_week[$i+1]))
+    if (($current_local_time >= $current_week[$i]) and ($current_local_time < ($current_week[$i]+24*3600)))
     echo " currentdate";
     echo "'>".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
   }
@@ -579,6 +579,10 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$cur
           echo "        |\n";
           echo "        <span class='mycasecount_transfer'>".$transfercases."</span>\n";
         }
+        elseif  (( $showdetails_cat1 == 'on' ) and ( $catonecases > 0 ))
+        {
+          echo "        (<span class='mycasecount_catones'>".$catonecases."</span>)\n";
+        }
 
         $cellhasdata = 1;
         if (($usercounts['Regular'] == '') or ($usercounts['CatOnes'] == '') or ($usercounts['Special'] == ''))
@@ -607,42 +611,31 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$timezone,$userID,$cur
     echo "      </tr>\n";
   }
   echo "    </table>\n";
-  /*
-  echo "    <table class='currenthistory_buttons'>\n";
-  echo "      <tr><td class='exportexcel'>\n";
-  echo "        <div class='exportexcel'>\n";
+
+  echo "    <div style='width:100%;position:relative;'>\n";
+  echo "      <div style='width:50%;text-align:left;'>\n";
   echo "        <a href='export.php?export_page={$selected_page}&amp;export_date={$current_week[0]}' target='_blank'><img src='./images/icxls.gif' width='16' height='16' alt='Export' /></a>\n";
-  //*/
-  //*
-  echo "    <table><tr><td>\n";
-  echo "        <a href='export.php?export_page={$selected_page}&amp;export_date={$current_week[0]}' target='_blank'><img src='./images/icxls.gif' width='16' height='16' alt='Export' /></a>\n";
-  echo "    </td><td>\n";
-  //*/
-  /*
-  echo "        </div>\n";
-  echo "      </td>\n";
-  echo "      <td class='showdetails'>\n";
-  //*/
+  echo "      </div>\n";
+  echo "      <div style='width:50%;position:absolute;top:0px;right:0px;text-align:right;'>\n";
   echo "      <form method='post' name='showdetailsform' action=''>\n";
-  /*
-  echo "        <div class='showdetails'>\n";
-  //*/
   echo "        Details:\n";
   echo "        <input type='hidden' name='showdetailssent' value='1' />\n";
   echo "        <input type='checkbox' name='showdetails'";
   if ( $showdetails == 'on' )
   echo " checked='checked'";
-  echo " onclick='showdetailsform.submit();' />\n";
+  echo " onclick='showdetailsform.submit();' /> All\n";
+  echo "        <input type='checkbox' name='showdetails_cat1'";
+  if ( $showdetails_cat1 == 'on' )
+  echo " checked='checked'";
+  echo " onclick='showdetailsform.submit();' /> (Cat1)\n";
   echo "        <input type='submit' id='showdetails_submit' value='update' />\n";
-  /*
-  echo "      </div>\n";
-  //*/
   echo "    </form>\n";
   echo "      <script type='text/javascript'>\n";
   echo "        <!--\n";
   echo "        document.getElementById('showdetails_submit').style.display='none'; // hides button if JS is enabled-->\n";
   echo "      </script>\n";
-  echo "    </td></tr></table>\n";
+  echo "      </div>\n";
+  echo "    </div>\n";
 }
 
 function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$con)
@@ -664,7 +657,7 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
   for ($i=0;$i<5;$i++)
   {
     echo "        <th class='phoneshift";
-    if (($current_local_time >= $current_week[$i]) and ($current_local_time < $current_week[$i+1]))
+    if (($current_local_time >= $current_week[$i]) and ($current_local_time < ($current_week[$i]+24*3600)))
     echo " currentdate";
     echo "'>".gmdate("D n/j",$current_week[$i])."</th>\n";
   }

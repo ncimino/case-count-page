@@ -2,7 +2,7 @@
 include_once("./include/includes.php");
 include_once("./include/crc_funcs.php");
 DB_CONNECT($con);
-SET_COOKIES($selected_page,$showdetails,$timezone,$userID,$con);
+SET_COOKIES($selected_page,$showdetails,$showdetails_cat1,$timezone,$userID,$con);
 
 // Tell SELECTDATE to show next week in the dropdown
 $shownextweek = 1;

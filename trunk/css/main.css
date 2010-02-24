@@ -98,8 +98,7 @@ table.phoneshift {
 	border-collapse:collapse;
 }
 
-table.phoneshift, td.phoneshift
-{
+table.phoneshift, td.phoneshift {
 	border: 1px solid black;
 }
 
@@ -150,7 +149,7 @@ table.currenthistory_buttons {
 	 width: 100%;
 }
 
-.currentdate {
+th.currentdate, td.currentdate {
 	background: #FFFFB2;
 	border: 1px solid;
 }
@@ -214,7 +213,7 @@ th.currenthistory {
 }
 
 tr.currenthistory {
-    border: 1px solid;
+    border: 0px none;
 }
 
 td.currenthistory {

@@ -7,7 +7,8 @@ function INDEX($selected_page,$showdetails,$showdetails_cat1,$userID,$timezone,$
   if ($selected_page == $main_page['siteID'])
   {
     $sitenotes = mysql_fetch_array(mysql_query("SELECT OptionValue FROM Options WHERE OptionName='mainnotes' AND siteID='".$selected_page."';",$con));
-    echo "<pre>".htmlentities($sitenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
+    echo "<pre>".wordwrap($sitenotes['OptionValue'],125,"\n")."</pre>\n";
+    //echo "<pre>".htmlentities($sitenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
   }
   else if ($selected_page == $phone_page['siteID'])
   {
@@ -158,7 +159,8 @@ function PHONENOTES($selected_page,&$con)
   {
     echo "<div id='rules' class='rules'>\n";
     echo "<h3>Phone notes</h3>\n";
-    echo "<pre>".htmlentities($phonenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
+    echo "<pre>".wordwrap($phonenotes['OptionValue'],125,"\n")."</pre>\n";
+    //echo "<pre>".htmlentities($phonenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
     echo "<hr width='50%' />\n";
     echo "</div>\n";
   }
@@ -170,7 +172,8 @@ function NOTES($selected_page,&$con)
   if ($queuenotes['OptionValue'] != '')
   {
     echo "<div id='notes' class='notes'>\n";
-    echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
+    echo "<pre>".wordwrap($queuenotes['OptionValue'],125,"\n")."</pre>\n";
+    //echo "<pre>".htmlentities($queuenotes['OptionValue'],ENT_QUOTES)."</pre>\n";
     echo "</div>\n";
   }
   else
@@ -186,7 +189,8 @@ function RULES($selected_page,&$con)
   {
     echo "<div id='rules' class='rules'>\n";
     echo "<h3>Queue Expectations</h3>\n";
-    echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>\n";
+    echo "<pre>".wordwrap($queuerules['OptionValue'],125,"\n")."</pre>\n";
+    //echo "<pre>".htmlentities($queuerules['OptionValue'],ENT_QUOTES)."</pre>\n";
     echo "<hr width='50%' />\n";
     echo "</div>\n";
   }
@@ -615,6 +619,7 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$showdetails_cat1,$tim
   echo "    <div style='width:100%;position:relative;'>\n";
   echo "      <div style='width:50%;text-align:left;'>\n";
   echo "        <a href='export.php?export_page={$selected_page}&amp;export_date={$current_week[0]}' target='_blank'><img src='./images/icxls.gif' width='16' height='16' alt='Export' /></a>\n";
+  //echo "        <a href='export.php?export_page={$selected_page}&amp;export_date={$current_week[0]}' target='_blank'><img src='./images/excel_file.png' alt='Export' /></a>\n";
   echo "      </div>\n";
   echo "      <div style='width:50%;position:absolute;top:0px;right:0px;text-align:right;'>\n";
   echo "      <form method='post' name='showdetailsform' action=''>\n";
@@ -648,6 +653,7 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
   ORDER BY UserName;";
 
   $activeusers = mysql_query($sql,$con);
+  $dst_value_from_current_time_sec = date("I",$usercounts['Date'])*60*60; // This is a 1*60*60 if DST is set on the time
   $current_local_time = time() + 60*60*($timezone) + $dst_value_from_current_time_sec;
 
   echo "<table class='phoneshift'>\n";

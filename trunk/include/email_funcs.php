@@ -560,8 +560,12 @@ DTSTAMP:'.$shift['create_date'];/*.'
     $cal_file .= '
 TRANSP:TRANSPARENT
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
-SUMMARY:'.$shift['username'].'
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
+SUMMARY:'.$shift['username'];
+/*
+    $cal_file .= '
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE';
+*/
+    $cal_file .= '
 X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1';
   }
@@ -589,8 +593,12 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
     $cal_file .= '
 TRANSP:TRANSPARENT
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
-SUMMARY:'.$shift['username'].' schedule for '.$page_name.'
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
+SUMMARY:'.$shift['username'].' schedule for '.$page_name;
+/*
+    $cal_file .= '
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE';
+*/
+    $cal_file .= '
 X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
 X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1';

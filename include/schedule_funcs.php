@@ -3,7 +3,7 @@
 function SENDING_EMAIL_STATUS()
 {
   if ($_POST['initial_email'] != '')
-  echo "<div id='sending_email_status' style='z-index:100;text-align:center;position:fixed;top:0px;width:100%;background:wheat;'><h3>Sending emails, please wait...</h3></div>\n\n";
+  echo "<div id='sending_email_status' style='text-align:center;top:0px;height:50px;width:100%;background:wheat;'><h3>Sending emails, please wait...</h3></div>\n\n";
 }
 
 function SCHEDULE($timezone,$selected_page,$selecteddate,&$con)

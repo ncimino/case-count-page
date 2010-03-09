@@ -28,7 +28,7 @@ while ( $currentuser = mysql_fetch_array($activeusers) )
   {
     if ($col==1)
     {
-      $csv_file .= strip_tags($currentuser['UserName']).",";
+      $csv_file .= $currentuser['UserName'].",";
     }
     else
     {
@@ -79,7 +79,7 @@ $csv_file .= "Name,Regular,Cat 1,Special,Transfer Out\n";
 mysql_data_seek($activeusers,0);
 while ( $currentuser = mysql_fetch_array($activeusers) )
 {
-  $csv_file .= strip_tags($currentuser['UserName']).",";
+  $csv_file .= $currentuser['UserName'].",";
   $sql = "SELECT SUM(Regular),SUM(CatOnes),SUM(Special),SUM(Transfer),Date
         FROM Count 
         WHERE userID='".$currentuser['userID']."' 

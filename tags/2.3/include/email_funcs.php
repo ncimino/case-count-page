@@ -561,7 +561,6 @@ DTSTAMP:'.$shift['create_date'];/*.'
 TRANSP:TRANSPARENT
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
 SUMMARY:'.$shift['username'];
-if (!empty($shift['type'])) $cal_file .= ' - '.$shift['type'];
 /*
     $cal_file .= '
 X-MICROSOFT-CDO-ALLDAYEVENT:TRUE';
@@ -575,9 +574,7 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
     $cal_file .= '
 TRANSP:OPAQUE
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
-SUMMARY:'.$shift['username'];
-if (!empty($shift['type'])) $cal_file .= ' - '.$shift['type'];
-$cal_file .= '
+SUMMARY:'.$shift['username'].'
 X-MICROSOFT-CDO-BUSYSTATUS:BUSY
 X-MICROSOFT-CDO-IMPORTANCE:1';
   }
@@ -811,7 +808,7 @@ function BUILD_SENT_EMAIL_ARRAY(&$emails,$begin_date,$end_date,$siteID,&$con)
     $emails[$date][$userID][$shift]['create_date'] = $create_date;
     $emails[$date][$userID][$shift]['uid'] = "schedule_" . $siteID . "_" . $date . "_" . $userID . "_" . $shift;
     $emails[$date][$userID][$shift]['useremail'] = $currentemail['UserEmail'];
-    $emails[$date][$userID][$shift]['username'] = strip_tags($currentemail['UserName']);
+    $emails[$date][$userID][$shift]['username'] = $currentemail['UserName'];
     if ($siteID == $phone_page['siteID'])
     {
       CREATE_PHONESHIFTS($phoneshifs,$date,-7);

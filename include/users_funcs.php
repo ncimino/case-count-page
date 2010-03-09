@@ -11,7 +11,7 @@ function UPDATE_DB_USERS(&$con)
 
 	if ( $_POST['edituser'] != "" and $_POST['newusername'] != "") // Only update changes to user info if the user name is not blank
 	{
-		$sql="UPDATE Users SET UserName = '".$_POST['newusername']."', UserEmail = '".$_POST['newuseremail']."' WHERE userID = '".$_POST['edituser']."'";
+		$sql="UPDATE Users SET UserName = '".strip_tags($_POST['newusername'])."', UserEmail = '".$_POST['newuseremail']."' WHERE userID = '".$_POST['edituser']."'";
 		RUN_QUERY($sql,"User was not updated.",$con);
 		$sites_query = mysql_query("SELECT siteID FROM Sites WHERE SiteName<>'main';",$con);
 		while ($sites = mysql_fetch_array($sites_query))
@@ -81,7 +81,7 @@ function UPDATE_DB_USERS(&$con)
 
 	if ( $_POST['createusername'] != "" ) // Only add a user if their name is not blank
 	{
-		$sql="INSERT INTO Users (UserName, UserEmail, Active) VALUES ('".$_POST['createusername']."','".$_POST['createuseremail']."',1)";
+		$sql="INSERT INTO Users (UserName, UserEmail, Active) VALUES ('".strip_tags($_POST['createusername'])."','".$_POST['createuseremail']."',1)";
 		RUN_QUERY($sql,"User was not created.",$con);
 		$new_userID = mysql_insert_id($con);
 		$sites_query = mysql_query("SELECT siteID FROM Sites WHERE SiteName<>'main';",$con);

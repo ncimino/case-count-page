@@ -420,7 +420,7 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
   for ($i=0;$i<=4;$i++)
   {
     echo "          <td class='mycasecount'>\n";
-    echo "          <input type='text' class='mycasecount' name='reg_".$current_week[$i]."' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
+    echo "          <input type='text' class='mycasecount' name='reg_".$current_week[$i]."' onclick='this.focus();this.select();' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
     $getcount= mysql_query("SELECT Regular FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 )
     echo " value='0' ";
@@ -440,7 +440,7 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
   for ($i=0;$i<=4;$i++)
   {
     echo "          <td class='mycasecount'>\n";
-    echo "          <input type='text' class='mycasecount' name='cat1_".$current_week[$i]."' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
+    echo "          <input type='text' class='mycasecount' name='cat1_".$current_week[$i]."' onclick='this.focus();this.select();' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
     $getcount= mysql_query("SELECT CatOnes FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 )
     echo " value='0' ";
@@ -460,7 +460,7 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
   for ($i=0;$i<=4;$i++)
   {
     echo "          <td class='mycasecount'>\n";
-    echo "          <input type='text' class='mycasecount' name='spec_".$current_week[$i]."' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
+    echo "          <input type='text' class='mycasecount' name='spec_".$current_week[$i]."' onclick='this.focus();this.select();' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
     $getcount= mysql_query("SELECT Special FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
     else {
@@ -478,7 +478,7 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
   for ($i=0;$i<=4;$i++)
   {
     echo "          <td class='mycasecount'>\n";
-    echo "          <input type='text' class='mycasecount' name='tran_".$current_week[$i]."' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
+    echo "          <input type='text' class='mycasecount' name='tran_".$current_week[$i]."' onclick='this.focus();this.select();' onchange='mycasecount.submit();' onkeypress='return enterSubmit(this,event);'";
     $getcount= mysql_query("SELECT Transfer FROM Count WHERE Date = '".$current_week[$i]."' AND userID = '".$userID."' AND siteID='".$selected_page."'",$con);
     if ( mysql_num_rows($getcount) == 0 ) echo " value='0' ";
     else {
@@ -617,7 +617,7 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$showdetails_cat1,$tim
   echo "    </table>\n";
 
   echo "    <div style='width:100%;position:relative;'>\n";
-  echo "      <div style='width:50%;text-align:left;'>\n";
+  echo "      <div style='width:50%;text-align:left;margin-right:auto;'>\n";
   echo "        <a href='export.php?export_page={$selected_page}&amp;export_date={$current_week[0]}' target='_blank'><img src='./images/icxls.gif' width='16' height='16' alt='Export' /></a>\n";
   //echo "        <a href='export.php?export_page={$selected_page}&amp;export_date={$current_week[0]}' target='_blank'><img src='./images/excel_file.png' alt='Export' /></a>\n";
   echo "      </div>\n";

@@ -33,7 +33,7 @@ if ( VERIFY_USER($con) )
 
 <div id="selectsite" class="selectsite">
 <?
-SELECTSITE($selected_page,$con);
+SELECTSITE($selected_page,$selecteddate,$con);
 ?>
 </div>
 
@@ -49,7 +49,7 @@ SELECTSITE($selected_page,$con);
 
 <? SENDING_EMAIL_STATUS() ?>
 
-<div id="topmenu" class="topmenu"><? TOPMENU('') ?></div>
+<div id="topmenu" class="topmenu"><? TOPMENU('',$selecteddate,$selected_page) ?></div>
   <? 
   // If the selected page is the main page then print some notice
   $main_page = mysql_fetch_array(mysql_query("SELECT siteID FROM Sites WHERE SiteName='main';",$con));

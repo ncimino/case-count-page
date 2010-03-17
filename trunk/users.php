@@ -26,7 +26,7 @@ if ( VERIFY_USER($con) )
 <div id="header" class="header">
 
 <div id="selectsite" class="selectsite">
-<? SELECTSITE($selected_page,$con) ?>
+<? SELECTSITE($selected_page,'',$con) ?>
 </div>
 
 <div id="title" class="title">

@@ -159,7 +159,12 @@ function EVENT_PHONE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$sel
   }
   else
   {
+    $start_timestamp = strtotime($shift['start']);
+    $dst_value_from_current_time_sec = date("I",$start_timestamp)*60*60; // This is a 1*60*60 if DST is set on the time
+    $start = $start_timestamp - 60*60*8 + $dst_value_from_current_time_sec;
     echo "<table style='border: 1px solid black;width: 1800 px;'>";
+    echo "<tr><td style='border: 1px solid black;'>Shift:</td>";
+    echo "<td style='border: 1px solid black;'>Starting at ".gmdate('Ymd\THis',$start)." (PST) for ".$shift['username']."</td></tr>\n";
     echo "<tr><td style='border: 1px solid black;'>To:</td>";
     echo "<td style='border: 1px solid black;'>".$to."</td></tr>\n";
     echo "<tr><td style='border: 1px solid black;'>Subject:</td>";
@@ -168,7 +173,7 @@ function EVENT_PHONE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$sel
     echo "<td style='border: 1px solid black;'><pre>".htmlentities($header)."</pre></td></tr>\n";
     echo "<tr><td style='border: 1px solid black;'>Body:</td>";
     // This will correctly format the HTML and still uses displays the HTML
-    echo "<td  style='border: 1px solid black;'><pre>".$message."</pre></td></tr></table>\n";
+    echo "<td style='border: 1px solid black;'><pre>".$message."</pre></td></tr></table>\n";
     // This would print the HTML message tags
     //echo "<td  style='border: 1px solid black;'><pre>".htmlentities($message)."</pre></td></tr></table>\n";
   }
@@ -561,11 +566,11 @@ DTSTAMP:'.$shift['create_date'];/*.'
 TRANSP:TRANSPARENT
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
 SUMMARY:'.$shift['username'];
-if (!empty($shift['type'])) $cal_file .= ' - '.$shift['type'];
-/*
-    $cal_file .= '
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE';
-*/
+    if (!empty($shift['type'])) $cal_file .= ' - '.$shift['type'];
+    /*
+     $cal_file .= '
+     X-MICROSOFT-CDO-ALLDAYEVENT:TRUE';
+     */
     $cal_file .= '
 X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1';
@@ -576,13 +581,31 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
 TRANSP:OPAQUE
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
 SUMMARY:'.$shift['username'];
-if (!empty($shift['type'])) $cal_file .= ' - '.$shift['type'];
-$cal_file .= '
+    if (!empty($shift['type'])) $cal_file .= ' - '.$shift['type'];
+    $cal_file .= '
 X-MICROSOFT-CDO-BUSYSTATUS:BUSY
 X-MICROSOFT-CDO-IMPORTANCE:1';
   }
   else if ($type == 'phone_event')
   {
+    // Set the Alarm for 15 before shift for event 1 and 2:45 before second shift if they are consecutive
+    if (isset($shift['alarm']) and $shift['alarm']) {
+      $cal_file .= '
+BEGIN:VALARM
+TRIGGER:-PT15M
+REPEAT:1
+DURATION:PT15M
+ACTION:DISPLAY
+DESCRIPTION:Phone shift starts soon.
+END:VALARM';
+    } else {
+      $cal_file .= '
+BEGIN:VALARM
+TRIGGER:-PT2H45M
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM';
+    }
     $cal_file .= '
 TRANSP:OPAQUE
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
@@ -597,10 +620,10 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
 TRANSP:TRANSPARENT
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'
 SUMMARY:'.$shift['username'].' schedule for '.$page_name;
-/*
-    $cal_file .= '
-X-MICROSOFT-CDO-ALLDAYEVENT:TRUE';
-*/
+    /*
+     $cal_file .= '
+     X-MICROSOFT-CDO-ALLDAYEVENT:TRUE';
+     */
     $cal_file .= '
 X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
 X-MICROSOFT-CDO-BUSYSTATUS:FREE
@@ -616,7 +639,8 @@ SUMMARY:Canceled';
 
   $cal_file .='
 PRIORITY:5
-CLASS:PUBLIC
+CLASS:PUBLIC';
+  $cal_file .= '
 END:VEVENT';
 }
 

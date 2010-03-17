@@ -28,7 +28,7 @@ if ( VERIFY_USER($con) )
 <div id="selectsite" class="selectsite">
 <?
 UPDATE_DB_OPTIONS($selected_page,$con); 
-SELECTSITE($selected_page,$con);
+SELECTSITE($selected_page,'',$con);
 ?>
 </div>
 

@@ -34,7 +34,7 @@ if ( VERIFY_USER($con) )
 
 <div id="selectsite" class="selectsite">
 <?
-SELECTSITE($selected_page,$con);
+SELECTSITE($selected_page,$selecteddate,$con);
 ?>
 </div>
 
@@ -50,7 +50,7 @@ SELECTUSER($timezone,$userID,$con);
 
 </div>
 
-<div id="topmenu" class="topmenu"><? TOPMENU('') ?></div>
+<div id="topmenu" class="topmenu"><? TOPMENU('',$selecteddate) ?></div>
 <? 
 INDEX($selected_page,$showdetails,$showdetails_cat1,$userID,$timezone,$shownextweek,$selecteddate,$con); 
 ?>

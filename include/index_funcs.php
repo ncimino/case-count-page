@@ -600,15 +600,24 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$showdetails_cat1,$tim
         $current_date_at_six_pm = $usercounts['Date'] + 60*60*18;
         $update_date = $usercounts['UpdateDate']+60*60*$timezone+$dst_value_from_current_time_sec;
 
-        if (($usercounts['UpdateDate'] != '') and ($update_date >= $usercounts['Date']) and ($cellhasdata == 1))
+        if ( ($showdetails == 'on') and ($usercounts['UpdateDate'] != '') and ($cellhasdata == 1) )
+        {
+          echo "<br>\n";
+          echo gmdate("n/j g:ia",$usercounts['UpdateDate'] + 60*60*($timezone) + $dst_value_from_current_time_sec)."\n";
+        }
+        elseif (($usercounts['UpdateDate'] != '') and ($update_date >= $usercounts['Date']) and ($cellhasdata == 1))
         {
           echo "        - ";
           if ($update_date >= $current_date_at_six_pm)
           {
             echo "eob\n";
           }
-          else echo gmdate("g:ia",$usercounts['UpdateDate'] + 60*60*($timezone) + $dst_value_from_current_time_sec)."\n";
+          else 
+          {
+            echo gmdate("g:ia",$usercounts['UpdateDate'] + 60*60*($timezone) + $dst_value_from_current_time_sec)."\n";
+          }
         }
+        
         echo "        </td>\n";
       }
     }
@@ -651,10 +660,10 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
     AND Users.userID=UserSites.userID 
     AND siteID='".$selected_page."' 
   ORDER BY UserName;";
-
   $activeusers = mysql_query($sql,$con);
-  $dst_value_from_current_time_sec = date("I",$usercounts['Date'])*60*60; // This is a 1*60*60 if DST is set on the time
-  $current_local_time = time() + 60*60*($timezone) + $dst_value_from_current_time_sec;
+
+  $dst_value_from_current_time_sec = date("I",time())*60*60; // This is a 1*60*60 if DST is set on the time
+  $current_local_time = time() + 60*60*($timezone) + $dst_value_from_current_time_sec - 600;
 
   echo "<table class='phoneshift'>\n";
 

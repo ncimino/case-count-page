@@ -588,7 +588,7 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
   }
   else if ($type == 'phone_event')
   {
-    // Set the Alarm for 15 before shift for event 1 and 2:45 before second shift if they are consecutive
+    // Set the Alarm for 15 before shift for event 1 and off for second shift if they are consecutive
     if (isset($shift['alarm']) and $shift['alarm']) {
       $cal_file .= '
 BEGIN:VALARM
@@ -615,7 +615,13 @@ X-MICROSOFT-CDO-BUSYSTATUS:BUSY
 X-MICROSOFT-CDO-IMPORTANCE:1';
   }
   else if ($type == 'queue_event')
-  {
+  {  // Shut the alarm off for Queues
+    $cal_file .= '
+BEGIN:VALARM
+TRIGGER:-PT8H
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM';
     $cal_file .= '
 TRANSP:TRANSPARENT
 DESCRIPTION:'.$shift['username'].' schedule for '.$page_name.'

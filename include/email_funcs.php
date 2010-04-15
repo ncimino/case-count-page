@@ -784,17 +784,17 @@ function CREATE_EMAIL_SUBJECT(&$subject,$current_week,$shift_type,$type,$page_na
   }
   else if ($type == 'queue_email')
   {
-    $subject = "Queue Schedule - ".$page_name." - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
+    $subject = $page_name." - Queue Schedule - ".gmdate("n/j",$current_week[0])." to ".gmdate("n/j",$current_week[4]);
     if ($_POST['initial_email'] == 2)
     $subject = "Updated: ".$subject;
   }
   else if ($type == 'queue_event')
   {
-    $subject = "Queue Shift - ".$shift_type;
+    $subject = $page_name." - Queue Shift - ".$shift_type;
   }
   else if ($type == 'queue_event_cancelation')
   {
-    $subject = "CANCELED: Queue Shift - ".$shift_type;
+    $subject = "CANCELED: ".$page_name." - Queue Shift - ".$shift_type;
   }
   else if ($type == 'phone_event_cancelation')
   {

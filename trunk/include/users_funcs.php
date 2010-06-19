@@ -2,7 +2,7 @@
 
 function USERS(&$con)
 {
-	//UPDATE_DB_USERS($con);
+	//UPDATE_DB_USERS($con); // Moved to calling functions so DB is updated when user drop-down is generated
 	TABLE_USERS($con);
 }
 

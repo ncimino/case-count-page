@@ -19,7 +19,7 @@ BUILD_VCALENDAR_HEADER($cal_file,$type,$site_name);
 
 $current_time = time(); // Time is PST, but doesn't matter as this is just used to determine the current week
 $last_week = DETERMINE_WEEK($current_time-7*24*60*60);
-$next_week = DETERMINE_WEEK($current_time+7*24*60*60);
+$next_week = DETERMINE_WEEK($current_time+4*7*24*60*60);
 
 if($_GET['calendar_page'] == $phone_page['siteID'])
 BUILD_PHONE_SCHEDULE_ARRAY($schedule,$last_week['Monday'],$next_week['Friday'],$_GET['calendar_page'],$con);

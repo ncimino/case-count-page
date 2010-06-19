@@ -8,7 +8,7 @@ SET_COOKIES($selected_page,$showdetails,$showdetails_cat1,$timezone,$userID,$con
 $shownextweek = 1;
 // If a date isn't selected, then set default to next weeks schedule - change the date to local time so that next week is based on Monday at 00:00 for local time
 $dst_value_from_current_time_sec = date("I")*60*60; // This is a 1*60*60 if DST is set on the time
-($_GET['selecteddate'] == '') ? $selecteddate = mktime()+60*60*24*7+60*60*$timezone+$dst_value_from_current_time_sec : $selecteddate = $_GET['selecteddate'];
+$selecteddate = ($_GET['selecteddate'] == '') ? time()+60*60*24*7+60*60*$timezone+$dst_value_from_current_time_sec : $_GET['selecteddate'];
 
 if ( VERIFY_USER($con) )
 {

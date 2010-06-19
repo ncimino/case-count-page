@@ -663,7 +663,7 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
   $activeusers = mysql_query($sql,$con);
 
   $dst_value_from_current_time_sec = date("I",time())*60*60; // This is a 1*60*60 if DST is set on the time
-  $current_local_time = time() + 60*60*($timezone) + $dst_value_from_current_time_sec - 600;
+  $current_local_time = time() + 60*60*($timezone) + $dst_value_from_current_time_sec;
 
   echo "<table class='phoneshift'>\n";
 

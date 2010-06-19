@@ -430,7 +430,7 @@ function TOPMENU($path,$selecteddate='')
       $this_week = DETERMINE_WEEK(time()+60*60*$timezone+$dst_value_from_current_time_sec); // Set last date in drop-down to todays date
 
       // If 'shownextweek' is set, then add next 2 weeks to the drop-down
-      ($shownextweek == 1) ? $most_recent_date = $this_week['Monday']+60*60*24*14 : $most_recent_date = $this_week['Monday'];
+      ($shownextweek == 1) ? $most_recent_date = $this_week['Monday']+60*60*24*7*4 : $most_recent_date = $this_week['Monday'];
 
       // Create a date for each Monday in the drop-down
       $i = 0;
@@ -468,11 +468,13 @@ function TOPMENU($path,$selecteddate='')
     $phoneshifs[1]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST -
     $phoneshifs[1]['end']   = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST
 
-    $phoneshifs[2]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // Cover 9:30am PST -
+    //$phoneshifs[2]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // Cover 9:30am PST -
+    $phoneshifs[2]['start'] = $date+60*60*$timezone+60*60*(8+8);  // Cover 8:00am PST -
     $phoneshifs[2]['end']   = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST
 
     $phoneshifs[3]['start'] = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST -
-    $phoneshifs[3]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // Cover 2:30pm PST
+    //$phoneshifs[3]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // Cover 2:30pm PST
+    $phoneshifs[3]['end']   = $date+60*60*$timezone+60*60*(8+16); // Cover 4:00pm PST
 
     $phoneshifs[4]['start'] = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST -
     $phoneshifs[4]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST

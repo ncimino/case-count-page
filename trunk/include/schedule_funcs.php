@@ -3,7 +3,7 @@
 function SENDING_EMAIL_STATUS()
 {
 	if ($_POST['initial_email'] != '')
-	echo "<div id='sending_email_status' style='text-align:center;top:0px;height:50px;width:100%;background:wheat;'><h3>Sending emails, please wait...</h3></div>\n\n";
+	echo "<div id='sending_email_status' style='position:fixed;text-align:center;top:0px;height:50px;width:100%;background:wheat;'><h3>Sending emails, please wait...</h3></div>\n\n";
 }
 
 function SCHEDULE($timezone,$selected_page,$selecteddate,&$con)
@@ -29,8 +29,6 @@ function SCHEDULE($timezone,$selected_page,$selecteddate,&$con)
 		{
 			UPDATE_DB_PHONE_SCHEDULE($current_week,$con);
 			TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,$con);
-			echo "      <br />\n";
-			MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,$con);
 			echo "      <br />\n";
 			SEND_PHONE_EMAIL($selected_page,$current_week,$preview,$con);
 		}
@@ -110,60 +108,26 @@ function COPY_QUEUE_WEEK($this_week,$selected_page,$current_week,$inc,$timezone,
 
 function UPDATE_DB_PHONE_SCHEDULE($selected_page,&$con)
 {
-	$data = 0;
-	if ($_POST['phonesched_user']!='')
-	$data++;
-	if ($_POST['phonesched_date']!='')
-	$data++;
-	if ($_POST['phonesched_shift']!='')
-	$data++;
-
 	if ($_POST['phonesched_clear_week']=='1')
 	{
 		$sql="DELETE FROM PhoneSchedule WHERE Date>='".$_POST['phonesched_clear_start']."' AND Date<='".$_POST['phonesched_clear_end']."'";
 		RUN_QUERY($sql,"Week was not deleted.",$con);
 	}
 
-	if ($data == 3)
+	if (isset($_POST['phonesched_user']) and isset($_POST['phonesched_date']) and isset($_POST['phonesched_shift']))
 	{
-		if ($_POST['phonesched_shift'] == 6)
-		$currentshift = mysql_query("SELECT phonescheduleID FROM PhoneSchedule WHERE userID = '".$_POST['phonesched_user']."' AND Date = '".$_POST['phonesched_date']."' AND ( Shift = '0' OR Shift = '1')",$con);
-		else if ($_POST['phonesched_shift'] == 7)
-		$currentshift = mysql_query("SELECT phonescheduleID FROM PhoneSchedule WHERE userID = '".$_POST['phonesched_user']."' AND Date = '".$_POST['phonesched_date']."' AND ( Shift = '4' OR Shift = '5')",$con);
-		else
 		$currentshift = mysql_query("SELECT phonescheduleID FROM PhoneSchedule WHERE userID = '".$_POST['phonesched_user']."' AND Date = '".$_POST['phonesched_date']."' AND Shift = '".$_POST['phonesched_shift']."'",$con);
 
 		// DB doesn't have data, and user entered data - insert
 		if ( mysql_num_rows($currentshift) == 0 )
 		{
-			if ($_POST['phonesched_shift'] == 6)
-			{
-				$sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",0)";
-				RUN_QUERY($sql,"Entry was not added.",$con);
-				$sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",1)";
-				RUN_QUERY($sql,"Entry was not added.",$con);
-			}
-			else if ($_POST['phonesched_shift'] == 7)
-			{
-				$sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",4)";
-				RUN_QUERY($sql,"Entry was not added.",$con);
-				$sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",5)";
-				RUN_QUERY($sql,"Entry was not added.",$con);
-			}
-			else
-			{
-				$sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",".$_POST['phonesched_shift'].")";
-				RUN_QUERY($sql,"Entry was not added.",$con);
-			}
+			$sql="INSERT INTO PhoneSchedule (userID, Date, Shift) VALUES (".$_POST['phonesched_user'].",".$_POST['phonesched_date'].",".$_POST['phonesched_shift'].")";
+			RUN_QUERY($sql,"Entry was not added.",$con);
 		}
 		else
 		{
 			echo "This user already has this shift on this day.<br />\n";
 		}
-	}
-	else if ($data > 0)
-	{
-		echo "You must enter data for all of the fields.<br />\n";
 	}
 
 	if ($_POST['phonesched_del_user']!='')
@@ -172,11 +136,6 @@ function UPDATE_DB_PHONE_SCHEDULE($selected_page,&$con)
 		RUN_QUERY($sql,"Entry was not deleted.",$con);
 	}
 
-	// Build the Phone Schedule ICS file
-	//  if (($_POST['phonesched_clear_week']=='1') or ($data == 3) or ($_POST['phonesched_del_user']!=''))
-	//  {
-	//    BUILD_PHONES_ICS($con);
-	//  }
 }
 
 function UPDATE_DB_SCHEDULE($selected_page,$current_week,&$con)
@@ -215,52 +174,6 @@ function UPDATE_DB_SCHEDULE($selected_page,$current_week,&$con)
 	}
 }
 
-function MANUAL_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
-{
-	$activeusers = mysql_query("SELECT UserName,Users.userID FROM Users,UserSites WHERE Active=1 AND Users.userID=UserSites.userID AND siteID='".$selected_page."' ORDER BY UserName;",$con);
-
-	echo "	Manually add a phone shift:<br />\n";
-	echo "    <form method='post' name='manual_phone_shift'>\n";
-
-	echo "      <select name='phonesched_date'>\n";
-	for ($i=0;$i<5;$i++)
-	echo "        <option value='".$current_week[$i]."'>".gmdate("D n/j",$current_week[$i])."</option>\n";
-	echo "        <option value='NULL' disabled='disabled'></option>\n";
-	echo "        <option selected='selected' value='NULL' disabled='disabled'>Date</option>\n";
-	echo "      </select>\n";
-
-	// Creates phone shift times
-	CREATE_PHONESHIFTS($phoneshifs,$current_week[0],$timezone);
-
-	echo "      <select name='phonesched_shift'>\n";
-	echo "        <option value='6'>Full ".gmdate("g:ia",$phoneshifs[0]['start'])." - ".gmdate("g:ia",$phoneshifs[1]['end'])."</option>\n";
-	echo "        <option value='7'>Full ".gmdate("g:ia",$phoneshifs[4]['start'])." - ".gmdate("g:ia",$phoneshifs[5]['end'])."</option>\n";
-	echo "        <option value='NULL' disabled='disabled'></option>\n";
-	for ($shift_index=0;$shift_index<=5;$shift_index++)
-	{
-		echo "        <option value='".$shift_index."'>";
-		if ($shift_index==2 or $shift_index==3)
-		echo "Cover ";
-		echo gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
-		echo "</option>\n";
-		if ($shift_index==2)
-		echo "        <option value='NULL' disabled='disabled'></option>\n";
-	}
-	echo "        <option value='NULL' disabled='disabled'></option>\n";
-	echo "        <option selected='selected' value='NULL' disabled='disabled'>Phone Shift</option>\n";
-	echo "      </select>\n";
-
-	echo "      <select name='phonesched_user'>\n";
-	echo "        <option selected='selected' value='NULL' disabled='disabled'>User</option>\n";
-	echo "        <option value='NULL' disabled='disabled'></option>\n";
-	while ( $currentuser = mysql_fetch_array($activeusers) )
-	echo "        <option value='".$currentuser['userID']."'>".$currentuser['UserName']."</option>\n";
-	echo "      </select>\n";
-
-	echo "      <input type='submit' id='form_".$postvariable."_submit' value='select' />\n";
-	echo "    </form>\n";
-}
-
 function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
 {
 	$sql = "SELECT UserName,Users.userID
@@ -283,7 +196,7 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
 	// Creates phone shift times
 	CREATE_PHONESHIFTS($phoneshifs,$current_week[0],$timezone);
 
-	for ($shift_index=0;$shift_index<=5;$shift_index++)
+	for ($shift_index=0;$shift_index<count($phoneshifs);$shift_index++)
 	{
 		echo "<tr class='phoneshift'>\n";
 		for ($col=1; $col<=6; $col++)
@@ -292,7 +205,7 @@ function TABLE_PHONE_SCHEDULE($timezone,$selected_page,$current_week,&$con)
 			{
 				echo "  <td class='phoneshift'><div class='phoneshift'>";
 				echo gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
-				if ($shift_index==2 or $shift_index==3) echo "<br />Cover";
+				if (!empty($phoneshifs[$shift_index]['type'])) echo "<br />".$phoneshifs[$shift_index]['type'];
 				echo "</div></td>\n";
 			}
 			else

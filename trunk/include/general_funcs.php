@@ -142,7 +142,7 @@ function TOPMENU($path,$selecteddate='')
     // Creates phone shift times
     CREATE_PHONESHIFTS($phoneshifs,$current_week[0],-8);
 
-    for ($shift_index=0;$shift_index<=5;$shift_index++)
+    for ($shift_index=0;$shift_index<count($phoneshifs);$shift_index++)
     {
       $currentqueue .= "<tr>\n";
       for ($col=1; $col<=6; $col++)
@@ -152,8 +152,7 @@ function TOPMENU($path,$selecteddate='')
           $currentqueue .= "  <td style=\"border:1px solid;text-align:center;width:10em;\">";
           $currentqueue .= "<div style=\"height: 3em;vertical-align: top;\">\n";
           $currentqueue .= gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
-          if ($shift_index==2 or $shift_index==3)
-          $currentqueue .= "<br />Cover";
+          if (!empty($phoneshifs[$shift_index]['type'])) $currentqueue .= "<br />".$phoneshifs[$shift_index]['type']."\n";
           $currentqueue .= "</div>\n";
           $currentqueue .= "</td>\n";
         }
@@ -276,16 +275,16 @@ function TOPMENU($path,$selecteddate='')
       foreach ($schedule[$date][$userID] as $shift_index => $array)
       {
         if (($shift_index == 0 and $shift == 1)
-        //or ($shift_index == 1 and $shift == 4)
         or ($shift_index == 2 and $shift == 3)
-        or ($shift_index == 4 and $shift == 5))
+        or ($shift_index == 4 and $shift == 5)
+        or ($shift_index == 6 and $shift == 7))
         {
           $schedule[$date][$userID][$shift]['alarm'] = 0;
         }
         if (($shift_index == 1 and $shift == 0)
-        //or ($shift_index == 4 and $shift == 1)
         or ($shift_index == 3 and $shift == 2)
-        or ($shift_index == 5 and $shift == 4))
+        or ($shift_index == 5 and $shift == 4)
+        or ($shift_index == 6 and $shift == 7))
         {
           $schedule[$date][$userID][$shift_index]['alarm'] = 0;
         }
@@ -297,16 +296,8 @@ function TOPMENU($path,$selecteddate='')
       $schedule[$date][$userID][$shift]['username'] = $username;
       $schedule[$date][$userID][$shift]['start'] = $start;
       $schedule[$date][$userID][$shift]['end'] = $end;
-      if (($currentschedule['Shift']==2) or ($currentschedule['Shift']==3))
-      {
-        $schedule[$date][$userID][$shift]['type'] = 'Cover';
-        $schedule[$date][$userID][$shift]['category'] = 'Red Category';
-      }
-      else
-      {
-        $schedule[$date][$userID][$shift]['type'] = '';
-        $schedule[$date][$userID][$shift]['category'] = 'Red Category';
-      }
+      $schedule[$date][$userID][$shift]['type'] = $phoneshifs[$shift_index]['type'];
+      $schedule[$date][$userID][$shift]['category'] = 'Red Category';
     }
   }
 
@@ -427,7 +418,8 @@ function TOPMENU($path,$selecteddate='')
     }
     else
     {
-      $this_week = DETERMINE_WEEK(time()+60*60*$timezone+$dst_value_from_current_time_sec); // Set last date in drop-down to todays date
+      $current_time = time()+60*60*$timezone+$dst_value_from_current_time_sec;
+      $this_week = DETERMINE_WEEK($current_time); // Set last date in drop-down to todays date
 
       // If 'shownextweek' is set, then add next 2 weeks to the drop-down
       ($shownextweek == 1) ? $most_recent_date = $this_week['Monday']+60*60*24*7*4 : $most_recent_date = $this_week['Monday'];
@@ -445,10 +437,15 @@ function TOPMENU($path,$selecteddate='')
       echo "      <select name='selecteddate' onchange='dateselection.submit();'>\n";
       foreach ( $mondays as $key => $value )
       {
+      	if (($value < $current_time) and ($value+60*60*24*7 > $current_time))
+      	$current_week_indicator = 'This Week ';
+      	else
+      	$current_week_indicator = gmdate("D m/d",$value) . " to " . gmdate("D m/d",$value+60*60*24*4);
+      	      	
         echo "        <option value='" . $value . "'";
         if ($display_week['Monday'] == $value)
         echo " selected='selected' ";
-        echo ">" . gmdate("D m/d",$value) . " - " . gmdate("D m/d",$value+60*60*24*4) . "</option>\n";
+        echo ">" . $current_week_indicator . "</option>\n";
       }
       echo "      </select>\n";
       echo "      <input type='submit' id='dateselection_submit' value='go' />\n";
@@ -462,25 +459,37 @@ function TOPMENU($path,$selecteddate='')
 
   function CREATE_PHONESHIFTS(&$phoneshifs,$date,$timezone)
   {
-    $phoneshifs[0]['start'] = $date+60*60*$timezone+60*60*(8+7);    // 7:00am PST -
-    $phoneshifs[0]['end']   = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST
+    $phoneshifs[$i = 0]['start'] = $date+60*60*$timezone+60*60*(8+7);    // 7:00am PST -
+    $phoneshifs[$i]['end']   = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST
+    $phoneshifs[$i]['type']  = "";
+    
+    $phoneshifs[++$i]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST -
+    $phoneshifs[$i]['end']   = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST
+    $phoneshifs[$i]['type']  = "";
 
-    $phoneshifs[1]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // 9:30am PST -
-    $phoneshifs[1]['end']   = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST
+    $phoneshifs[++$i]['start'] = $date+60*60*$timezone+60*60*(8+8);  // Cover 8:00am PST -
+    $phoneshifs[$i]['end']   = $date+60*60*$timezone+60*60*(8+10);   // Cover 10:00am PST
+    $phoneshifs[$i]['type']  = "Cover";
+    
+    $phoneshifs[++$i]['start'] = $date+60*60*$timezone+60*60*(8+10); // Cover 10:00am PST -
+    $phoneshifs[$i]['end']   = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST
+    $phoneshifs[$i]['type']  = "Cover";
+    
+    $phoneshifs[++$i]['start'] = $date+60*60*$timezone+60*60*(8+12); // Cover 12:00pm PST -
+    $phoneshifs[$i]['end']   = $date+60*60*$timezone+60*60*(8+14);   // Cover 2:00pm PST
+    $phoneshifs[$i]['type']  = "Cover";
 
-    //$phoneshifs[2]['start'] = $date+60*60*$timezone+60*60*(8+9.5);  // Cover 9:30am PST -
-    $phoneshifs[2]['start'] = $date+60*60*$timezone+60*60*(8+8);  // Cover 8:00am PST -
-    $phoneshifs[2]['end']   = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST
+    $phoneshifs[++$i]['start'] = $date+60*60*$timezone+60*60*(8+14);   // Cover 2:00pm PST -
+    $phoneshifs[$i]['end']   = $date+60*60*$timezone+60*60*(8+16); // Cover 4:00pm PST
+    $phoneshifs[$i]['type']  = "Cover";
 
-    $phoneshifs[3]['start'] = $date+60*60*$timezone+60*60*(8+12);   // Cover 12:00pm PST -
-    //$phoneshifs[3]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // Cover 2:30pm PST
-    $phoneshifs[3]['end']   = $date+60*60*$timezone+60*60*(8+16); // Cover 4:00pm PST
+    $phoneshifs[++$i]['start'] = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST -
+    $phoneshifs[$i]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST
+    $phoneshifs[$i]['type']  = "";
 
-    $phoneshifs[4]['start'] = $date+60*60*$timezone+60*60*(8+12);   // 12:00pm PST -
-    $phoneshifs[4]['end']   = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST
-
-    $phoneshifs[5]['start'] = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST -
-    $phoneshifs[5]['end']   = $date+60*60*$timezone+60*60*(8+17);   // 5:00pm PST
+    $phoneshifs[++$i]['start'] = $date+60*60*$timezone+60*60*(8+14.5); // 2:30pm PST -
+    $phoneshifs[$i]['end']   = $date+60*60*$timezone+60*60*(8+17);   // 5:00pm PST
+    $phoneshifs[$i]['type']  = "";
   }
 
   ?>

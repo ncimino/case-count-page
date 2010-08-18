@@ -179,6 +179,12 @@ th.onphones {
     background: #F5DEB3;
 }
 
+.differentuseronshift {
+	/*text-decoration: underline;*/
+	color: #900;
+	font-weight: bold;
+}
+
 div.currentqueue {
     text-align: center;
 }

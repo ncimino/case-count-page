@@ -409,8 +409,8 @@ function TABLE_MYCASECOUNT($selected_page,$userID,$current_week,&$con)
               AND userID = '".$userID."'";
     echo "          <th class='mycasecount";
     if (mysql_num_rows(mysql_query($sql,$con))>0)
-    echo " onphones";
-    echo "'>".gmdate("D n/j",$current_week[$i])."</th>\n";
+    echo " onphones' title='On Phone Shift";
+    echo "' >".gmdate("D n/j",$current_week[$i])."</th>\n";
   }
 
   echo "        </tr>\n";
@@ -512,8 +512,8 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$showdetails_cat1,$tim
     echo "        <th class='currenthistory";
     $current_local_time = time() + 60*60*($timezone) + $dst_value_from_current_time_sec;
     if (($current_local_time >= $current_week[$i]) and ($current_local_time < ($current_week[$i]+24*3600)))
-    echo " currentdate";
-    echo "'>".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
+    echo " currentdate' title='Current Date";
+    echo "' >".gmdate("D",$current_week[$i])."&nbsp;".gmdate("n/j",$current_week[$i])."</th>\n";
   }
   echo "      </tr>\n";
   while ( $currentuser = mysql_fetch_array($activeusers) )
@@ -548,7 +548,7 @@ function TABLE_CURRENTHISTORY($selected_page,$showdetails,$showdetails_cat1,$tim
         else if (($currentuser['userID'] == $userID) and ($userID != ''))
         echo " selectedusercell";
         else if ( $currentusershift['Shift'] > 0 )
-        echo " onshiftcell";
+        echo " onshiftcell' title='On Queue";
         echo "'>\n";
 
         if ($usercounts['Regular'] == '')
@@ -673,7 +673,7 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
   {
     echo "        <th class='phoneshift";
     if (($current_local_time >= $current_week[$i]) and ($current_local_time < ($current_week[$i]+24*3600)))
-    echo " currentdate";
+    echo " currentdate' title='Current Date";
     echo "'>".gmdate("D n/j",$current_week[$i])."</th>\n";
   }
   echo "</tr>\n";
@@ -681,22 +681,22 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
   // Creates phone shift times
   CREATE_PHONESHIFTS($phoneshifs,$current_week[0],$timezone);
 
-  for ($shift_index=0;$shift_index<=5;$shift_index++)
+  for ($shift_index=0;$shift_index < count($phoneshifs);$shift_index++)
   {
     echo "<tr class='phoneshift'>\n";
     for ($col=1; $col<=6; $col++)
     {
+      $normalized_now = strtotime(gmdate("g:ia",$current_local_time));
+      $normalized_start = strtotime(gmdate("g:ia",$phoneshifs[$shift_index]['start']));
+      $normalized_end = strtotime(gmdate("g:ia",$phoneshifs[$shift_index]['end']));
+      $this_row_is_current_time = (($normalized_now >= $normalized_start) and ($normalized_now < $normalized_end)); 
       if ($col==1)
       {
         echo "  <td class='phoneshift";
-        $normalized_now = strtotime(gmdate("g:ia",$current_local_time));
-        $normalized_start = strtotime(gmdate("g:ia",$phoneshifs[$shift_index]['start']));
-        $normalized_end = strtotime(gmdate("g:ia",$phoneshifs[$shift_index]['end']));
-        if (($normalized_now >= $normalized_start) and ($normalized_now < $normalized_end))
-        echo " currentdate";
+        if ($this_row_is_current_time) echo " currentdate' title='Current Time";
         echo "'><div class='phoneshift'>";
         echo gmdate("g:ia",$phoneshifs[$shift_index]['start'])." - ".gmdate("g:ia",$phoneshifs[$shift_index]['end']);
-        if ($shift_index==2 or $shift_index==3) echo "<br />Cover";
+        if (!empty($phoneshifs[$shift_index]['type'])) echo "<br />".$phoneshifs[$shift_index]['type'];
         echo "</div></td>\n";
       }
       else
@@ -723,14 +723,21 @@ function TABLE_CURRENTPHONES($userID,$timezone,$selected_page,$current_week,&$co
           }
           else
           {
-            $user_log .= "        ".$users_on_shift['UserName']."<br />\n";
+          	if (($this_row_is_current_time) and (($current_local_time >= $current_week[$col-2]) and ($current_local_time < ($current_week[$col-2]+24*3600))))
+          	{
+          		$user_log .= "        <span class='differentuseronshift'>".$users_on_shift['UserName']."</span><br />\n";
+          	} 
+          	else 
+          	{
+          		$user_log .= "        ".$users_on_shift['UserName']."<br />\n";
+          	}
           }
         }
 
         echo "  <td class='phoneshift\n";
         if ($onqueue == 1)
         {
-          echo " selectedusercell_queue";
+          echo " selectedusercell_queue ' title='On Phone Shift";
         }
         echo "'>";
         echo $user_log;
@@ -774,7 +781,7 @@ function TABLE_CURRENTQUEUE($selected_page,$userID,$current_week,&$con)
 
       echo "       <td class='currentqueue";
       if (($namesAndShifts[$col-1][$row-1]['userID'] == $userID ) and ($userID != ''))
-      echo " selectedusercell_queue";
+      echo " selectedusercell_queue' title='On Queue";
       echo "'>";
 
       if ($namesAndShifts[$col-1][$row-1]['userID'] == $userID )

@@ -557,8 +557,7 @@ DTEND:'.$shift['end'].'
 LOCATION:
 SEQUENCE:0
 UID:'.$shift['uid'].'
-DTSTAMP:'.$shift['create_date'];/*.'
-	X-ALT-DESC;FMTTYPE=text/html:'.$html_message;*/
+DTSTAMP:'.$shift['create_date'];
 
 	if ($type == 'queue_ical')
 	{
@@ -842,7 +841,7 @@ function BUILD_SENT_EMAIL_ARRAY(&$emails,$begin_date,$end_date,$siteID,&$con)
 		}
 		else
 		{
-			if (($shift==2) or ($shift==3))
+			if (($shift==2) or ($shift==3) or ($shift==4) or ($shift==5))
 			$emails[$date][$userID][$shift]['type'] = 'Cover';
 			else
 			$emails[$date][$userID][$shift]['type'] = 'Regular';

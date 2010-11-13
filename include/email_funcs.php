@@ -45,12 +45,13 @@ function SEND_PHONE_EMAIL($selected_page,$current_week,$preview,&$con)
 						// Check if event already exists, if not, then send the event email
 						if ($emails[$date][$userID][$shift_index]['cancel'] == '')
 						{
-							EVENT_PHONE_EMAIL($replyto['OptionValue'],$site_name,$userID,$shift,$current_week,$selected_page,$preview,$page_name,$con);
-							//$email_sent[$userID] = 1; // Prevent regular email from going to those receiving an update
-							$sql="INSERT INTO SentEmails (Date, Shift, userID, siteID)
-                    VALUES ('{$date}','{$shift_index}','{$userID}','{$selected_page}');";
-							if ($preview == 0) // Don't update the DB on previews
-							RUN_QUERY($sql,"SentEmails was not updated with the email for UID:{$shift['uid']}",$con);
+							if (EVENT_PHONE_EMAIL($replyto['OptionValue'],$site_name,$userID,$shift,$current_week,$selected_page,$preview,$page_name,$con)) {
+								//$email_sent[$userID] = 1; // Prevent regular email from going to those receiving an update
+								$sql="INSERT INTO SentEmails (Date, Shift, userID, siteID)
+		                    		  VALUES ('{$date}','{$shift_index}','{$userID}','{$selected_page}');";
+								if ($preview == 0) // Don't update the DB on previews
+								RUN_QUERY($sql,"SentEmails was not updated with the email for UID:{$shift['uid']}",$con);
+							}
 						}
 						// If email was previously sent, and still exists, then don't send email and don't send cancelation
 						else if ($emails[$date][$userID][$shift_index]['cancel'] == 1)
@@ -151,10 +152,12 @@ function EVENT_PHONE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$sel
 		if ($sent_mail)
 		{
 			echo "Email event for ".$shift['start']." to ".$shift['end']." (GMT) <span class='success'>sent</span> to: ".$shift['username']." &lt;".$to."&gt; <br />\n";
+			return true;
 		}
 		else
 		{
 			echo "Email event for ".$shift['start']." to ".$shift['end']." (GMT) <span class='error'>not sent</span> to: ".$shift['username']." &lt;".$to."&gt; <br />\n";
+			return false;
 		}
 	}
 	else
@@ -176,6 +179,7 @@ function EVENT_PHONE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$sel
 		echo "<td style='border: 1px solid black;'><pre>".$message."</pre></td></tr></table>\n";
 		// This would print the HTML message tags
 		//echo "<td  style='border: 1px solid black;'><pre>".htmlentities($message)."</pre></td></tr></table>\n";
+		return true;
 	}
 }
 
@@ -280,12 +284,13 @@ function SEND_QUEUE_EMAIL($selected_page,$current_week,$preview,&$con)
 						// Check if event already exists, if not, then send the event email
 						if ($emails[$date][$userID][$shift_index]['cancel'] == '')
 						{
-							EVENT_QUEUE_EMAIL($replyto['OptionValue'],$site_name,$userID,$shift,$current_week,$selected_page,$preview,$page_name,$con);
-							//$email_sent[$userID] = 1; // Prevent regular email from going to those receiving an update
-							$sql="INSERT INTO SentEmails (Date, Shift, userID, siteID)
-                    VALUES ('{$date}','{$shift_index}','{$userID}','{$selected_page}');";
-							if ($preview == 0) // Don't update the DB on previews
-							RUN_QUERY($sql,"SentEmails was not updated with the email for UID:{$shift['uid']}",$con);
+							if (EVENT_QUEUE_EMAIL($replyto['OptionValue'],$site_name,$userID,$shift,$current_week,$selected_page,$preview,$page_name,$con)) {
+								//$email_sent[$userID] = 1; // Prevent regular email from going to those receiving an update
+								$sql="INSERT INTO SentEmails (Date, Shift, userID, siteID)
+		                    		  VALUES ('{$date}','{$shift_index}','{$userID}','{$selected_page}');";
+								if ($preview == 0) // Don't update the DB on previews
+								RUN_QUERY($sql,"SentEmails was not updated with the email for UID:{$shift['uid']}",$con);
+							}
 						}
 						// If email was previously sent, and still exists, then don't send email and don't send cancelation
 						else if ($emails[$date][$userID][$shift_index]['cancel'] == 1)
@@ -444,16 +449,19 @@ function EVENT_QUEUE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$sel
 		if ($sent_mail)
 		{
 			echo "Email event for ".$shift['type']." shift on ".$shift['start']." was <span class='success'>sent</span> to: ";
+			$return = true;
 		}
 		else
 		{
 			echo "Email event for ".$shift['type']." shift on ".$shift['start']." was <span class='error'>not sent</span> to: ";
+			$return = false;
 		}
 
 		if ($shift['username'] != '')
 		echo $shift['username'] ." &lt;".$to."&gt;<br />\n";
 		else
 		echo " CC list &lt;".$to."&gt;<br />\n";
+		return $return;
 	}
 	else
 	{
@@ -467,6 +475,7 @@ function EVENT_QUEUE_EMAIL($replyto,$site_name,$userID,$shift,$current_week,$sel
 		echo "<tr><td style='border: 1px solid black;'>Body:</td>";
 		echo "<td  style='border: 1px solid black;'><pre>".$message."</pre></td></tr></table>\n";
 		//echo "<td  style='border: 1px solid black;'><pre>".htmlentities($message)."</pre></td></tr></table>\n";
+		return true;
 	}
 }
 
@@ -587,20 +596,38 @@ X-MICROSOFT-CDO-IMPORTANCE:1';
 	}
 	else if ($type == 'phone_event')
 	{
+		$shiftStartTime = substr($shift['start'],9,4);
 		// Set the Alarm for 15 before shift for event 1 and off for second shift if they are consecutive
 		if (isset($shift['alarm']) and $shift['alarm']) {
-			$cal_file .= '
+			$triggerTime = "-PT15M";
+//if first Monday cover or regular shift, set alarm to come on at Friday afternoon 3pst 4mst
+			if (gmdate("l",mktime(0,0,0,substr($shift['start'],4,2),substr($shift['start'],6,2),substr($shift['start'],0,4))) == 'Monday'){
+				//if regular shift, set trigger 64 hours ahead
+				if ($shiftStartTime == MORNING_TYPE1_SHIFT1_TIME)
+					$triggerTime = '-PT64H';
+				//if cover shift, set trigger 65 hours ahead
+				elseif ($shiftStartTime == MORNING_TYPE2_SHIFT1_TIME)
+					$triggerTime = '-PT65H';
+			}		
+			$cal_file .= "
 BEGIN:VALARM
-TRIGGER:-PT15M
+TRIGGER:".$triggerTime
+."
 REPEAT:1
 DURATION:PT15M
 ACTION:DISPLAY
 DESCRIPTION:Phone shift starts soon.
-END:VALARM';
+END:VALARM";
 		} else {
+			//if regular shift, trigger time different from cover
+			if ($shiftStartTime == MORNING_TYPE1_SHIFT2_TIME || $shiftStartTime == AFTERNOON_TYPE1_SHIFT2_TIME)
+				$triggerTime = TYPE1_SHIFT2_TRIGGER_TIME;
+			else
+				$triggerTime = TYPE2_SHIFT2_TRIGGER_TIME;
 			$cal_file .= '
 BEGIN:VALARM
-TRIGGER:-PT2H45M
+TRIGGER:'.$triggerTime
+.'
 ACTION:DISPLAY
 DESCRIPTION:Reminder
 END:VALARM';
@@ -632,7 +659,8 @@ SUMMARY:'.$shift['username'].' schedule for '.$page_name;
 		$cal_file .= '
 X-MICROSOFT-CDO-INTENDEDSTATUS:FREE
 X-MICROSOFT-CDO-BUSYSTATUS:FREE
-X-MICROSOFT-CDO-IMPORTANCE:1';
+X-MICROSOFT-CDO-IMPORTANCE:1
+X-MICROSOFT-CDO-ALLDAYEVENT:1';
 	}
 	else // phone_event_cancelation and queue_event_cancelation
 	{
